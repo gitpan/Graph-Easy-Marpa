@@ -1,0 +1,5 @@
+"key","value"
+edge_id,       ->
+left_bracket,  [
+node_name_id,  node.1
+right_bracket, ]

@@ -1,0 +1,57 @@
+{
+   "abstract" : "Proof-of-concept Marpa-based parser for Graph::Easy",
+   "author" : [
+      "Ron Savage <ron@savage.net.au>"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.110580",
+   "license" : [
+      "artistic_1"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Graph-Easy-Marpa",
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Test::More" : "0.94",
+            "Test::Pod" : "1.44"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0.38"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Marpa" : "0.202",
+            "Moose" : "0.98",
+            "namespace::autoclean" : "0.09"
+         }
+      }
+   },
+   "provides" : {
+      "Graph::Easy::Marpa" : {
+         "file" : "lib/Graph/Easy/Marpa.pm",
+         "version" : "0.50"
+      },
+      "Graph::Easy::Marpa::Parser" : {
+         "file" : "lib/Graph/Easy/Marpa/Parser.pm",
+         "version" : "0.50"
+      },
+      "Graph::Easy::Marpa::Test" : {
+         "file" : "lib/Graph/Easy/Marpa/Test.pm",
+         "version" : "0.50"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "license" : [
+         "http://opensource.org/licenses/artistic-license.php"
+      ]
+   },
+   "version" : "0.50"
+}

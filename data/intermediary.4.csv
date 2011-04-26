@@ -1,0 +1,8 @@
+"key","value"
+edge_id,       ->
+left_brace,    {
+attr_name_id,  border
+colon,         :
+attr_value_id, bold
+semi_colon,    ;
+right_brace,   }

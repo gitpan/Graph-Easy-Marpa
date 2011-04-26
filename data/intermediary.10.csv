@@ -1,0 +1,11 @@
+"key","value"
+edge_id,       ->
+left_bracket,  [
+node_name_id,  node.1
+right_bracket, ]
+left_brace,    {
+attr_name_id,  background
+colon,         :
+attr_value_id, green
+semi_colon,    ;
+right_brace,   }

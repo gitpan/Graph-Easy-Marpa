@@ -1,0 +1,33 @@
+---
+abstract: 'Proof-of-concept Marpa-based parser for Graph::Easy'
+author:
+  - 'Ron Savage <ron@savage.net.au>'
+build_requires:
+  Test::More: 0.94
+  Test::Pod: 1.44
+configure_requires:
+  Module::Build: 0.38
+dynamic_config: 1
+generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.110580'
+license: artistic
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Graph-Easy-Marpa
+provides:
+  Graph::Easy::Marpa:
+    file: lib/Graph/Easy/Marpa.pm
+    version: 0.50
+  Graph::Easy::Marpa::Parser:
+    file: lib/Graph/Easy/Marpa/Parser.pm
+    version: 0.50
+  Graph::Easy::Marpa::Test:
+    file: lib/Graph/Easy/Marpa/Test.pm
+    version: 0.50
+requires:
+  Marpa: 0.202
+  Moose: 0.98
+  namespace::autoclean: 0.09
+resources:
+  license: http://opensource.org/licenses/artistic-license.php
+version: 0.50
