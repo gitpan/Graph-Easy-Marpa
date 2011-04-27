@@ -31,7 +31,7 @@ has verbose =>
 
 use namespace::autoclean;
 
-our $VERSION = '0.50';
+our $VERSION = '0.51';
 
 # --------------------------------------------------
 

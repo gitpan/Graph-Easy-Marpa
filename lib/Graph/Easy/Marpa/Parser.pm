@@ -53,7 +53,7 @@ use namespace::autoclean;
 
 our $myself;
 
-our $VERSION = '0.50';
+our $VERSION = '0.51';
 
 # --------------------------------------------------
 

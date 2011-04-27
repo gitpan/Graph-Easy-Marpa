@@ -1,4 +1,7 @@
 Revision history for Perl extension Graph::Easy::Marpa.
 
-0.50  Thu Apr 26 11:09:44 2011
+0.51  Wed Apr 27 10:46:00 2011
+	  - Update pre-reqs.
+
+0.50  Tue Apr 26 11:09:44 2011
 	  - Original version

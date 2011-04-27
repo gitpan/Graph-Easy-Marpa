@@ -24,9 +24,14 @@ WriteMakefile
  PL_FILES  => {},
  PREREQ_PM =>
  {
+	 FindBin              => 1.50,
+	 IO::File             => 1.14,
 	 Marpa                => 0.202000,
- 	 Moose                => 0.98,
+ 	 Moose                => 1.21,
  	 namespace::autoclean => 0.09,
+ 	 Test::More           => 0.94,
+ 	 Test::Pod            => 1.44,
+	 Text::CSV_XS         => 0.80,
  },
  VERSION_FROM => 'lib/Graph/Easy/Marpa.pm',
 );
