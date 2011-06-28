@@ -1,0 +1,2 @@
+# Juxtapositioned edges (without comma). OK.
+[Murrumbeena] {color: blue} <--> {color: green} <==> {color: red} [Carnegie] {color: crimson} === {color: brown} [Chadstone] {color: blueviolet}

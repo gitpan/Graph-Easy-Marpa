@@ -1,0 +1,28 @@
+<html>
+<head>
+		<title>Index of sample SVG files created by Graph::Easy::Marpa.</title>
+</head>
+<body>
+		<h1>Index of sample SVG files created by Graph::Easy::Marpa V <: $version :>.</h1>
+
+<p>All scripts, input files and output files required to generate these examples are shipped in the Graph::Easy::Marpa distro.</p>
+
+<p>Some sample data is deliberately faulty, and so does not show up here. Some sample data contains fake attributes, just
+to test the code. It will make 'dot' die, but is included here.</p>
+
+<p>The renderer is not finished, and e.g does not properly display a graph ending with an edge not followed by a node.</p>
+
+<p>The output for input file # 6 (data/graph.15.raw) corresponds to the output for input file # 6 (scripts/jointed.edges.pl) in
+
+<a href="http://savage.net.au/Perl-modules/html/graphviz2/index.html">the GraphViz2 demo.</a></p>
+
+<table align = "center" border = "1">
+:for $data -> $row {
+<tr>
+  <td>Input file # <: $row.count :> - <: $row.input :>:<br /><: $row.raw :></td>
+  <td><img src = "<: $row.svg :>" /><br /><br />Output file # <: $row.count :> - <: $row.output :><br /><: $row.title :></td>
+</tr>
+:}
+</table>
+</body>
+</html>

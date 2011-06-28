@@ -1,0 +1,10 @@
+"key","value"
+group_name_id   , 'Suburbs'
+left_bracket    , [
+node_name_id    , 'Murrumbeena'
+right_bracket   , ]
+edge_id         , '<->'
+left_bracket    , [
+node_name_id    , 'Carnegie'
+right_bracket   , ]
+pop_group       , 'Suburbs'

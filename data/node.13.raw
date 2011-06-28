@@ -1,0 +1,2 @@
+# Juxtaposed nodes (with comma) without attributes. OK.
+[node.1],[node.2]

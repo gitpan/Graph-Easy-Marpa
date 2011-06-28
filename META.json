@@ -1,10 +1,10 @@
 {
-   "abstract" : "Proof-of-concept Marpa-based parser for Graph::Easy",
+   "abstract" : "Marpa-based parser for Graph::Easy",
    "author" : [
       "Ron Savage <ron@savage.net.au>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.110580",
+   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.110930",
    "license" : [
       "artistic_1"
    ],
@@ -27,27 +27,43 @@
       },
       "runtime" : {
          "requires" : {
-            "FindBin" : "1.5",
+            "Hash::FieldHash" : "0.1",
             "IO::File" : "1.14",
+            "List::Compare" : "0.37",
+            "Log::Handler" : "0.71",
             "Marpa" : "0.202",
-            "Moose" : "1.21",
-            "Text::CSV_XS" : "0.8",
-            "namespace::autoclean" : "0.09"
+            "OpenOffice::OODoc" : "2.125",
+            "Perl6::Slurp" : "0.03",
+            "Set::Array" : "0.23",
+            "Set::FA" : "1.04",
+            "Text::CSV_XS" : "0.8"
          }
       }
    },
    "provides" : {
       "Graph::Easy::Marpa" : {
          "file" : "lib/Graph/Easy/Marpa.pm",
-         "version" : "0.51"
+         "version" : "0.90"
+      },
+      "Graph::Easy::Marpa::Lexer" : {
+         "file" : "lib/Graph/Easy/Marpa/Lexer.pm",
+         "version" : "0.90"
+      },
+      "Graph::Easy::Marpa::Lexer::DFA" : {
+         "file" : "lib/Graph/Easy/Marpa/Lexer/DFA.pm",
+         "version" : "0.90"
       },
       "Graph::Easy::Marpa::Parser" : {
          "file" : "lib/Graph/Easy/Marpa/Parser.pm",
-         "version" : "0.51"
+         "version" : "0.90"
       },
-      "Graph::Easy::Marpa::Test" : {
-         "file" : "lib/Graph/Easy/Marpa/Test.pm",
-         "version" : "0.51"
+      "Graph::Easy::Marpa::Renderer::GraphViz2" : {
+         "file" : "lib/Graph/Easy/Marpa/Renderer/GraphViz2.pm",
+         "version" : "0.90"
+      },
+      "Graph::Easy::Marpa::Utils" : {
+         "file" : "lib/Graph/Easy/Marpa/Utils.pm",
+         "version" : "0.90"
       }
    },
    "release_status" : "stable",
@@ -56,5 +72,5 @@
          "http://opensource.org/licenses/artistic-license.php"
       ]
    },
-   "version" : "0.51"
+   "version" : "0.90"
 }

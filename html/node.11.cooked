@@ -1,0 +1,16 @@
+"key","value"
+left_bracket    , [
+node_name_id    , 'node.1'
+right_bracket   , ]
+left_brace      , {
+attr_name_id    , 'label'
+colon           , :
+attr_value_id   , 'Flight Path from Melbourne to London'
+semi_colon      , ;
+right_brace     , }
+left_brace      , {
+attr_name_id    , 'direction'
+colon           , :
+attr_value_id   , 'Roughly South to North'
+semi_colon      , ;
+right_brace     , }

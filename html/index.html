@@ -1,0 +1,94 @@
+<html>
+<head>
+		<title>Index of sample SVG files created by Graph::Easy::Marpa.</title>
+</head>
+<body>
+		<h1>Index of sample SVG files created by Graph::Easy::Marpa V 0.90.</h1>
+
+<p>All scripts, input files and output files required to generate these examples are shipped in the Graph::Easy::Marpa distro.</p>
+
+<p>Some sample data is deliberately faulty, and so does not show up here. Some sample data contains fake attributes, just
+to test the code. It will make 'dot' die, but is included here.</p>
+
+<p>The renderer is not finished, and e.g does not properly display a graph ending with an edge not followed by a node.</p>
+
+<p>The output for input file # 6 (data/graph.15.raw) corresponds to the output for input file # 6 (scripts/jointed.edges.pl) in
+
+<a href="http://savage.net.au/Perl-modules/html/graphviz2/index.html">the GraphViz2 demo.</a></p>
+
+<table align = "center" border = "1">
+<tr>
+  <td>Input file # 1 - data/graph.10.raw:<br /># Ends with node without attributes. OK.<br />[node.1]{a:b;c:d}<->{e:f;}<=>{g:h}[node.2]{i:j}===[node.3]</td>
+  <td><img src = "./graph.10.svg" /><br /><br />Output file # 1 - html/graph.10.svg<br /># Ends with node without attributes. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 2 - data/graph.11.raw:<br /># Ends with edge without attributes. OK.<br />[node.1]{a:b;c:d}<->{e:f;}<=>{g:h}[node.2]{i:j}===</td>
+  <td><img src = "./graph.11.svg" /><br /><br />Output file # 2 - html/graph.11.svg<br /># Ends with edge without attributes. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 3 - data/graph.12.raw:<br /># Complex. OK.<br />[node.1]{a:b;c:d}<->{e:f;}<=>{g:h}[node.2]{i:j}===[node.3]{k:l}</td>
+  <td><img src = "./graph.12.svg" /><br /><br />Output file # 3 - html/graph.12.svg<br /># Complex. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 4 - data/graph.13.raw:<br /># Juxtapositioned edges (without comma). OK.<br />[Murrumbeena] {color: blue} <--> {color: green} <==> {color: red} [Carnegie] {color: crimson} === {color: brown} [Chadstone] {color: blueviolet}</td>
+  <td><img src = "./graph.13.svg" /><br /><br />Output file # 4 - html/graph.13.svg<br /># Juxtapositioned edges (without comma). OK.</td>
+</tr>
+<tr>
+  <td>Input file # 5 - data/graph.14.raw:<br /># Juxtapositioned edges (with comma). OK.<br />[Murrumbeena] {color: blue} <--> {color: green}, <==> {color: red} [Carnegie] {color: crimson} === {color: brown} [Chadstone] {color: blueviolet}</td>
+  <td><img src = "./graph.14.svg" /><br /><br />Output file # 5 - html/graph.14.svg<br /># Juxtapositioned edges (with comma). OK.</td>
+</tr>
+<tr>
+  <td>Input file # 6 - data/graph.15.raw:<br /># Reverse-engineered from GraphViz2/scripts/joint.edges.pl. OK.<br /><br />[Carnegie] {color: aquamarine; style: filled}<br />-> {arrowhead: none; samehead: 1}<br />[one] {label:; style: filled; fillcolor: white; fixedsize: 1; width: 0; height: 0}<br /><br />[Murrumbeena] {color: bisque; style: filled}<br />-> {arrowhead: none; samehead: 1}<br />[one]<br /><br />[one]<br />-> {sametail: 1}<br />[Oakleigh] {color: blueviolet; style: filled}<br /><br />[Ashburton] {color: chartreuse; style: filled}<br />-> {arrowhead: none; samehead: 1}<br />[two] {label:; style: filled; fillcolor: white; fixedsize: 1; width: 0; height: 0}<br /><br />[Chadstone] {color: coral; style: filled}<br />-> {arrowhead: none; samehead: 1}<br />[two]<br /><br />[two]<br />-> {sametail: 1}<br />[Waverley] {color: crimson; style: filled}</td>
+  <td><img src = "./graph.15.svg" /><br /><br />Output file # 6 - html/graph.15.svg<br /># Reverse-engineered from GraphViz2/scripts/joint.edges.pl. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 7 - data/node.02.raw:<br /># Anonymous node. OK.<br />[]</td>
+  <td><img src = "./node.02.svg" /><br /><br />Output file # 7 - html/node.02.svg<br /># Anonymous node. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 8 - data/node.03.raw:<br /># Named node with space. OK.<br />[Perl 6]</td>
+  <td><img src = "./node.03.svg" /><br /><br />Output file # 8 - html/node.03.svg<br /># Named node with space. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 9 - data/node.04.raw:<br /># Anonymous node with attributes. OK.<br />[]{color:red}</td>
+  <td><img src = "./node.04.svg" /><br /><br />Output file # 9 - html/node.04.svg<br /># Anonymous node with attributes. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 10 - data/node.05.raw:<br /># Named node with attributes. OK.<br />[node.1]{color:red}</td>
+  <td><img src = "./node.05.svg" /><br /><br />Output file # 10 - html/node.05.svg<br /># Named node with attributes. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 11 - data/node.06.raw:<br /># Juxtaposed nodes (without comma) with attributes. OK.<br />[node.1]{color:red}[node.2]{color:blue}</td>
+  <td><img src = "./node.06.svg" /><br /><br />Output file # 11 - html/node.06.svg<br /># Juxtaposed nodes (without comma) with attributes. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 12 - data/node.07.raw:<br /># Juxtaposed nodes (with comma) with attributes. OK.<br />[node.1]{color:red},[node.2]{color:blue}</td>
+  <td><img src = "./node.07.svg" /><br /><br />Output file # 12 - html/node.07.svg<br /># Juxtaposed nodes (with comma) with attributes. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 13 - data/node.08.raw:<br /># Named node, with spaces. OK.<br />[    node.1    ]</td>
+  <td><img src = "./node.08.svg" /><br /><br />Output file # 13 - html/node.08.svg<br /># Named node, with spaces. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 14 - data/node.09.raw:<br /># Named node with attributes, with spaces. OK.<br />[  node.1 ]       { color : red }</td>
+  <td><img src = "./node.09.svg" /><br /><br />Output file # 14 - html/node.09.svg<br /># Named node with attributes, with spaces. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 15 - data/node.10.raw:<br /># Named node with attributes, with spaces. OK.<br />   [ node.1 ] {  label  :  Flight Path from Melbourne to London  }</td>
+  <td><img src = "./node.10.svg" /><br /><br />Output file # 15 - html/node.10.svg<br /># Named node with attributes, with spaces. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 16 - data/node.11.raw:<br /># Named node with attributes, with spaces. OK.<br /> [ node.1 ] {  label  :  Flight Path from Melbourne to London ; direction : Roughly South to North }</td>
+  <td><img src = "./node.11.svg" /><br /><br />Output file # 16 - html/node.11.svg<br /># Named node with attributes, with spaces. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 17 - data/node.12.raw:<br /># Juxtaposed nodes (without comma) without attributes. OK.<br />[node.1][node.2]</td>
+  <td><img src = "./node.12.svg" /><br /><br />Output file # 17 - html/node.12.svg<br /># Juxtaposed nodes (without comma) without attributes. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 18 - data/node.13.raw:<br /># Juxtaposed nodes (with comma) without attributes. OK.<br />[node.1],[node.2]</td>
+  <td><img src = "./node.13.svg" /><br /><br />Output file # 18 - html/node.13.svg<br /># Juxtaposed nodes (with comma) without attributes. OK.</td>
+</tr>
+</table>
+</body>
+</html>

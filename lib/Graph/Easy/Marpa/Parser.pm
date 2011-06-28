@@ -3,134 +3,39 @@ package Graph::Easy::Marpa::Parser;
 use strict;
 use warnings;
 
+use Graph::Easy::Marpa::Renderer::GraphViz2;
+
+use Hash::FieldHash ':all';
+
+use IO::File;
+
+use Log::Handler;
+
 use Marpa;
 
-use Moose;
+use Set::Array;
 
-has attrs =>
-(
- default  => sub{return []},
- is       => 'rw',
- isa      => 'ArrayRef',
- required => 0,
-);
+use Text::CSV_XS;
 
-has attr_name =>
-(
- default  => '',
- is       => 'rw',
- isa      => 'Str',
- required => 0,
-);
-
-has items =>
-(
- default  => sub{return []},
- is       => 'rw',
- isa      => 'ArrayRef',
- required => 0,
-);
-
-has node_name =>
-(
- default  => '',
- is       => 'rw',
- isa      => 'Str',
- required => 0,
-);
-
-has verbose =>
-(
- default  => 0,
- is       => 'rw',
- isa      => 'Int',
- required => 0,
-);
-
-use namespace::autoclean;
+fieldhash my %attrs        => 'attrs';
+fieldhash my %attr_name    => 'attr_name';
+fieldhash my %format       => 'format';
+fieldhash my %input_file   => 'input_file';
+fieldhash my %items        => 'items';
+fieldhash my %logger       => 'logger';
+fieldhash my %maxlevel     => 'maxlevel';
+fieldhash my %minlevel     => 'minlevel';
+fieldhash my %node_name    => 'node_name';
+fieldhash my %output_file  => 'output_file';
+fieldhash my %renderer     => 'renderer';
+fieldhash my %report_items => 'report_items';
+fieldhash my %token_file   => 'token_file';
+fieldhash my %tokens       => 'tokens';
 
 # $myself is a copy of $self for use by functions called by Marpa.
 
 our $myself;
-
-our $VERSION = '0.51';
-
-# --------------------------------------------------
-
-sub BUILD
-{
-	my($self) = @_;
-	$myself   = $self;
-
-} # End of BUILD.
-
-# --------------------------------------------------
-
-sub add_globals
-{
-	my($self)    = @_;
-	my($itemref) = $self -> items;
-	my(%found)   =
-		(
-		 edge => 0,
-		 node => 0,
-		);
-
-	my($name, %name);
-
-	for my $item (@$itemref)
-	{
-		# Check for duplicate node names.
-
-		$name = $$item{name};
-
-		if (! $name{$name})
-		{
-			$name{$name} = 0;
-		}
-
-		if ( (++$name{$name} > 1) && ($$item{type} eq 'node') && ($name ne '') )
-		{
-			die "Duplicate node name '$name' detected";
-		}
-
-		# Check for global edge and node.
-
-		if ($name eq '_')
-		{
-			for my $type (qw/edge node/)
-			{
-				if ($$item{type} eq "global_$type")
-				{
-					$found{$type} = 1;
-				}
-			}
-		}
-	}
-
-	if ($found{edge} == 0)
-	{
-		unshift @$itemref,
-		{
-			name   => '_',
-			type   => 'global_edge',
-		};
-
-		$self -> items($itemref);
-	}
-
-	if ($found{node} == 0)
-	{
-		unshift @$itemref,
-		{
-			name   => '_',
-			type   => 'global_node',
-		};
-
-		$self -> items($itemref);
-	}
-
-} # End of add_globals.
+our $VERSION = '0.90';
 
 # --------------------------------------------------
 # This is a function, not a method.
@@ -151,18 +56,13 @@ sub attr_name_id
 sub attr_value_id
 {
 	my(undef, $t1, undef, $t2)  = @_;
-	my($attr) =
-	{
+
+	$myself -> attrs -> push
+	({
 		name  => $myself -> attr_name,
-		type  => 'attr',
+		type  => 'attribute',
 		value => $t1,
-	};
-
-	my(@attr) = @{$myself -> attrs};
-
-	push @attr, $attr;
-
-	$myself -> attrs([@attr]);
+	});
 
 	return $t1;
 
@@ -175,7 +75,7 @@ sub edge_id
 {
 	my(undef, $t1, undef, $t2)  = @_;
 
-	# This regexp defines what is and isn't allowed for edge syntax.
+	# This regexp defines what is and isn't allowed for edge names.
 
 	if ($t1 !~ /^<?(-|=|\.|~|- |= |\.-|\.\.-){1,}>?$/)
 	{
@@ -184,13 +84,11 @@ sub edge_id
 
 	# Add edge to the item list.
 
-	my($edge) =
-	{
+	$myself -> items -> push
+	({
 		name => $t1,
 		type => 'edge',
-	};
-
-	$myself -> items([@{$myself -> items}, $edge]);
+	});
 
 	return $t1;
 
@@ -207,8 +105,8 @@ sub end_attribute
 	# Add all attributes to the item list.
 	# They belong to the preceeding node or edge.
 
-	$myself -> items([@{$myself -> items}, @{$myself -> attrs}]);
-	$myself -> attrs([]);
+	$myself -> items -> push($myself -> attrs -> print);
+	$myself -> attrs -> clear;
 
 	return '';
 
@@ -222,19 +120,47 @@ sub end_node
 	my(undef, $t1, undef, $t2)  = @_;
 
 	# $t1 will be ']'.
-	# Add node to the item list.
 
-	my($node) =
-	{
+	$myself -> items -> push
+	({
 		name => $myself -> node_name,
 		type => 'node',
-	};
-
-	$myself -> items([@{$myself -> items}, $node]);
+	});
 
 	return '';
 
 } # End of end_node.
+
+# --------------------------------------------------
+
+sub _generate_item_file
+{
+	my($self, $file_name) = @_;
+	my(@item) = $self -> items -> print;
+
+	open(OUT, '>', $file_name) || die "Can't open(> $file_name): $!";
+
+	my($item);
+	my($s);
+
+	for my $i (0 .. $#item)
+	{
+		$item = $item[$i];
+		$s    = join('', map{"$_: $$item{$_}. "} sort keys %$item);
+
+		if ($$item{type} =~ /(?:edge|node)/)
+		{
+			print OUT "$s\n";
+		}
+		else
+		{
+			print OUT"\t$s\n";
+		}
+	}
+
+	close OUT;
+
+} # End of _generate_item_file.
 
 # --------------------------------------------------
 
@@ -275,7 +201,7 @@ sub grammar
 			  },
 			  {
 				  lhs => 'node_sequence', # 2 of 2.
-				  rhs => [qw/node_statement comma/],
+				  rhs => [qw/node_statement daisy_chain_node/],
 			  },
 			  {
 				  lhs    => 'start_node',
@@ -358,17 +284,61 @@ sub grammar
 
 # --------------------------------------------------
 
+sub _init
+{
+	my($self, $arg)     = @_;
+	$$arg{attrs}        = Set::Array -> new;
+	$$arg{attr_name}    = '';
+	$$arg{format}       ||= 'svg';
+	$$arg{input_file}   ||= ''; # Caller can set.
+	$$arg{items}        = Set::Array -> new;
+	$$arg{logger}       = Log::Handler -> new;
+	$$arg{maxlevel}     ||= 'debug'; # Caller can set.
+	$$arg{minlevel}     ||= 'error'; # Caller can set.
+	$$arg{node_name}    = '';
+	$$arg{output_file}  ||= ''; # Caller can set.
+	$$arg{renderer}     ||= Graph::Easy::Marpa::Renderer::GraphViz2 -> new;
+	$$arg{report_items} ||= 0;  # Caller can set.
+	$$arg{token_file}   ||= ''; # Caller can set.
+	$$arg{tokens}       ||= []; # Caller can set.
+	$self               = from_hash($self, $arg);
+	$myself             = $self;
+
+	$self -> logger -> add
+		(
+		 screen =>
+		 {
+			 maxlevel       => $self -> maxlevel,
+			 message_layout => '%m',
+			 minlevel       => $self -> minlevel,
+		 }
+		);
+
+	return $self;
+
+} # End of _init.
+
+# --------------------------------------------------
+
 sub log
 {
-	my($self, $s) = @_;
-	$s ||= '';
+	my($self, $level, $s) = @_;
 
-	if ($self -> verbose)
-	{
-		print "$s\n";
-	}
+	$self -> logger -> $level($s);
 
 } # End of log.
+
+# --------------------------------------------------
+
+sub new
+{
+	my($class, %arg) = @_;
+	my($self)        = bless {}, $class;
+	$self            = $self -> _init(\%arg);
+
+	return $self;
+
+}	# End of new.
 
 # --------------------------------------------------
 # This is a function, not a method.
@@ -383,33 +353,101 @@ sub node_name_id
 
 } # End of node_name_id.
 
+# -----------------------------------------------
+
+sub read_csv_file
+{
+	my($self, $file_name) = @_;
+	my($csv) = Text::CSV_XS -> new({allow_whitespace => 1});
+	my($io)  = IO::File -> new($file_name, 'r');
+
+	$csv -> column_names($csv -> getline($io) );
+
+	return $csv -> getline_hr_all($io);
+
+} # End of read_csv_file.
+
+# --------------------------------------------------
+
+sub report
+{
+	my($self) = @_;
+	my(@item) = $self -> items -> print;
+
+	my($item);
+	my($s);
+
+	for my $i (0 .. $#item)
+	{
+		$item = $item[$i];
+		$s    = join('', map{"$_: $$item{$_}. "} sort keys %$item);
+
+		if ($$item{type} =~ /(?:edge|node)/)
+		{
+			$self -> log(info => $s);
+		}
+		else
+		{
+			$self -> log(info => "\t$s");
+		}
+	}
+
+} # End of report.
+
 # --------------------------------------------------
 
 sub run
 {
-	my($self, $token, $grammar) = @_;
-	$grammar ||= $self -> grammar;
+	my($self) = @_;
 
-	my($recognizer) = Marpa::Recognizer -> new({grammar => $grammar});
+	my($tokens);
 
-	$recognizer -> tokens($token);
-
-	my($result) = $recognizer -> value;
-	$result     = $result ? ${$result} : 'Parse failed';
-	$result     = $result ? $result    : 'OK';
-
-	# If all went well, add the global node and edge if the user did not.
-
-	if ($result eq 'OK')
+	if ($#{$self -> tokens} < 0)
 	{
-		$self -> add_globals;
+		for my $record (@{$self -> read_csv_file($self -> input_file)})
+		{
+			# Remove '...' surrounding edge, etc names.
+			# Use .* not .+ to allow for anonymous nodes.
+
+			$$record{value} =~ s/^'(.*)'$/$1/;
+
+			push @$tokens, [$$record{key}, $$record{value}];
+		}
 	}
 	else
 	{
-		die $result;
+		$tokens = $self -> tokens;
 	}
 
-	return $result;
+	my($recognizer) = Marpa::Recognizer -> new({grammar => $self -> grammar});
+
+	$recognizer -> tokens($tokens);
+
+	my($result) = $recognizer -> value;
+	$result     = $result ? ${$result} : 'Parse failed';
+	$result     = $result ? $result    : 0;
+
+	die $result if ($result);
+
+	$self -> report if ($self -> report_items);
+
+	my($file_name) = $self -> token_file;
+
+	if ($file_name)
+	{
+		$self -> _generate_item_file($file_name);
+	}
+
+	$file_name = $self -> output_file;
+
+	if ($file_name && $self -> renderer)
+	{
+		$self -> renderer -> run(format => $self -> format, items => [$self -> items -> print], output_file => $file_name);
+	}
+
+	# Return 0 for success and 1 for failure.
+	
+	return 0;
 
 } # End of run.
 
@@ -445,21 +483,17 @@ sub start_node
 
 # --------------------------------------------------
 
-__PACKAGE__ -> meta -> make_immutable;
-
 1;
 
 =pod
 
 =head1 NAME
 
-L<Graph::Easy::Marpa::Parser> - Proof-of-concept Marpa-based parser for Graph::Easy
+L<Graph::Easy::Marpa::Parser> - A Marpa-based parser for Graph::Easy
 
 =head1 Synopsis
 
-For sample code, see scripts/demo.pl, t/attr.t and t/edge.t.
-
-For more details, see L<Graph::Easy::Marpa>.
+See L<Graph::Easy::Marpa/Data and Script Interaction>.
 
 =head1 Description
 
@@ -498,50 +532,69 @@ C<new()> is called as C<< my($parser) = Graph::Easy::Marpa::Parser -> new(k1 => 
 It returns a new object of type C<Graph::Easy::Marpa::Parser>.
 
 Key-value pairs accepted in the parameter list (see corresponding methods for details
-[e.g. verbose()]):
+[e.g. maxlevel()]):
 
 =over 4
 
-=item o verbose
+=item o format => $format_name
 
-Takes either 0 (the default) or 1.
+This is the format of the output file, to be created by the renderer.
 
-If 0, nothing is printed.
+Default is 'svg'.
 
-If 1, nothing is printed, yet.
+=item o input_file => $csv_file_name
 
-See scripts/demo.pl and L<Graph::Easy::Marpa::Test>.
+This is the name of the file to read containing the tokens (items) output from L<Graph::Easy::Marpa::Lexer>.
+
+=item o maxlevel => $level
+
+This option affects L<Log::Handler>. See L<Log::Handler::Levels>.
+
+The default maxlevel is 'info'. A typical value is 'debug'.
+
+=item o minlevel => $level
+
+This option affects L<Log::Handler>. See L<Log::Handler::Levels>.
+
+The default minlevel is 'error'.
+
+No lower levels are used.
+
+=item o output_file => $output_file_name
+
+If an output file name is supplied, and a rendering object is also supplied, then this call is made:
+
+	$self -> renderer -> run(format => $self -> format, items => [$self -> items -> print], output_file => $file_name);
+
+This is how the plotted graph is actually created.
+
+=item o renderer => $renderer_object
+
+This is the object whose run() method will be called to render the result of parsing
+the cooked file received from L<Graph::Easy::Marpa::Lexer>.
+
+The format of the parameters passed to the renderer are documented in L<Graph::Easy::Marpa::Renderer::GraphViz2/run(%arg)>,
+which is the default value for this object.
+
+=item o report_items => $Boolean
+
+Calls L</report()> to report, via the log, the items recognized in the cooked file.
+
+=item o token_file => $token_file_name
+
+This is the name of the file to write containing the tokens (items) output from L<Graph::Easy::Marpa::Parser>.
+
+See also the input_file, above.
+
+=item o tokens => $arrayref
+
+This is an arrayref of tokens normally output by L<Graph::Easy::Marpa::Lexer>.
+
+In some test files, this arrayref is constructed manually, and the 'input_file' is not used.
 
 =back
 
 =head1 Methods
-
-=head2 add_globals()
-
-The special items, global_node and global_edge, are added to the arrayref of items if the user
-did not supply them. See the L<Graph::Easy::Marpa/FAQ> for details, and in particular the discussion
-under the question "How are graphs stored in RAM (by Graph::Easy::Marpa::Parser)?".
-
-add_globals() is called automatically near the end of run().
-
-=head2 attrs([$new_arrayref])
-
-The [] indicate an optional parameter.
-
-Returns an arrayref of hashrefs, 1 hashref for each attribute belonging to the 'current' node or
-edge. See the L<Graph::Easy::Marpa/FAQ> for details.
-
-This arrayref is reset to [] as soon as the current attributes are transferred into the arrayref
-managed by the items() method.
-
-If called as attrs([...]), set the arrayref of hashrefs to the parameter.
-
-=head2 attr_name([$name])
-
-The [] indicate an optional parameter.
-
-Sets or returns the 'current' attribute's name, during the parse of each attribute definition attached to
-either a node or an edge.
 
 =head2 grammar()
 
@@ -559,52 +612,57 @@ Later, the allowable syntax will be exanded to accept special arrow heads, etc.
 Also, since edges can have attributes, such attributes are another method of describing the desired edge's
 characteristics. That is, besides using a string matching that regexp to specify what the edge looks like when plotted.
 
-=head2 items([$new_arrayref])
+=head2 items()
 
-The [] indicate an optional parameter.
+Returns a object of type L<Set::Array>, which is an arrayref of items output by the state machine.
 
-Returns an arrayref of items. See the L<Graph::Easy::Marpa/FAQ> for details.
+See the L<Graph::Easy::Marpa/FAQ> for details.
 
-If called as items([...]), set the arrayref of hashrefs to the parameter.
+These items are I<not> the same as the arrayref of items returned by the items() methods in
+L<Graph::Easy::Marpa::DFA> and L<Graph::Easy::Marpa::Lexer>.
 
 See also run(), below.
 
-=head2 log($s)
+=head2 log($level, $s)
 
-If new() was called as new() or new(verbose => 0), do nothing.
+Calls $self -> logger -> $level($s).
 
-If new() was called as new(verbose => 1), print the string $s.
+=head2 logger()
 
-=head2 node_name([$name])
+Returns a object of type L<Log::Handler>.
 
-The [] indicate an optional parameter.
-
-Sets or returns the 'current' node's name, after the parse of each node definition.
-
-=head2 run($token, [$grammar])
-
-Returns 'OK' or dies with an error message.
+=head2 maxlevel([$level])
 
 The [] indicate an optional parameter.
 
-$token is an arrayref of tokens, to be consumed by the L<Marpa> parser.
+Get or set the value of the logger's maxlevel option.
 
-See L<Graph::Easy::Marpa::Test>, scripts/demo.pl, and data/intermediary.*.csv, for samples.
+=head2 minlevel([$level])
 
-$grammar is the grammar to be used by L<Marpa>. It defaults to the return value of grammar().
+The [] indicate an optional parameter.
 
-Purpose: Run the L<Marpa> parser, using @$token and $grammar.
+Get or set the value of the logger's minlevel option.
+
+=head2 read_csv_file($file_name)
+
+Read the named CSV file into ann arrayref of hashrefs.
+
+=head2 report()
+
+Report, via the log, the list of items recognized in the cooked file.
+
+=head2 run()
+
+Runs the Marpa-based parser on the input_file.
+
+Returns 0 for success and 1 for failure, or dies with an error message.
+
+See t/attr.t, scripts/parse.pl and scripts/parse.sh.
 
 The end result is an arrayref, accessible with the items() method, of hashrefs representing items
 in the input stream.
 
 The structure of this arrayref of hashrefs is discussed in the L<Graph::Easy::Marpa/FAQ>.
-
-=head2 verbose([0 or 1])
-
-The [] indicate an optional parameter.
-
-Get or set the value of the verbose option.
 
 =head1 Machine-Readable Change Log
 
@@ -622,7 +680,7 @@ L<https://rt.cpan.org/Public/Dist/Display.html?Name=Graph::Easy::Marpa>.
 
 =head1 Author
 
-L<Graph::Easy::Marpa::Parser> was written by Ron Savage I<E<lt>ron@savage.net.auE<gt>> in 2011.
+L<Graph::Easy::Marpa> was written by Ron Savage I<E<lt>ron@savage.net.auE<gt>> in 2011.
 
 Home page: L<http://savage.net.au/index.html>.
 

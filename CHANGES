@@ -1,5 +1,22 @@
 Revision history for Perl extension Graph::Easy::Marpa.
 
+0.90  Tue Jun 21 12:18:00 2011
+	  - Allow spaces in graph definitions, by expanding the regexps in the state transition table.
+	  - Add more sample data, as data/*.raw (for input to the lexer) and data/*.cooked (as output from the lexer
+	  	and input to the parser).
+	  - Adopt Set::Array instead of manually managing some arrayrefs.
+	  - Ensure all major methods (normally run() ) return 0 for success and 1 for failure, and that test code does too.
+	  - Switch from Moose to Hash::FieldHash, to make the code more light-weight.
+	  - Implement scripts/generate.index.pl to create a web page with embedded Graph::Easy files and corresponding *.svg files.
+	  - Upload demo to http://savage.net.au/Perl-modules/html/graph.easy.marpa/index.html.
+
+0.60  Sat May 14 11:16:00 2011
+	  - Implement basic Graph::Easy::Marpa::Lexer to read raw Graph::Easy files.
+	  - Change Graph::Easy::Marpa::Test.run() to test_parser(), and implement test_lexer().
+	  - Change Graph::Easy::Marpa::Test to accept file name not file number.
+	  - Add various test files in data/ and t/.
+	  - Add scripts/graph.30.sh to show how to feed the lexer's output to the parser.
+
 0.51  Wed Apr 27 10:46:00 2011
 	  - Update pre-reqs.
 

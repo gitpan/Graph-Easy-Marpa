@@ -1,0 +1,19 @@
+"key","value"
+left_bracket    , [
+node_name_id    , 'node.1'
+right_bracket   , ]
+left_brace      , {
+attr_name_id    , 'color'
+colon           , :
+attr_value_id   , 'red'
+semi_colon      , ;
+right_brace     , }
+left_bracket    , [
+node_name_id    , 'node.2'
+right_bracket   , ]
+left_brace      , {
+attr_name_id    , 'color'
+colon           , :
+attr_value_id   , 'blue'
+semi_colon      , ;
+right_brace     , }

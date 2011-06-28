@@ -1,0 +1,28 @@
+<html>
+<head>
+<title><: $title :></title>
+</head>
+<body>
+
+<p>This is the State Transition Table (STT) for Graph::Easy's graph description language.</p>
+
+<p>This table has been exported from an OpenOffice Calc spreadsheet as a CSV file,
+with the latter being incorporated into this HTML.</p>
+
+<p>The lexer which reads the spreadsheet, or the CSV version, does not use the last 2 columns,
+Regexp and Interpretation.<p>
+
+<p>The Regexp column is referred to in the spreadsheet by formulas, and the Interpretation column is just for the reader.</p>
+
+<p>Clearly, this table does not quite cover all of the syntax supported by Graph::Easy.</p>
+
+<p>Graph::Easy::Marpa::Lexer reads this STT, and outputs tokens in an intermediary language.</p>
+
+<p>The lexer uses <a href="http://search.cpan.org/perldoc?Set%3A%3AFA%3A%3AElement">Set::FA::Element</a> to actually process the graph definition.</p>
+
+<p>Graph::Easy::Marpa::Parser reads those tokens and builds a data structure in memory representing the graph.</p>
+
+: include "rainbow.table.tx" { table => $table };
+
+</body>
+</html>

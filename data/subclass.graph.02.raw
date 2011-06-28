@@ -1,0 +1,2 @@
+# Subclass with attributes but no graph. Error.
+graph.node{color:blue}

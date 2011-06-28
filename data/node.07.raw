@@ -1,0 +1,2 @@
+# Juxtaposed nodes (with comma) with attributes. OK.
+[node.1]{color:red},[node.2]{color:blue}

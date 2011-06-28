@@ -8,7 +8,7 @@ WriteMakefile
  ($] ge '5.005') ?
  (
   AUTHOR   => 'Ron Savage (ron@savage.net.au)',
-  ABSTRACT => 'Proof-of-concept Marpa-based parser for Graph::Easy',
+  ABSTRACT => 'Marpa-based parser for Graph::Easy',
     ) : (),
  clean =>
  {
@@ -24,14 +24,18 @@ WriteMakefile
  PL_FILES  => {},
  PREREQ_PM =>
  {
-	 FindBin              => 1.50,
-	 IO::File             => 1.14,
-	 Marpa                => 0.202000,
- 	 Moose                => 1.21,
- 	 namespace::autoclean => 0.09,
- 	 Test::More           => 0.94,
- 	 Test::Pod            => 1.44,
-	 Text::CSV_XS         => 0.80,
+ 	 Hash::FieldHash   => 0.10,
+	 IO::File          => 1.14,
+	 List::Compare     => 0.37,
+	 Log::Handler      => 0.71,
+	 Marpa             => 0.202000,
+	 OpenOffice::OODoc => 2.125,
+	 Perl6::Slurp      => 0.03,
+	 Set::Array        => 0.23,
+	 Set::FA           => 1.04,
+ 	 Test::More        => 0.94,
+ 	 Test::Pod         => 1.44,
+	 Text::CSV_XS      => 0.80,
  },
  VERSION_FROM => 'lib/Graph/Easy/Marpa.pm',
 );
