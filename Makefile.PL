@@ -24,6 +24,9 @@ WriteMakefile
  PL_FILES  => {},
  PREREQ_PM =>
  {
+	 File::Basename    => 2.78,
+	 File::Spec        => 3.33,
+	 GraphViz2         => 1.06,
  	 Hash::FieldHash   => 0.10,
 	 IO::File          => 1.14,
 	 List::Compare     => 0.37,
@@ -32,7 +35,7 @@ WriteMakefile
 	 OpenOffice::OODoc => 2.125,
 	 Perl6::Slurp      => 0.03,
 	 Set::Array        => 0.23,
-	 Set::FA           => 1.04,
+	 Set::FA           => 1.06,
  	 Test::More        => 0.94,
  	 Test::Pod         => 1.44,
 	 Text::CSV_XS      => 0.80,

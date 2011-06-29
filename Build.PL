@@ -17,6 +17,9 @@ Module::Build -> new
  },
  requires =>
  {
+	 File::Basename    => 2.78,
+	 File::Spec        => 3.33,
+	 GraphViz2         => 1.06,
  	 Hash::FieldHash   => 0.10,
 	 IO::File          => 1.14,
 	 List::Compare     => 0.37,
@@ -25,7 +28,7 @@ Module::Build -> new
 	 OpenOffice::OODoc => 2.125,
 	 Perl6::Slurp      => 0.03,
 	 Set::Array        => 0.23,
-	 Set::FA           => 1.04,
+	 Set::FA           => 1.06,
 	 Text::CSV_XS      => 0.80,
  },
 ) -> create_build_script();

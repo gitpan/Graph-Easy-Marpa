@@ -35,7 +35,7 @@ fieldhash my %tokens       => 'tokens';
 # $myself is a copy of $self for use by functions called by Marpa.
 
 our $myself;
-our $VERSION = '0.90';
+our $VERSION = '0.91';
 
 # --------------------------------------------------
 # This is a function, not a method.

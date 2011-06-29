@@ -13,7 +13,7 @@ fieldhash my %logger   => 'logger';
 fieldhash my %maxlevel => 'maxlevel';
 fieldhash my %minlevel => 'minlevel';
 
-our $VERSION = '0.90';
+our $VERSION = '0.91';
 
 # --------------------------------------------------
 

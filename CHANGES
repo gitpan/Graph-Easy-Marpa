@@ -1,6 +1,9 @@
 Revision history for Perl extension Graph::Easy::Marpa.
 
-0.90  Tue Jun 21 12:18:00 2011
+0.91  Wed Jun 29 11:41:00 2011
+	  - Update pre-requisites. Set::FA 1.05 -> 1.06. Add File::Spec, File::Basename, GraphViz2.
+
+0.90  Tue Jun 28 12:18:00 2011
 	  - Allow spaces in graph definitions, by expanding the regexps in the state transition table.
 	  - Add more sample data, as data/*.raw (for input to the lexer) and data/*.cooked (as output from the lexer
 	  	and input to the parser).

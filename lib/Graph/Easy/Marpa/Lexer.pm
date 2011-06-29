@@ -38,7 +38,7 @@ fieldhash my %stt_file     => 'stt_file';
 fieldhash my %type         => 'type';
 
 our $myself; # Is a copy of $self for functions called by Set::FA::Element.
-our $VERSION = '0.90';
+our $VERSION = '0.91';
 
 # --------------------------------------------------
 

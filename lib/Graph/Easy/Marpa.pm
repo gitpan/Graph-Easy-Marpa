@@ -28,7 +28,7 @@ fieldhash my %renderer     => 'renderer';
 fieldhash my %report_items => 'report_items';
 fieldhash my %token_file   => 'token_file';
 
-our $VERSION = '0.90';
+our $VERSION = '0.91';
 
 # --------------------------------------------------
 
