@@ -1,0 +1,2 @@
+# Group (i.e. subgraph) without a node before the edge. OK.
+(cluster_1: -> [Small] )

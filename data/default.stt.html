@@ -4,13 +4,14 @@
 </head>
 <body>
 
-<p>This is the State Transition Table (STT) for Graph::Easy's graph description language.</p>
+<h1 align="center">Graph::Easy::Marpa's State Transition Table</h1>
+
+<p>This is the STT for the dialect of Graph::Easy's graph description language recognized by <a href="http://search.cpan.org/perldoc?Graph%3A%3AEasy%3A%3AMarpa">Graph::Easy::Marpa</a>.</p>
 
 <p>This table has been exported from an OpenOffice Calc spreadsheet as a CSV file,
 with the latter being incorporated into this HTML.</p>
 
-<p>The lexer which reads the spreadsheet, or the CSV version, does not use the last 2 columns,
-Regexp and Interpretation.<p>
+<p>The lexer which reads the STT does not use the last 2 columns, Regexp and Interpretation.<p>
 
 <p>The Regexp column is referred to in the spreadsheet by formulas, and the Interpretation column is just for the reader.</p>
 
@@ -18,9 +19,18 @@ Regexp and Interpretation.<p>
 
 <p>Graph::Easy::Marpa::Lexer reads this STT, and outputs tokens in an intermediary language.</p>
 
+<p>The STT is actually at the end of Lexer.pm, but options to new() allow you to override that source for the STT.</p>
+
 <p>The lexer uses <a href="http://search.cpan.org/perldoc?Set%3A%3AFA%3A%3AElement">Set::FA::Element</a> to actually process the graph definition.</p>
 
-<p>Graph::Easy::Marpa::Parser reads those tokens and builds a data structure in memory representing the graph.</p>
+<p>Graph::Easy::Marpa::Parser reads lexed tokens and builds a data structure in memory representing the graph.</p>
+
+<p>Lastly, the default rendering engine Graph::Easy::Marpa::Renderer::GraphViz2 uses this data structure to create input for 
+<a href="http://search.cpan.org/perldoc?GraphViz2">GraphViz2</a>.</p>
+
+<p>Note: The regexp for attribute values simply means the real processing takes place in sub validate_attribute_value within
+<a href="http://search.cpan.org/perldoc?Graph%3A%3AEasy%3A%3AMarpa%3A%3ALexer%3A%3ADFA">Graph::Easy::Marpa::Lexer::DFA</a>,
+and, specifically, attribute values can be quoted with either "..." or '...'. Such quotes are stripped.</p>
 
 <table align="center" border="0" summary="STT">
 <tr>
@@ -38,23 +48,23 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">Yes</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">global</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[a-z][a-z0-9_]*</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">(?:edge|global|graph|group|node)(?:\.[a-z]+)?</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">class</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">save_class_name</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[a-z][a-z0-9_]*</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">[a-z]+\s*:</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">Attribute name</div></td>
 </tr>
 <tr>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">{</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">start_class_attribute</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">(?:->|--)</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">start_edge</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[a-z][a-z0-9_]*</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">Class name</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">[^}]+}</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">Attribute value</div></td>
 </tr>
 <tr>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -64,8 +74,8 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">start_group</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[-<=>~.]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">Edge name</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">(?:edge|global|graph|group|node)(?:\.[a-z]+)?</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">Class name</div></td>
 </tr>
 <tr>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -75,19 +85,8 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">start_node</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[a-zA-Z_][a-zA-Z_0-9]*</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">Event name</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[-<=>~.]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">edge</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[a-zA-Z_][a-zA-Z_0-9]*</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">Node name</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">(?:->|--)</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">Edge name</div></td>
 </tr>
 <tr>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -98,45 +97,45 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">[a-zA-Z_][a-zA-Z_0-9]*</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">Event name</div></td>
+</tr>
+<tr>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">[a-zA-Z_.][a-zA-Z_0-9. ]*:</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">Group name</div></td>
+</tr>
+<tr>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">[a-zA-Z_0-9. ]+</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">Node name</div></td>
+</tr>
+<tr>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">class</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">,</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">daisy_chain_class</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">validate_class_name</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">[a-zA-Z_][a-zA-Z_0-9]*</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">State name</div></td>
 </tr>
 <tr>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[a-z][a-z0-9_]*</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">Subclass name</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">class</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">,</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">class_daisy_chain</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">validate_class_name</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">\.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">start_subclass</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">{</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">start_class_attribute</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -170,8 +169,8 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[-<=>~.]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">edge</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">(?:->|--)</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">start_edge</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -203,21 +202,10 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">start_class_attribute</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[\w :;]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">class_attribute</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">[a-z]+\s*:</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">class_attribute_value</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">save_class_attribute_name</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 </tr>
@@ -235,53 +223,31 @@ Regexp and Interpretation.<p>
 <tr>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">class_daisy_chain</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[a-z][a-z0-9_]*</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">class_attribute_value</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">[^}]+}</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">post_class_attribute</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">validate_class_attribute_name</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">save_class_attribute_value</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+</tr>
+<tr>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+</tr>
+<tr>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">daisy_chain_class</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">(?:edge|global|graph|group|node)(?:\.[a-z]+)?</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">class</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">\.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">subclass</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">\s+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">class_daisy_chain</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">start_subclass</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[a-z][a-z0-9_]*</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">subclass</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">save_class_name</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -291,129 +257,8 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">subclass</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">,</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">class_daisy_chain</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">validate_subclass_name</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">{</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">start_class_attribute</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">\(</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">start_group</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">\[</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">node</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[-<=>~.]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">edge</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">\s+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">subclass</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">class_attribute</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[\w :;]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">class_attribute</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">save_class_attribute</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">validate_class_attribute</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">}</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">post_class_attribute</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">daisy_chain_class</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -434,9 +279,9 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">post_class_attribute</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[a-z][a-z0-9_]*</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">(?:edge|global|graph|group|node)(?:\.[a-z]+)?</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">class</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">validate_class_attribute_value</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">save_class_name</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -467,19 +312,8 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[-<=>~.]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">edge</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">,</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">daisy_chain</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">(?:->|--)</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">start_edge</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -511,7 +345,7 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">start_group</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[\w.:]+</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">[a-zA-Z_.][a-zA-Z_0-9. ]*:</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">group</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">push_group</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">save_group_name</div></td>
@@ -522,8 +356,8 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[-<=>~.]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">edge</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">(?:->|--)</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">start_edge</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -566,10 +400,10 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">group</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[a-z][a-z0-9_]*</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">(?:edge|global|graph|group|node)(?:\.[a-z]+)?</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">class</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">validate_group_name</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 </tr>
@@ -588,8 +422,8 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[-<=>~.]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">edge</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">(?:->|--)</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">start_edge</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -621,9 +455,20 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">Yes</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">post_group</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">{</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">start_attribute</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">pop_group</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+</tr>
+<tr>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">\[</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">start_node</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">pop_group</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -643,8 +488,8 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[-<=>~.]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">edge</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">(?:->|--)</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">start_edge</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -676,7 +521,7 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">start_node</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[\w.]+</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">[a-zA-Z_0-9. ]+</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">node</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">save_node_name</div></td>
@@ -797,8 +642,8 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[-<=>~.]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">edge</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">(?:->|--)</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">start_edge</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -809,7 +654,7 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">,</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">daisy_chain</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">daisy_chain_node</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -841,8 +686,19 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">start_attribute</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[\w :;]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">attribute</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">[a-z]+\s*:</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">attribute_value</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">save_attribute_name</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+</tr>
+<tr>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">\s+</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">start_attribute</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -862,44 +718,11 @@ Regexp and Interpretation.<p>
 <tr>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">attribute</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[\w :;]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">attribute</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">save_attribute</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">}</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">attribute_value</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">[^}]+}</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">post_attribute</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">validate_attribute</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">validate_attribute_name</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">save_attribute_value</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 </tr>
@@ -918,9 +741,9 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">Yes</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">post_attribute</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">\[</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">start_node</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">\(</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">start_group</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">validate_attribute_value</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -940,8 +763,19 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[-<=>~.]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">edge</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">\[</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">start_node</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+</tr>
+<tr>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">(?:->|--)</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">start_edge</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -952,7 +786,7 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">,</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">daisy_chain</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">post_attribute</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -983,7 +817,7 @@ Regexp and Interpretation.<p>
 <tr>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">Yes</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">edge</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">start_edge</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">{</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">start_attribute</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">save_edge_name</div></td>
@@ -1029,7 +863,7 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">,</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">daisy_chain</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">daisy_chain_edge</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -1040,7 +874,7 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">\s+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">edge</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">start_edge</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -1059,8 +893,8 @@ Regexp and Interpretation.<p>
 </tr>
 <tr>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">daisy_chain</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">Yes</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">daisy_chain_node</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">\[</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">start_node</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -1072,8 +906,30 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[-<=>~.]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">edge</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">\s+</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">daisy_chain_node</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+</tr>
+<tr>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+</tr>
+<tr>
+<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">Yes</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">daisy_chain_edge</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">(?:->|--)</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">start_edge</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -1084,7 +940,7 @@ Regexp and Interpretation.<p>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">\s+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">daisy_chain</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">daisy_chain_edge</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>

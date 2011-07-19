@@ -3,6 +3,8 @@ package Graph::Easy::Marpa::Lexer;
 use strict;
 use warnings;
 
+use Data::Section::Simple 'get_data_section';
+
 use Graph::Easy::Marpa::Lexer::DFA;
 
 use Hash::FieldHash ':all';
@@ -13,7 +15,7 @@ use List::Compare;
 
 use Log::Handler;
 
-use OpenOffice::OODoc;
+use Module::Load;
 
 use Perl6::Slurp;
 
@@ -21,6 +23,8 @@ use Set::Array;
 use Set::FA::Element;
 
 use Text::CSV_XS;
+
+use Try::Tiny;
 
 fieldhash my %cooked_file  => 'cooked_file';
 fieldhash my %description  => 'description';
@@ -35,10 +39,12 @@ fieldhash my %report_items => 'report_items';
 fieldhash my %report_stt   => 'report_stt';
 fieldhash my %result       => 'result';
 fieldhash my %stt_file     => 'stt_file';
+fieldhash my %timeout      => 'timeout';
+fieldhash my %tokens       => 'tokens';
 fieldhash my %type         => 'type';
 
 our $myself; # Is a copy of $self for functions called by Set::FA::Element.
-our $VERSION = '0.91';
+our $VERSION = '1.00';
 
 # --------------------------------------------------
 
@@ -85,8 +91,8 @@ sub _check_all_nexts
 
 sub _check_csv_headings
 {
-	my($self, $doc) = @_;
-	my($result)     = List::Compare -> new([grep{!/Interpretation|Regexp/} keys(%$doc)], [qw/Start Accept State Event Next Entry Exit/]);
+	my($self, $stt) = @_;
+	my($result)     = List::Compare -> new([grep{!/Interpretation|Regexp/} keys(%$stt)], [qw/Start Accept State Event Next Entry Exit/]);
 	my(@unique)     = $result -> get_unique;
 	my(@complement) = $result -> get_complement;
 
@@ -172,7 +178,7 @@ sub _check_next
 
 sub _check_ods_headings
 {
-	my($self, $doc) = @_;
+	my($self, $stt) = @_;
 	my(%heading)    =
 		(
 		 A1 => 'Start',
@@ -190,8 +196,8 @@ sub _check_ods_headings
 	for $column (qw/A B C D E F G/)
 	{
 		$coord = "${column}1";
-		$cell  = $doc -> getTableCell(0, $coord);
-		$value = $doc -> getCellValue($cell);
+		$cell  = $stt -> getTableCell(0, $coord);
+		$value = $stt -> getCellValue($cell);
 
 		if (! $value || ($value ne $heading{$coord}) )
 		{
@@ -235,59 +241,81 @@ sub _generate_cooked_file
 
 	print OUT qq|"key","value"\n|;
 
+	for my $item (@{$self -> tokens})
+	{
+		print OUT $self -> justify($$item[0]), ", $$item[1]\n";
+	}
+
+	close OUT;
+
+} # End of _generate_cooked_file.
+
+# --------------------------------------------------
+
+sub _generate_cooked_tokens
+{
+	my($self) = @_;
 	my(%name) =
 		(
-		 attribute        => 'attr_name_id',
+		 attribute        => 'attribute_name_id',
+		 class            => 'class',
+		 class_attribute  => 'class_attribute_name_id',
 		 daisy_chain_node => 'daisy_chain_node',
 		 edge             => 'edge_id',
-		 group            => 'group_name_id',
-		 node             => 'node_name_id',
-		 pop_group        => 'pop_group',
+		 node             => 'node_id',
+		 pop_subgraph     => 'pop_subgraph',
+		 push_subgraph    => 'push_subgraph',
 		);
 	my(%type) =
 		(
 		 attribute =>
 		 {
 			 prefix_1 => 'left_brace',
-			 prefix_2 => ', {',
+			 prefix_2 => '{',
 			 suffix_1 => 'right_brace',
-			 suffix_2 => ', }',
+			 suffix_2 => '}',
 		 },
 		 class =>
 		 {
-			 prefix_1 => 'left_brace',
-			 prefix_2 => ', {',
-			 suffix_1 => 'right_brace',
-			 suffix_2 => ', }',
+			 prefix_1 => '',
+			 prefix_2 => '',
+			 suffix_1 => '',
+			 suffix_2 => '',
 		 },
 		 class_attribute =>
 		 {
 			 prefix_1 => 'left_brace',
-			 prefix_2 => ', {',
+			 prefix_2 => '{',
 			 suffix_1 => 'right_brace',
-			 suffix_2 => ', }',
+			 suffix_2 => '}',
 		 },
 		 edge =>
 		 {
-			 prefix => '',
-			 suffix => '',
-		 },
-		 group =>
-		 {
-			 prefix => '',
-			 suffix => '',
+			 prefix_1 => '',
+			 prefix_2 => '',
+			 suffix_1 => '',
+			 suffix_2 => '',
 		 },
 		 node =>
 		 {
 			 prefix_1 => 'left_bracket',
-			 prefix_2 => ', [',
+			 prefix_2 => '[',
 			 suffix_1 => 'right_bracket',
-			 suffix_2 => ', ]',
+			 suffix_2 => ']',
 		 },
 		 pop_group =>
 		 {
-			 prefix => '',
-			 suffix => '',
+			 prefix_1 => '',
+			 prefix_2 => '',
+			 suffix_1 => '',
+			 suffix_2 => '',
+		 },
+		 push_subgraph =>
+		 {
+			 prefix_1 => '',
+			 prefix_2 => '',
+			 suffix_1 => '',
+			 suffix_2 => '',
 		 },
 		 subclass =>
 		 {
@@ -299,7 +327,7 @@ sub _generate_cooked_file
 		);
 
 	my($name);
-	my($type);
+	my($type, @token);
 	my($value);
 
 	for my $item (@{$self -> items})
@@ -308,29 +336,28 @@ sub _generate_cooked_file
 		$type  = $$item{type};
 		$value = $$item{value};
 
-		print OUT $self -> justify($type{$type}{prefix_1}), "$type{$type}{prefix_2}\n" if ($type{$type}{prefix_1});
-		print OUT $self -> justify($name{$type}), ", '$name'\n";
+		push @token, [$type{$type}{prefix_1}, $type{$type}{prefix_2}] if ($type{$type}{prefix_1});
+		push @token, [$name{$type}, "'$name'"];
 
-		if ($type eq 'attribute')
+		if ($type =~ /^(class_|)attribute/)
 		{
-			print OUT $self -> justify('colon'), ", :\n";
-			print OUT $self -> justify('attr_value_id'), ", '$value'\n";
-			print OUT $self -> justify('semi_colon'), ", ;\n";
+			push @token, ['colon', ':'];
+			push @token, ['attribute_value_id', "'$value'"];
+			push @token, ['semi_colon', ';'];
 		}
 
-		print OUT $self -> justify($type{$type}{suffix_1}), "$type{$type}{suffix_2}\n" if ($type{$type}{suffix_1});
+		push @token, [$type{$type}{suffix_1}, $type{$type}{suffix_2}] if ($type{$type}{suffix_1});
 	}
 
-	close OUT;
+	$self -> tokens(\@token);
 
-} # End of _generate_cooked_file.
+} # End of _generate_cooked_tokens.
 
 # --------------------------------------------------
 
 sub get_graph_from_command_line
 {
 	my($self) = @_;
-
 	$self -> graph_text($self -> graph);
 
 } # End of get_graph_from_command_line.
@@ -344,7 +371,7 @@ sub get_graph_from_file
 
 	shift(@line) while ( ($#line >= 0) && ($line[0] =~ /^\s*#/) );
 
-	$self -> log(debug => 'Graph file ' . $self -> input_file);
+	$self -> log(debug => 'Graph file: ' . $self -> input_file);
 	$self -> graph_text(join('', @line) );
 
 } # End of get_graph_from_file.
@@ -360,26 +387,31 @@ sub _init
 	$$arg{graph_text}   = '';
 	$$arg{input_file}   ||= ''; # Caller can set.
 	$$arg{items}        = Set::Array -> new;
-	$$arg{logger}       = Log::Handler -> new;
+	my($user_logger)    = defined($$arg{logger}); # Caller can set (e.g. to '').
+	$$arg{logger}       = $user_logger ? $$arg{logger} : Log::Handler -> new;
 	$$arg{maxlevel}     ||= 'info';  # Caller can set.
 	$$arg{minlevel}     ||= 'error'; # Caller can set.
 	$$arg{report_items} ||= 0;       # Caller can set.
 	$$arg{report_stt}   ||= 0;       # Caller can set.
 	$$arg{result}       = 0;
-	$$arg{stt_file}     ||= '';    # Caller can set.
-	$$arg{type}         ||= 'csv'; # Caller can set.
+	$$arg{stt_file}     ||= ''; # Caller can set.
+	$$arg{timeout}      ||= 3;  # Caller can set.
+	$$arg{tokens}       = [];
+	$$arg{type}         ||= ''; # Caller can set.
 	$self               = from_hash($self, $arg);
 
-	$self -> logger -> add
-		(
-		 screen =>
-		 {
-			 alias          => 'screen',
-			 maxlevel       => $self -> maxlevel,
-			 message_layout => '%m',
-			 minlevel       => $self -> minlevel,
-		 }
-		);
+	if (! $user_logger)
+	{
+		$self -> logger -> add
+			(
+			 screen =>
+			 {
+				 maxlevel       => $self -> maxlevel,
+				 message_layout => '%m',
+				 minlevel       => $self -> minlevel,
+			 }
+			);
+	}
 
 	return $self;
 
@@ -390,9 +422,9 @@ sub _init
 sub justify
 {
 	my($self, $s) = @_;
-	my($width) = 16;
+	my($width)    = 24;
 
-	return $s, ' ' x ($width - length $s);
+	return $s . ' ' x ($width - length $s);
 
 } # End of justify.
 
@@ -402,7 +434,7 @@ sub log
 {
 	my($self, $level, $s) = @_;
 
-	$self -> logger -> $level($s);
+	$self -> logger -> $level($s) if ($self -> logger);
 
 } # End of log.
 
@@ -424,30 +456,59 @@ sub _process
 {
 	my($self, $start, $state) = @_;
 
-	$self -> _check_all_nexts($state);
-	$self -> dfa
-		(
-		 Graph::Easy::Marpa::Lexer::DFA -> new
-		 (
-		  graph_text => $self -> graph_text,
-		  logger     => $self -> logger,
-		  report_stt => $self -> report_stt,
-		  state      => $state,
-		  start      => $start,
-		 )
-		);
-	$self -> result($self -> dfa -> run);
-	$self -> items -> push($_) for @{$self -> dfa -> items};
-	$self -> logger -> set_level(screen => {maxlevel => $self -> maxlevel, minlevel => $self -> minlevel});
-	$self -> report if ($self -> report_items);
-	$self -> dfa('');
+	$self -> log(debug => 'Graph text: ' . $self -> graph_text);
+
+	my($died) = '';
+
+	try
+	{
+		$self -> _check_all_nexts($state);
+		$self -> dfa
+			(
+			 Graph::Easy::Marpa::Lexer::DFA -> new
+			 (
+			  graph_text => $self -> graph_text,
+			  logger     => $self -> logger,
+			  report_stt => $self -> report_stt,
+			  state      => $state,
+			  start      => $start,
+			 )
+			);
+
+		local $SIG{ALRM} = sub{$died = 'DFA timed out'; die};
+
+		alarm $self -> timeout;
+
+		$self -> result($self -> dfa -> run);
+	}
+	catch
+	{
+		# Don't overwrite $died if set due to the alarm.
+
+		$died = $_ if (! $died);
+	};
+
+	alarm 0;
+
+	if ($died)
+	{
+		$self -> log(error => $died);
+		$self -> result(1);
+	}
 
 	if ($self -> result == 0)
 	{
+		$self -> items -> push(@{$self -> dfa -> items});
+		$self -> renumber_items;
+		$self -> report if ($self -> report_items);
+		$self -> _generate_cooked_tokens;
+
 		my($file_name) = $self -> cooked_file;
 
 		$self -> _generate_cooked_file($file_name) if ($file_name);
 	}
+
+	$self -> log(info => $self -> result ? 'Fail' : 'OK');
 
 	# Return 0 for success and 1 for failure.
 
@@ -459,17 +520,16 @@ sub _process
 
 sub _process_csv_file
 {
-	my($self) = @_;
-	my($doc)  = $self -> read_csv_file($self -> stt_file);
+	my($self, $stt) = @_;
 
-	$self -> _check_csv_headings($$doc[0]);
+	$self -> _check_csv_headings($$stt[0]);
 
 	my($accept);
 	my($column, %current);
 	my($start, %state);
 	my($value);
 
-	for my $item (@$doc)
+	for my $item (@$stt)
 	{
 		# Skip blank lines, i.e. lines not containing an event in column D.
 
@@ -526,10 +586,13 @@ sub _process_csv_file
 sub _process_ods_file
 {
 	my($self)  = @_;
-	my($doc)   = odfDocument(file => $self -> stt_file);
-	my($table) = $doc -> normalizeSheet(0, 'full');
 
-	$self -> _check_ods_headings($doc);
+	load OpenOffice::OODoc;
+
+	my($stt)   = odfDocument(file => $self -> stt_file);
+	my($table) = $stt -> normalizeSheet(0, 'full');
+
+	$self -> _check_ods_headings($stt);
 
 	# %current tells us what state we are processing.
 	# %state tells us about states we have processed.
@@ -544,9 +607,9 @@ sub _process_ods_file
 	{
 		# Skip blank lines, i.e. lines not containing an event in column D.
 
-		@row = $doc -> getRowCells(0, $row - 1);
+		@row = $stt -> getRowCells(0, $row - 1);
 
-		next if (! $doc -> getCellValue($row[3]) );
+		next if (! $stt -> getCellValue($row[3]) );
 
 		# Process columns:
 		# o A => Start.
@@ -560,8 +623,8 @@ sub _process_ods_file
 		for $column (qw/A B C D E F G/)
 		{
 			$coord = "${column}$row";
-			$cell  = $doc -> getTableCell(0, $coord);
-			$value = $doc -> getCellValue($cell);
+			$cell  = $stt -> getTableCell(0, $coord);
+			$value = $stt -> getCellValue($cell);
 
 			#$self -> log(debug => "$coord => $value");
 
@@ -571,7 +634,7 @@ sub _process_ods_file
 				{
 					# If column A is Yes, column C is the name of the start state.
 
-					$start = $doc -> getCellValue($row[2]);
+					$start = $stt -> getCellValue($row[2]);
 				}
 			}
 			elsif ($column eq 'B')
@@ -623,24 +686,84 @@ sub read_csv_file
 
 # -----------------------------------------------
 
+sub read_internal_file
+{
+	my($self)   = @_;
+	my($stt)    = get_data_section('stt');
+	my(@stt)    = split(/\n/, $stt);
+	my($csv)    = Text::CSV_XS -> new({allow_whitespace => 1});
+	my($status) = $csv -> parse(shift @stt);
+
+	if (! $status)
+	{
+		die 'Unable to read STT headers from __DATA__';
+	}
+
+	my(@column_name) = $csv -> fields;
+
+	my(@field);
+	my($i);
+	my(%line);
+	my(@row);
+
+	for my $line (@stt)
+	{
+		$status = $csv -> parse($line);
+
+		if (! $status)
+		{
+			die "Unable to read STT line '$line' from __DATA__";
+		}
+
+		@field = $csv -> fields;
+		%line  = ();
+
+		for $i (0 .. $#column_name)
+		{
+			$line{$column_name[$i]} = $field[$i];
+		}
+
+		push @row, {%line};
+	}
+
+	return \@row;
+
+} # End of read_internal_file.
+
+# -----------------------------------------------
+
+sub renumber_items
+{
+	my($self)  = @_;
+	my(@item)  = @{$self -> items};
+	my($count) = 0;
+
+	my(@new);
+
+	for my $item (@item)
+	{
+		$$item{count} = ++$count;
+
+		push @new, $item;
+	}
+
+	$self -> items(Set::Array -> new(@new) );
+
+} # End of renumber_items.
+
+# -----------------------------------------------
+
 sub report
 {
 	my($self)   = @_;
 	my($format) = '%4s  %-20s  %-20s';
-	my(@item)   = $self -> items;
 
 	$self -> log(info => sprintf($format, 'Item', 'Type', 'Name') );
 
-	my($item);
-
-	for my $i (0 .. $#item)
+	for my $item ($self -> items -> print)
 	{
-		$item = $item[$i];
-
 		$self -> log(info => sprintf($format, $$item{count}, $$item{type}, $$item{name} . ($$item{value} ? ":$$item{value}" : '') ) );
 	}
-
-	$self -> log(info => $self -> result ? 'Fail' : 'OK');
 
 } # End of report.
 
@@ -663,13 +786,15 @@ sub run
 		die 'You must provide a graph either by -i or -g';
 	}
 
-	$self -> log(debug => 'State transition table: ' . $self -> stt_file);
-
 	my($result) = 1; # Default to failure.
 
-	if ($self -> type eq 'csv')
+	if (! $self -> type)
 	{
-		$result = $self -> _process_csv_file;
+		$result = $self -> _process_csv_file($self -> read_internal_file);
+	}
+	elsif ($self -> type eq 'csv')
+	{
+		$result = $self -> _process_csv_file($self -> read_csv_file($self -> stt_file) );
 	}
 	elsif ($self -> type eq 'ods')
 	{
@@ -677,7 +802,7 @@ sub run
 	}
 	else
 	{
-		die '-type must be one of csv or ods for the state transition table file';
+		die "type must be one of '', 'csv' or 'ods' for the state transition table file";
 	}
 
 	# Return 0 for success and 1 for failure.
@@ -769,17 +894,29 @@ The first lines of the file can start with /^\s*#/, and will be discarded as com
 
 The 'description' key takes precedence over the 'input_file' key.
 
+=item o logger => $logger_object
+
+Specify a logger object.
+
+To disable logging, just set logger to the empty string.
+
+The default value is an object of type L<Log::Handler>.
+
+This logger is passed to L<Graph::Easy::Marpa::Lexer::DFA>.
+
 =item o maxlevel => $level
 
-This option affects L<Log::Handler>. See L<Log::Handler::Levels>.
+This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
+create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
 
-The default maxlevel is 'info'. A typical value is 'debug'.
+The default 'maxlevel' is 'info'. A typical value is 'debug'.
 
 =item o minlevel => $level
 
-This option affects L<Log::Handler>. See L<Log::Handler::Levels>.
+This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
+create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
 
-The default minlevel is 'error'.
+The default 'minlevel' is 'error'.
 
 No lower levels are used.
 
@@ -795,19 +932,25 @@ Calls Set::FA::Element.report(). Set min and max log levels to 'info' for this.
 
 Specify which file contains the state transition table.
 
-Default: data/default.stt.csv.
+Default: ''.
 
-Possible is: data/default.stt.odt.
+The default value means the STT is read from the source code of Graph::Easy::Marpa::Lexer.
 
-These 2 files are the same.
+Candidate files are '', 'data/default.stt.csv' and 'data/default.stt.ods'.
 
 The type of this file must be specified by the 'type' key.
 
+Note: If you use stt_file => your.stt.ods and type => 'ods', L<Module::Load>'s load() will be used to
+load L<OpenOffice::OODoc>. This module is no longer listed in Build.PL and Makefile.PL as a pre-req,
+so you will need to install it manually.
+ 
 =item o type => $stt_file_type
 
-Specify the type of the stt_file: csv for CSV, or ods for Open Office Calc spreadsheet.
+Specify the type of the stt_file: '' for internal, csv for CSV, or ods for Open Office Calc spreadsheet.
 
-Default is 'csv'.
+Default is ''.
+
+The default value means the STT is read from the source code of Graph::Easy::Marpa::Lexer.
 
 This option must be used with the 'stt_file' key.
 
@@ -849,34 +992,61 @@ The [] indicate an optional parameter.
 
 Get or set the value of the L<Graph::Easy> graph definition string.
 
+=head2 input_file([$graph_file_name])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the name of the file to read the graph definition from.
+
+See also the description() method.
+
+The whole file is slurped in as 1 graph.
+
+The first lines of the file can start with /^\s*#/, and will be discarded as comments.
+
+The value supplied to the description() method takes precedence over the value read from the input file.
+
 =head2 items()
 
 Returns a object of type L<Set::Array>, which is an arrayref of items output by the state machine.
 
-These items are I<not> the same as the arrayref of items returned by the items() method in
-L<Graph::Easy::Marpa::Parser>, but they are the same as in L<Graph::Easy::Marpa::DFA>.
-
-See L<Graph::Easy::Marpa::DFA/items()> for details.
+See the L</FAQ> for details.
 
 =head2 log($level, $s)
 
 Calls $self -> logger -> $level($s).
 
-=head2 logger()
+=head2 log($level, $s)
 
-Returns a object of type L<Log::Handler>.
+Calls $self -> logger -> $level($s).
 
-=head2 maxlevel([$level])
+=head2 logger([$logger_object])
 
-The [] indicate an optional parameter.
+Here, the [] indicate an optional parameter.
 
-Get or set the value of the logger's maxlevel option.
+Get or set the logger object.
 
-=head2 minlevel([$level])
+To disable logging, just set logger to the empty string.
 
-The [] indicate an optional parameter.
+This logger is passed to L<Graph::Easy::Marpa::Lexer::DFA>.
 
-Get or set the value of the logger's minlevel option.
+=head2 maxlevel([$string])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the value used by the logger object.
+
+This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
+create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
+
+=head2 minlevel([$string])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the value used by the logger object.
+
+This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
+create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
 
 =head2 read_csv_file($file_name)
 
@@ -912,11 +1082,215 @@ Get or set the name of the file containing the state transition table.
 
 This option is used in conjunction with the type() option.
 
+=head2 timeout($seconds)
+
+The [] indicate an optional parameter.
+
+Get or set the timeout for how long to run the DFA.
+
+=head2 tokens()
+
+Returns an arrayref of cooked tokens. Each element of this arrayref is an arrayref of 2 elements:
+
+=over 4
+
+=item o The type of the token
+
+=item o The value of the token
+
+=back
+
+If you provide an output file by using the cooked_file option to new(), or the cooked_file() method,
+the tokens written to that file are exactly the same as the tokens returned by tokens().
+
+E.g.: If the cooked file looks like:
+
+	"key","value"
+	left_bracket       , [
+	node_name_id       , 'Murrumbeena'
+	right_bracket      , ]
+	left_brace         , {
+	attribute_name_id  , 'color'
+	colon              , :
+	attribute_value_id , 'blue'
+	semi_colon         , ;
+	right_brace        , }
+	...
+
+then the arrayref will contain:
+
+	['left_bracket',       '[']
+	['node_name_id',       'Murrumbeena']
+	['right_bracket',      ']']
+	['left_brace',         '{']
+	['attribute_name_id',  'color']
+	['colon',              ':']
+	['attribute_value_id', 'blue']
+	['semi_colon',         ';']
+	['right_brace',        '}']
+	...
+
+If you look at the source code for the run() method in L<Graph::Easy::Marpa>, you'll see this arrayref can be
+passed directly as the value of the tokens key in the call to L<Graph::Easy::Marpa::Parser>'s new().
+
 =head2 type([$type])
 
 The [] indicate an optional parameter.
 
 Get or set the value which determines what type of stt_file is read.
+
+=head1 FAQ
+
+=head2 How is the lexed or parsed graph stored in RAM?
+
+Items are stored in an arrayref. This arrayref is available via the L</items()> method.
+
+These items are the same as the arrayref of items returned by the items() method in
+L<Graph::Easy::Marpa::Parser>, and the same as in L<Graph::Easy::Marpa::Lexer::DFA>.
+
+Each element in the array is a hashref, listed here in alphabetical order by type.
+
+Note: Items are numbered from 1 up.
+
+=over 4
+
+=item o Attributes
+
+The attribute name must match /^[a-z][a-z0-9_]*$/.
+
+The attribute value is everything up to the next ';' or '}'.
+
+The name and value are separated by a ':'.
+
+An attribute can belong to a graph, node or an edge. An attribute definition of
+'{color: red;}' would produce a hashref of:
+
+	{
+	count => $n,
+	name  => 'color',
+	type  => 'attribute',
+	value => 'red',
+	}
+
+An attribute definition of '{color: red; shape: circle;}' will produce 2 hashrefs,
+i.e. 2 sequential elements in the arrayref:
+
+	{
+	count => $n,
+	name  => 'color',
+	type  => 'attribute',
+	value => 'red',
+	}
+
+	{
+	count => $n,
+	name  => 'shape',
+	type  => 'attribute',
+	value => 'circle',
+	}
+
+Attribute hashrefs appear in the arrayref immediately after the item (edge, group, node) to which they belong.
+For groups, this means they appear straight after the hashref whose type is 'pop_subgraph'.
+
+=item o Classes and class attributes
+
+These notes apply to the 4 class names, /^(?:edge|graph|group|node)$/, and all their subclasses.
+
+Note: It does not make sense for a class of 'graph' to have any subclasses.
+
+A class definition of 'edge {color: white}' would produce 2 hashrefs:
+
+	{
+	count => $n,
+	name  => 'edge',
+	type  => 'class_name',
+	value => '',
+	}
+
+	{
+	count => $n,
+	name  => 'color',
+	type  => 'attribute',
+	value => 'white',
+	}
+
+A class definition of 'node.green {color: green; shape: square}' would produce 3 hashrefs:
+
+	{
+	count => $n,
+	name  => 'node.green',
+	type  => 'class_name',
+	value => '',
+	}
+
+	{
+	count => $n,
+	name  => 'color',
+	type  => 'attribute',
+	value => 'green',
+	}
+
+	{
+	count => $n,
+	name  => 'shape',
+	type  => 'attribute',
+	value => 'square',
+	}
+
+Class and class attribute hashrefs always appear at the start of the arrayref of items.
+
+=item o Edges
+
+An edge definition of '->' would produce a hashref of:
+
+	{
+	count => $n,
+	name  => '->',
+	type  => 'edge',
+	value => '',
+	}
+
+=item o Nodes
+
+A node definition of '[Name]' would produce a hashref of:
+
+	{
+	count => $n,
+	name  => 'Name',
+	type  => 'node',
+	value => '',
+	}
+
+A node can have a definition of '[ ]', which means it has no name. Such node are anonymous, and are
+called invisible because while they take up space in the output stream, they have no printable or visible
+characters in the output stream. See L<Graph::Easy> for details.
+
+Node names are case-sensitive.
+
+=item o Subgraphs
+
+A group produces 2 hashrefs, one at the start of the group, and one at the end.
+
+A group defnition of '(Solar system: [Mercury] -> [Neptune])' would produce a hashref like this at the start,
+i.e. when the '(' - just before 'Solar' - is detected in the input stream:
+
+	{
+	count => $n,
+	name  => 'Solar system',
+	type  => 'push_subgraph',
+	value => '',
+	}
+
+and a hashref like this at the end, i.e. when the ')' - just after '[Neptune]' - is detected:
+
+	{
+	count => $n,
+	name  => 'Solar system',
+	type  => 'pop_subgraph',
+	value => '',
+	}
+
+=back
 
 =head1 Machine-Readable Change Log
 
@@ -948,3 +1322,90 @@ Australian copyright (c) 2011, Ron Savage.
 	http://www.opensource.org/licenses/index.html
 
 =cut
+
+__DATA__
+
+@@ stt
+"Start","Accept","State","Event","Next","Entry","Exit","Regexp","Interpretation"
+"Yes",,"global","(?:edge|global|graph|group|node)(?:\.[a-z]+)?","class",,"save_class_name","[a-z]+\s*:","Attribute name"
+,,,"(?:->|--)","start_edge",,,"[^}]+}","Attribute value"
+,,,"\(","start_group",,,"(?:edge|global|graph|group|node)(?:\.[a-z]+)?","Class name"
+,,,"\[","start_node",,,"(?:->|--)","Edge name"
+,,,"\s+","global",,,"[a-zA-Z_][a-zA-Z_0-9]*","Event name"
+,,,,,,,"[a-zA-Z_.][a-zA-Z_0-9. ]*:","Group name"
+,,,,,,,"[a-zA-Z_0-9. ]+","Node name"
+,,"class",",","daisy_chain_class","validate_class_name",,"[a-zA-Z_][a-zA-Z_0-9]*","State name"
+,,,"{","start_class_attribute",,,,
+,,,"\(","start_group",,,,
+,,,"\[","start_node",,,,
+,,,"(?:->|--)","start_edge",,,,
+,,,"\s+","class",,,,
+,,,,,,,,
+,,"start_class_attribute","[a-z]+\s*:","class_attribute_value",,"save_class_attribute_name",,
+,,,,,,,,
+,,"class_attribute_value","[^}]+}","post_class_attribute","validate_class_attribute_name","save_class_attribute_value",,
+,,,,,,,,
+,,"daisy_chain_class","(?:edge|global|graph|group|node)(?:\.[a-z]+)?","class",,"save_class_name",,
+,,,"\s+","daisy_chain_class",,,,
+,,,,,,,,
+,,"post_class_attribute","(?:edge|global|graph|group|node)(?:\.[a-z]+)?","class","validate_class_attribute_value","save_class_name",,
+,,,"\(","start_group",,,,
+,,,"\[","start_node",,,,
+,,,"(?:->|--)","start_edge",,,,
+,,,"\s+","post_class_attribute",,,,
+,,,,,,,,
+,,"start_group","[a-zA-Z_.][a-zA-Z_0-9. ]*:","group","push_group","save_group_name",,
+,,,"(?:->|--)","start_edge",,,,
+,,,"\)","post_group",,,,
+,,,"\s+","start_group",,,,
+,,,,,,,,
+,,"group","(?:edge|global|graph|group|node)(?:\.[a-z]+)?","class","validate_group_name",,,
+,,,"\[","start_node",,,,
+,,,"(?:->|--)","start_edge",,,,
+,,,"\s+","group",,,,
+,,,,,,,,
+,"Yes","post_group","{","start_attribute","pop_group",,,
+,,,"\[","start_node",,,,
+,,,"\(","start_group",,,,
+,,,"(?:->|--)","start_edge",,,,
+,,,"\s+","post_group",,,,
+,,,,,,,,
+,,"start_node","[a-zA-Z_0-9. ]+","node",,"save_node_name",,
+,,,"]","post_node",,,,
+,,,"\s+","start_node",,,,
+,,,,,,,,
+,,"node","]","post_node",,,,
+,,,"\s+","node",,,,
+,,,,,,,,
+,"Yes","post_node","{","start_attribute","validate_node_name",,,
+,,,"\(","start_group",,,,
+,,,"\)","post_group",,,,
+,,,"\[","start_node",,,,
+,,,"(?:->|--)","start_edge",,,,
+,,,",","daisy_chain_node",,,,
+,,,"\s+","post_node",,,,
+,,,,,,,,
+,,"start_attribute","[a-z]+\s*:","attribute_value",,"save_attribute_name",,
+,,,"\s+","start_attribute",,,,
+,,,,,,,,
+,,"attribute_value","[^}]+}","post_attribute","validate_attribute_name","save_attribute_value",,
+,,,,,,,,
+,"Yes","post_attribute","\(","start_group","validate_attribute_value",,,
+,,,"\)","post_group",,,,
+,,,"\[","start_node",,,,
+,,,"(?:->|--)","start_edge",,,,
+,,,",","post_attribute",,,,
+,,,"\s+","post_attribute",,,,
+,,,,,,,,
+,"Yes","start_edge","{","start_attribute","save_edge_name","validate_edge_name",,
+,,,"\(","start_group",,,,
+,,,"\)","post_group",,,,
+,,,"\[","start_node",,,,
+,,,",","daisy_chain_edge",,,,
+,,,"\s+","start_edge",,,,
+,,,,,,,,
+,"Yes","daisy_chain_node","\[","start_node",,,,
+,,,"\s+","daisy_chain_node",,,,
+,,,,,,,,
+,"Yes","daisy_chain_edge","(?:->|--)","start_edge",,,,
+,,,"\s+","daisy_chain_edge",,,,

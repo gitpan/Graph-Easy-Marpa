@@ -1,0 +1,3 @@
+# Classes with and without attributes. Error.
+node.green {color: green} graph [node.1] -> [node.2]
+

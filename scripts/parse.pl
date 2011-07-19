@@ -18,10 +18,12 @@ my(%option);
 if ($option_parser -> getoptions
 (
  \%option,
+ 'dot_input_file=s',
  'help',
  'input_file=s',
  'maxlevel=s',
  'minlevel=s',
+ 'rankdir=s',
  'report_items=i',
 ) )
 {
@@ -47,14 +49,14 @@ parse.pl - Run Graph::Easy::Marpa::Parser.
 parse.pl [options]
 
 	Options:
+	-dot_input_file aDotInputFileName
 	-help
 	-input_file inFileName
 	-maxlevel logOption1
 	-minlevel logOption2
+	-rankdir LR or RL or TB or BT
 	-report_items 0 or 1
 	-tokenFile aTokenFileName
-
-All switches can be reduced to a single letter.
 
 Exit value: 0 for success, 1 for failure. Die upon error.
 
@@ -70,6 +72,15 @@ You can use scripts/parse.sh to simplify this process:
 =head1 OPTIONS
 
 =over 4
+
+=item -dot_input_file aDotInputFileName
+
+Specify the name of a file that the rendering engine can write to, which will contain the input
+to dot (or whatever). This is good for debugging.
+
+Default: ''.
+
+If '', the file will not be created.
 
 =item -help
 
@@ -108,6 +119,12 @@ A file to which the graph is written.
 If not specified (the default), the graph is not saved.
 
 The default is ''.
+
+=item -rankdir LR or RL or TB or BT
+
+Specify the rankdir of the graph as a whole.
+
+Default: TB (top to bottom).
 
 =item -report_items 0 or 1
 

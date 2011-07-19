@@ -1,0 +1,3 @@
+# Unused class with attributes. OK.
+node.green {color: green} [node.1] -> [node.2]
+

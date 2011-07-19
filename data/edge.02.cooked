@@ -1,8 +1,8 @@
 "key","value"
-edge_id         , '-'
-left_brace      , {
-attr_name_id    , 'color'
-colon           , :
-attr_value_id   , 'cyan'
-semi_colon      , ;
-right_brace     , }
+edge_id                 , '--'
+left_brace              , {
+attribute_name_id       , 'color'
+colon                   , :
+attribute_value_id      , 'cyan'
+semi_colon              , ;
+right_brace             , }

@@ -9,18 +9,9 @@ BEGIN{ use_ok('Graph::Easy::Marpa::Parser'); }
 my(@edge);
 my(@token);
 
-for my $prefix ('', '<')
+for my $edge ('--', '->')
 {
-for my $edge ('-', '=', '.', '~', '.-', '..-', '- ', '= ')
-{
-for my $i (1 .. 2)
-{
-for my $suffix ('', '>')
-{
-	push @edge, $prefix . $edge x $i . $suffix;
-}
-}
-}
+	push @edge, $edge;
 }
 
 # Start $count at 1 because of use_ok() above.

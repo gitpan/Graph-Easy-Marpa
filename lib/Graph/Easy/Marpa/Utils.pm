@@ -10,7 +10,7 @@ use Hash::FieldHash ':all';
 
 use Perl6::Slurp;
 
-our $VERSION = '0.91';
+our $VERSION = '1.00';
 
 # ------------------------------------------------
 
@@ -65,7 +65,7 @@ sub new
 
 =head1 NAME
 
-L<Graph::Easy::Marpa::Utils> - Some utils to generate the HTML page, and to simplify testing
+L<Graph::Easy::Marpa::Utils> - Some utils to generate the demo page, and to simplify testing
 
 =head1 Synopsis
 
@@ -73,6 +73,8 @@ See scripts/generate.index.pl and t/test.t.
 
 Note: scripts/generate.index.pl outputs to a temporary directory. You'll need to patch it if
 you wish to save the output.
+
+See: L<http://savage.net.au/Perl-modules/html/graph.easy.marpa/index.html>.
 
 =head1 Description
 

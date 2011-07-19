@@ -18,9 +18,10 @@ fieldhash my %param      => 'param';
 fieldhash my %report_stt => 'report_stt';
 fieldhash my %state      => 'state';
 fieldhash my %start      => 'start';
+fieldhash my %verbose    => 'verbose';
 
 our $myself; # Is a copy of $self for functions called by Set::FA::Element.
-our $VERSION = '0.91';
+our $VERSION = '1.00';
 
 # --------------------------------------------------
 
@@ -91,7 +92,13 @@ sub _count
 {
 	my($self) = @_;
 
-	return $self -> counter($self -> counter + 1);
+	# Warning! Don't use:
+	# return $self -> counter($self -> counter + 1);
+	# It returns $self.
+
+	$self -> counter($self -> counter + 1);
+
+	return $self -> counter;
 
 } # End of _count.
 
@@ -110,12 +117,23 @@ sub _init
 	$$arg{report_stt} ||= 0;  # Caller can set.
 	$$arg{state}      ||= $$arg{state} || die 'Error: No value supplied for state';
 	$$arg{start}      ||= $$arg{start} || die 'Error: No value supplied for start';
+	$$arg{verbose}    ||= 0;  # Caller can set.
 	$self             = from_hash($self, $arg);
 	$myself           = $self;
 
 	return $self;
 
 } # End of _init.
+
+# --------------------------------------------------
+
+sub log
+{
+	my($self, $level, $s) = @_;
+
+	$self -> logger -> $level($s) if ($self -> logger);
+
+} # End of log.
 
 # --------------------------------------------------
 
@@ -145,9 +163,10 @@ sub pop_group
 	({
 		count => $myself -> _count,
 		name  => $myself -> group,
-		type  => 'pop_group',
+		type  => 'pop_subgraph',
 		value => '',
 	});
+
 	$myself -> group('');
 
 } # End of pop_group.
@@ -159,11 +178,16 @@ sub _process_graph
 	my($self)  = @_;
 	my($input) = $self -> graph_text;
 
-	$self -> logger -> log(debug => "Graph: $input");
-
 	my($result) = 1 - $self -> dfa -> accept($input);
 
-	$self -> _clean_up;
+	if ($result)
+	{
+		$self -> log(error => "Error: The final state '@{[$self -> dfa -> current]}' is not an accepting state");
+	}
+	else
+	{
+		$self -> _clean_up;
+	}
 
 	# Return 0 for success and 1 for failure.
 
@@ -230,16 +254,6 @@ sub run
 		}
 	}
 
-=pod
-
-	@stt           = sort @stt; # Format nicely as sample data for GraphViz2.
-	my($stt_graph) = GraphViz2::Parse::STT -> new;
-
-	$stt_graph -> create(stt => join("\n", @stt) );
-	$stt_graph -> graph -> run(format => 'svg', output_file => 'graph.easy.svg');
-
-=cut
-
 	# Build and run the DFA.
 
 	$self -> dfa
@@ -252,6 +266,7 @@ sub run
 		  logger      => $self -> logger,
 		  start       => $self -> start,
 		  transitions => \@transitions,
+		  verbose     => $self -> verbose,
 		 )
 		);
 
@@ -266,38 +281,82 @@ sub run
 # --------------------------------------------------
 # Warning: This is a function.
 
-sub save_attribute
+sub save_attribute_name
 {
-	my($dfa)           = @_;
-	my($param)         = $myself -> param;
-	$$param{attribute} =
+	my($dfa)                = @_;
+	my($attribute_name)     = $dfa -> match;
+	$attribute_name         =~ s/:$//;
+	my($param)              = $myself -> param;
+	$$param{attribute_name} =
 	{
 		count => $myself -> _count,
-		match => trim($dfa -> match),
+		match => trim($attribute_name),
 	};
 
 	$myself -> param($param);
-	$myself -> logger -> log(debug => "save_attribute($$param{attribute}{match})");
+	$myself -> log(debug => "save_attribute_name($$param{attribute_name}{match})");
 
-} # End of save_attribute.
+} # End of save_attribute_name.
 
 # --------------------------------------------------
 # Warning: This is a function.
 
-sub save_class_attribute
+sub save_attribute_value
 {
 	my($dfa)                 = @_;
+	my($attribute_name)      = $dfa -> match;
+	$attribute_name          =~ s/;?}$//;
 	my($param)               = $myself -> param;
-	$$param{class_attribute} =
+	$$param{attribute_value} =
 	{
 		count => $myself -> _count,
-		match => trim($dfa -> match),
+		match => trim($attribute_name),
 	};
 
 	$myself -> param($param);
-	$myself -> logger -> log(debug => "save_class_attribute($$param{class_attribute}{match})");
+	$myself -> log(debug => "save_attribute_value($$param{attribute_value}{match})");
 
-} # End of save_class_attribute.
+} # End of save_attribute_value.
+
+# --------------------------------------------------
+# Warning: This is a function.
+
+sub save_class_attribute_name
+{
+	my($dfa)                      = @_;
+	my($attribute_name)           = $dfa -> match;
+	$attribute_name               =~ s/:$//;
+	my($param)                    = $myself -> param;
+	$$param{class_attribute_name} =
+	{
+		count => $myself -> _count,
+		match => trim($attribute_name),
+	};
+
+	$myself -> param($param);
+	$myself -> log(debug => "save_class_attribute_name($$param{class_attribute_name}{match})");
+
+} # End of save_class_attribute_name.
+
+# --------------------------------------------------
+# Warning: This is a function.
+
+sub save_class_attribute_value
+{
+	my($dfa)                       = @_;
+	my($attribute_name)            = $dfa -> match;
+	$attribute_name                =~ s/;?}$//;
+	my($param)                     = $myself -> param;
+	$$param{class_attribute_value} =
+	{
+		count => $myself -> _count,
+		match => trim($attribute_name),
+	};
+
+	$myself -> param($param);
+	$myself -> log(debug => "save_class_attribute_value($$param{class_attribute_value}{match})");
+
+} # End of save_class_attribute_value.
 
 # --------------------------------------------------
 # Warning: This is a function.
@@ -307,12 +366,12 @@ sub save_class_name
 	my($dfa)   = @_;
 	my($match) = trim($dfa -> match);
 
-	# Did we actually detect a class name? For instance, the graph might have started with [].
+	# Did we actually detect a class name? For instance, the graph might have started with [ ].
 
-	if ($match =~ /[a-zA-Z_]+/)
+	if ($match =~ /[a-z][a-z0-9_]*/)
 	{
-		my($param)            = $myself -> param;
-		my($previous_match)   = $$param{class}{match};
+		my($param)          = $myself -> param;
+		my($previous_match) = $$param{class}{match};
 
 		if ($previous_match)
 		{
@@ -328,11 +387,11 @@ sub save_class_name
 		}
 
 		$myself -> param($param);
-		$myself -> logger -> log(debug => "save_class_name($$param{class}{match})");
+		$myself -> log(debug => "save_class_name($$param{class}{match})");
 	}
 	else
 	{
-		$myself -> logger -> log(debug => "save_class_name()");
+		$myself -> log(debug => "save_class_name()");
 	}
 
 } # End of save_class_name.
@@ -351,7 +410,7 @@ sub save_edge_name
 	};
 
 	$myself -> param($param);
-	$myself -> logger -> log(debug => "save_edge_name($$param{edge}{match})");
+	$myself -> log(debug => "save_edge_name($$param{edge}{match})");
 
 } # End of save_edge_name.
 
@@ -362,7 +421,6 @@ sub save_group_name
 {
 	my($dfa)   = @_;
 	my($match) = trim($dfa -> match);
-	$match     =~ s/:$//;
 
 	# The empty group.
 
@@ -388,7 +446,7 @@ sub save_group_name
 	};
 
 	$myself -> param($param);
-	$myself -> logger -> log(debug => "save_group_name($$param{group}{match})");
+	$myself -> log(debug => "save_group_name($$param{group}{match})");
 
 } # End of save_group_name.
 
@@ -407,7 +465,7 @@ sub save_node_name
 		$match = '';
 	}
 
-	$myself -> logger -> log(debug => "save_node_name($match)");
+	$myself -> log(debug => "save_node_name($match)");
 
 	my($param)    = $myself -> param;
 	$$param{node} =
@@ -436,28 +494,78 @@ sub trim
 # --------------------------------------------------
 # Warning: This is a function.
 
-sub validate_attribute
+sub validate_attribute_name
 {
-	my($dfa)           = @_;
-	my($param)         = $myself -> param;
-	my($attribute)     = $$param{attribute}{match};
-	$$param{attribute} = {};
+	my($dfa)            = @_;
+	my($param)          = $myself -> param;
+	my($attribute_name) = $$param{attribute_name}{match};
+
+	# Do the real work in validate_attribute_value.
+
+	$myself -> log(debug => "validate_attribute_name($attribute_name)");
+
+} # End of validate_attribute_name.
+
+# --------------------------------------------------
+# Warning: This is a function.
+
+sub validate_attribute_value
+{
+	my($dfa)                 = @_;
+	my($param)               = $myself -> param;
+	my($attribute_name)      = trim($$param{attribute_name}{match});
+	my($attribute_value)     = trim($$param{attribute_value}{match});
+	$$param{attribute_name}  = {};
+	$$param{attribute_value} = {};
 
 	$myself -> param($param);
-	$myself -> logger -> log(debug => "validate_attribute($attribute)");
+	$myself -> log(debug => "validate_attribute_value($attribute_value)");
+
+	my(@value) = split(/\s*;\s*/, $attribute_value);
+
+	if ( ($#value % 2) < 0)
+	{
+		die "Error: Syntax error in attribute: $attribute_name: $attribute_value";
+	}
+
+	# Must allow for a value of 0.
+
+	$attribute_value = trim(defined($_ = shift(@value) ) ? $_ : '');
+	my(%attribute)   = ($attribute_name || '' => $attribute_value);
+	@value           = map{split(/\s*:\s*/)} @value;
+
+	if ($#value >= 0)
+	{
+		if ( ($#value % 2) == 0)
+		{
+			die 'Error: Syntax error in attribute: ' . join(': ', @value);
+		}
+
+		# Must allow for a value of 0.
+
+		%attribute = (%attribute,  map{trim(defined($_) ? $_ : '')} @value);
+	}
 
 	my($key);
 	my($value);
 
-	for my $key_value (split(/\s*;\s*/, $attribute) )
+	for my $key (keys %attribute)
 	{
-		($key, $value) = split(/\s*:\s*/, $key_value);
+		$value = $attribute{$key};
+		$value =~ s/^(["'])(.+)\1$/$2/ if (defined $value);
 
-		# The defined is to ensure we accept things like: 'width: 0'.
+		# Must allow for a value of 0.
 
-		if (! ($key && defined $value) )
+		if (! ($key && defined($value) ) )
 		{
-			die "Error: Syntax error in attribute '$attribute'";
+			die "Error: Syntax error in attribute '$key' => '$value'";
+		}
+
+		# Allow labels to be empty strings.
+
+		if ( ($key ne 'label') && (length($value) == 0) )
+		{
+			die "Error: Syntax error in attribute '$key' => '$value'";
 		}
 
 		$myself -> items -> push
@@ -469,31 +577,76 @@ sub validate_attribute
 		});
 	}
 
-} # End of validate_attribute.
+} # End of validate_attribute_value.
 
 # --------------------------------------------------
 # Warning: This is a function.
 
-sub validate_class_attribute
+sub validate_class_attribute_name
 {
-	my($dfa)                 = @_;
-	my($param)               = $myself -> param;
-	my($attribute)           = $$param{class_attribute}{match};
-	$$param{class_attribute} = {};
+	my($dfa)            = @_;
+	my($param)          = $myself -> param;
+	my($attribute_name) = $$param{class_attribute_name}{match};
+
+	# Do the real work in validate_attribute_value.
+
+	$myself -> log(debug => "validate_class_attribute_name($attribute_name)");
+
+} # End of validate_class_attribute_name.
+
+# --------------------------------------------------
+# Warning: This is a function.
+
+sub validate_class_attribute_value
+{
+	my($dfa)                       = @_;
+	my($param)                     = $myself -> param;
+	my($attribute_name)            = trim($$param{class_attribute_name}{match});
+	my($attribute_value)           = trim($$param{class_attribute_value}{match});
+	$$param{class_attribute_name}  = {};
+	$$param{class_attribute_value} = {};
 
 	$myself -> param($param);
-	$myself -> logger -> log(debug => "validate_attribute($attribute)");
+	$myself -> log(debug => "validate_class_attribute_value($attribute_value)");
+
+	my(@value) = split(/\s*;\s*/, $attribute_value);
+
+	if ( ($#value % 2) < 0)
+	{
+		die "Error: Syntax error in class attribute: $attribute_name: $attribute_value";
+	}
+
+	# Must allow for a value of 0.
+
+	$attribute_value = trim(defined($_ = shift(@value) ) ? $_ : '');
+	my(%attribute)   = ($attribute_name || '' => $attribute_value);
+	@value           = map{split(/\s*:\s*/)} @value;
+
+	if ($#value >= 0)
+	{
+		if ( ($#value % 2) == 0)
+		{
+			die 'Error: Syntax error in attribute: ' . join(': ', @value);
+		}
+
+		# Must allow for a value of 0.
+
+		%attribute = (%attribute,  map{trim(defined($_) ? $_ : '')} @value);
+	}
 
 	my($key);
 	my($value);
 
-	for my $key_value (split(/\s*;\s*/, $attribute) )
+	for my $key (keys %attribute)
 	{
-		($key, $value) = split(/\s*:\s*/, $key_value);
+		$value = $attribute{$key};
+		$value =~ s/^(["'])(.+)\1$/$2/ if (defined $value);
 
-		if (! ($key && $value) )
+		# Must allow for a value of 0.
+
+		if (! ($key && defined($value) && (length($value) > 0) ) )
 		{
-			die "Error: Syntax error in attribute '$attribute'";
+			die "Error: Syntax error in class attribute '$key' => '$value'";
 		}
 
 		$myself -> items -> push
@@ -505,7 +658,7 @@ sub validate_class_attribute
 		});
 	}
 
-} # End of validate_class_attribute.
+} # End of validate_class_attribute_value.
 
 # --------------------------------------------------
 # Warning: This is a function.
@@ -521,18 +674,20 @@ sub validate_class_name
 
 	my(%valid_name) =
 		(
-		 edge  => 1,
-		 graph => 1,
-		 group => 1,
-		 node  => 1,
+		 edge   => 1,
+		 global => 1,
+		 graph  => 1,
+		 group  => 1,
+		 node   => 1,
 		);
+	my($valid_name) = join('|', sort keys %valid_name);
 
-	if (! $valid_name{$class})
+	if ($class !~ /^$valid_name(\.[a-z]+)?$/)
 	{
-		die "Error: Syntax error in class name '$class'. Must be one of: " . join(', ', sort keys %valid_name);
+		die "Error: Syntax error in class name '$class'. Must be one of: $valid_name";
 	}
 
-	$myself -> logger -> log(debug => "validate_class_name ($class)");
+	$myself -> log(debug => "validate_class_name ($class)");
 	$myself -> items -> push
 	({
 		count => $myself -> _count,
@@ -548,13 +703,19 @@ sub validate_class_name
 
 sub validate_edge_name
 {
-	my($dfa)      = @_;
-	my($param)    = $myself -> param;
-	my($edge)     = $$param{edge}{match};
-	$$param{edge} = {};
+	my($dfa)        = @_;
+	my($param)      = $myself -> param;
+	my($edge)       = $$param{edge}{match};
+	$$param{edge}   = {};
+	my($valid_edge) = '->|--';
+
+	if ($edge !~ /^$valid_edge$/)
+	{
+		die "Error: Syntax error in edge name '$edge'. Must be one of: $valid_edge";
+	}
 
 	$myself -> param($param);
-	$myself -> logger -> log(debug => "validate_edge_name($edge)");
+	$myself -> log(debug => "validate_edge_name($edge)");
 	$myself -> items -> push
 	({
 		count => $myself -> _count,
@@ -570,18 +731,24 @@ sub validate_edge_name
 
 sub validate_group_name
 {
-	my($dfa)       = @_;
-	my($param)     = $myself -> param;
-	my($group)     = $$param{group}{match};
-	$$param{group} = {};
+	my($dfa)         = @_;
+	my($param)       = $myself -> param;
+	my($group)       = $$param{group}{match};
+	$$param{group}   = {};
+	my($valid_group) = '[a-zA-Z_.][a-zA-Z_0-9. ]*:';
+
+	if ($group !~ /^$valid_group$/)
+	{
+		die "Error: Syntax error in group name '$group'. Must match: $valid_group";
+	}
 
 	$myself -> param($param);
-	$myself -> logger -> log(debug => "validate_group_name($group)");
+	$myself -> log(debug => "validate_group_name($group)");
 	$myself -> items -> push
 	({
 		count => $myself -> _count,
 		name  => $group,
-		type  => 'group',
+		type  => 'push_subgraph',
 		value => '',
 	});
 
@@ -592,13 +759,21 @@ sub validate_group_name
 
 sub validate_node_name
 {
-	my($dfa)      = @_;
-	my($param)    = $myself -> param;
-	my($node)     = $$param{node}{match};
-	$$param{node} = {};
+	my($dfa)        = @_;
+	my($param)      = $myself -> param;
+	my($node)       = $$param{node}{match};
+	$$param{node}   = {};
+	my($valid_node) = '[a-zA-Z_0-9. ]+';
+
+	# We have to allow for the anonymous node, which has had any spaces trimmed.
+
+	if ($node !~ /^(?:$valid_node|)$/)
+	{
+		die "Error: Syntax error in node name '$node'. Must match: $valid_node";
+	}
 
 	$myself -> param($param);
-	$myself -> logger -> log(debug => "validate_node_name($node)");
+	$myself -> log(debug => "validate_node_name($node)");
 
 	$myself -> items -> push
 	({
@@ -609,28 +784,6 @@ sub validate_node_name
 	});
 
 } # End of validate_node_name.
-
-# --------------------------------------------------
-# Warning: This is a function.
-
-sub validate_subclass_name
-{
-	my($dfa)       = @_;
-	my($param)     = $myself -> param;
-	my($class)     = $$param{class}{match};
-	$$param{class} = {};
-
-	$myself -> param($param);
-	$myself -> logger -> log(debug => "validate_subclass_name($class)");
-	$myself -> items -> push
-	({
-		count => $myself -> _count,
-		name  => $class,
-		type  => 'subclass',
-		value => '',
-	});
-
-} # End of validate_subclass_name.
 
 # --------------------------------------------------
 
@@ -691,21 +844,37 @@ Key-value pairs accepted in the parameter list (see corresponding methods for de
 
 Specify a string for the graph definition.
 
+Default: ''.
+
 =item o logger => $logger
 
 Specify a logger object to use.
+
+Default: ''.
 
 =item o report_stt => $Boolean
 
 Get or set the value which determines whether or not to report the parsed state transition table (STT).
 
+Default: 0.
+
 =item o state => $state
 
 Specify the state transition table.
 
+There is no default. The code dies if a value is not supplied.
+
 =item o start => $start_state_name
 
 Specify the name of the start state.
+
+There is no default. The code dies if a value is not supplied.
+
+=item o verbose => $Boolean
+
+Specify the verbosity level when calling L<Set::FA::Element>.
+
+Dedault: 0.
 
 =back
 
@@ -742,11 +911,47 @@ The value, if the type is attribute or class_attribute.
 
 =back
 
+=head2 log($level, $s)
+
+Calls $self -> logger -> $level($s).
+
+=head2 logger([$logger_object])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the logger object.
+
+To disable logging, just set logger to the empty string.
+
+=head2 maxlevel([$string])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the value used by the logger object.
+
+This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
+create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
+
+=head2 minlevel([$string])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the value used by the logger object.
+
+This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
+create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
+
 =head2 run()
 
 Runs the state machine.
 
 Afterwards, you call L</items()> to retrieve the arrayref of results.
+
+=head2 verbose([$Boolean])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the verbosity level when calling L<Set::FA::Element>.
 
 =head1 Machine-Readable Change Log
 

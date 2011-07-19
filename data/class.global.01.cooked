@@ -1,0 +1,15 @@
+"key","value"
+class                   , 'global'
+left_brace              , {
+class_attribute_name_id , 'directed'
+colon                   , :
+attribute_value_id      , '0'
+semi_colon              , ;
+right_brace             , }
+left_bracket            , [
+node_id                 , 'node.1'
+right_bracket           , ]
+edge_id                 , '--'
+left_bracket            , [
+node_id                 , 'node.2'
+right_bracket           , ]

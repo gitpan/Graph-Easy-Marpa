@@ -17,56 +17,98 @@ use Set::Array;
 
 use Text::CSV_XS;
 
-fieldhash my %attrs        => 'attrs';
-fieldhash my %attr_name    => 'attr_name';
-fieldhash my %format       => 'format';
-fieldhash my %input_file   => 'input_file';
-fieldhash my %items        => 'items';
-fieldhash my %logger       => 'logger';
-fieldhash my %maxlevel     => 'maxlevel';
-fieldhash my %minlevel     => 'minlevel';
-fieldhash my %node_name    => 'node_name';
-fieldhash my %output_file  => 'output_file';
-fieldhash my %renderer     => 'renderer';
-fieldhash my %report_items => 'report_items';
-fieldhash my %token_file   => 'token_file';
-fieldhash my %tokens       => 'tokens';
+use Try::Tiny;
+
+fieldhash my %attrs              => 'attrs';
+fieldhash my %attribute_name     => 'attribute_name';
+fieldhash my %counter            => 'counter';
+fieldhash my %dot_input_file     => 'dot_input_file';
+fieldhash my %format             => 'format';
+fieldhash my %group_name         => 'group_name';
+fieldhash my %input_file         => 'input_file';
+fieldhash my %items              => 'items';
+fieldhash my %logger             => 'logger';
+fieldhash my %maxlevel           => 'maxlevel';
+fieldhash my %minlevel           => 'minlevel';
+fieldhash my %node_name          => 'node_name';
+fieldhash my %output_file        => 'output_file';
+fieldhash my %rankdir            => 'rankdir';
+fieldhash my %renderer           => 'renderer';
+fieldhash my %report_items       => 'report_items';
+fieldhash my %parsed_tokens_file => 'parsed_tokens_file';
+fieldhash my %tokens             => 'tokens';
 
 # $myself is a copy of $self for use by functions called by Marpa.
 
 our $myself;
-our $VERSION = '0.91';
+our $VERSION = '1.00';
 
 # --------------------------------------------------
 # This is a function, not a method.
 
-sub attr_name_id
+sub attribute_name_id
 {
 	my(undef, $t1, undef, $t2)  = @_;
 
-	$myself -> attr_name($t1);
+	$myself -> attribute_name($t1);
 
 	return $t1;
 
-} # End of attr_name_id.
+} # End of attribute_name_id.
 
 # --------------------------------------------------
 # This is a function, not a method.
 
-sub attr_value_id
+sub attribute_value_id
 {
 	my(undef, $t1, undef, $t2)  = @_;
 
 	$myself -> attrs -> push
 	({
-		name  => $myself -> attr_name,
+		count => $myself -> _count,
+		name  => $myself -> attribute_name,
 		type  => 'attribute',
 		value => $t1,
 	});
 
 	return $t1;
 
-} # End of attr_value_id.
+} # End of attribute_value_id.
+
+# --------------------------------------------------
+# This is a function, not a method.
+
+sub class_name
+{
+	my(undef, $t1, undef, $t2)  = @_;
+
+	$myself -> items -> push
+	({
+		count => $myself -> _count,
+		name  => $t1,
+		type  => 'class_name',
+		value => '',
+	});
+
+	return $t1;
+
+} # End of class_name.
+
+# --------------------------------------------------
+
+sub _count
+{
+	my($self) = @_;
+
+	# Warning! Don't use:
+	# return $self -> counter($self -> counter + 1);
+	# It returns $self.
+
+	$self -> counter($self -> counter + 1);
+
+	return $self -> counter;
+
+} # End of _count.
 
 # --------------------------------------------------
 # This is a function, not a method.
@@ -82,12 +124,12 @@ sub edge_id
 		die "Unexpected edge syntax: '$t1'";
 	}
 
-	# Add edge to the item list.
-
 	$myself -> items -> push
 	({
-		name => $t1,
-		type => 'edge',
+		count => $myself -> _count,
+		name  => $t1,
+		type  => 'edge',
+		value => '',
 	});
 
 	return $t1;
@@ -123,8 +165,10 @@ sub end_node
 
 	$myself -> items -> push
 	({
-		name => $myself -> node_name,
-		type => 'node',
+		count => $myself -> _count,
+		name  => $myself -> node_name,
+		type  => 'node',
+		value => '',
 	});
 
 	return '';
@@ -148,7 +192,7 @@ sub _generate_item_file
 		$item = $item[$i];
 		$s    = join('', map{"$_: $$item{$_}. "} sort keys %$item);
 
-		if ($$item{type} =~ /(?:edge|node)/)
+		if ($$item{type} =~ /(?:edge|node|(?:push|pop)_subgraph)/)
 		{
 			print OUT "$s\n";
 		}
@@ -171,20 +215,114 @@ sub grammar
 		({
 		 actions       => 'Graph::Easy::Marpa::Parser',
 		 lhs_terminals => 0,
-		 start         => 'graph_definition',
+		 start         => 'graph_grammar',
 		 rules         =>
 			 [
-			  {   # Graph stuff.
-				  lhs => 'graph_definition',
-				  rhs => [qw/graph_sequence/],
+			  {   # Global stuff.
+				  lhs => 'graph_grammar',
+				  rhs => [qw/class_and_graph/],
 			  },
 			  {
-				  lhs => 'graph_sequence', # 1 of 2.
+				  lhs => 'class_and_graph',
+				  rhs => [qw/class_definition graph_definition/],
+			  },
+			  {   # Class stuff.
+				  lhs => 'class_definition',
+				  rhs => [qw/class_sequence/],
+				  min => 0,
+			  },
+			  {
+				  lhs => 'class_sequence', # 1 of 2.
+				  rhs => [qw/class_statement/],
+			  },
+			  {
+				  lhs => 'class_sequence', # 2 of 2.
+				  rhs => [qw/class_statement daisy_chain_class/],
+			  },
+			  {
+				  lhs => 'class_statement',
+				  rhs => [qw/class_name class_attribute_definition/],
+			  },
+			  {
+				  lhs    => 'class_name',
+				  rhs    => [qw/class/],
+				  action => 'class_name',
+			  },
+			  {   # Graph stuff.
+				  lhs => 'graph_definition',
+				  rhs => [qw/graph_statement/],
+			  },
+			  {
+				  lhs => 'graph_statement', # 1 of 3.
+				  rhs => [qw/group_definition/],
+			  },
+			  {
+				  lhs => 'graph_statement', # 2 of 3.
 				  rhs => [qw/node_definition/],
 			  },
 			  {
-				  lhs => 'graph_sequence', # 2 of 2.
-				  rhs => [qw/graph_sequence edge_definition node_definition/],
+				  lhs => 'graph_statement', # 3 of 3.
+				  rhs => [qw/edge_definition/],
+			  },
+			  {   # Class attribute stuff. Some components are defined under 'Attribute stuff', below.
+				  lhs => 'class_attribute_definition',
+				  rhs => [qw/class_attribute_statement/],
+				  min => 0,
+			  },
+			  {
+				  lhs => 'class_attribute_statement',
+				  rhs => [qw/start_attribute class_attribute_sequence end_attribute/],
+			  },
+			  {
+				  lhs => 'class_attribute_sequence',
+				  rhs => [qw/class_attribute_declaration/],
+				  min => 1,
+			  },
+			  {
+				  lhs => 'class_attribute_declaration',
+				  rhs => [qw/class_attribute_name colon attribute_value attribute_terminator/],
+			  },
+			  {
+				  lhs    => 'class_attribute_name',
+				  rhs    => [qw/class_attribute_name_id/],
+				  min    => 1,
+				  action => 'attribute_name_id',
+			  },
+			  {   # Group stuff.
+				  lhs => 'group_definition',
+				  rhs => [qw/group_sequence/],
+				  min => 0,
+			  },
+			  {
+				  lhs => 'group_sequence', # 1 of 4.
+				  rhs => [qw/group_statement/],
+			  },
+			  {
+				  lhs => 'group_sequence', # 2 of 4.
+				  rhs => [qw/group_statement daisy_chain_group/],
+			  },
+			  {
+				  lhs => 'group_sequence', # 3 of 4.
+				  rhs => [qw/group_statement node_definition/],
+			  },
+			  {
+				  lhs => 'group_sequence', # 4 of 4.
+				  rhs => [qw/group_statement edge_definition/],
+			  },
+			  {
+				  lhs => 'group_statement',
+				  rhs => [qw/group_name graph_statement exit_group attribute_definition/],
+			  },
+			  {
+				  lhs    => 'group_name',
+				  rhs    => [qw/push_subgraph/],
+				  min    => 0,
+				  action => 'start_subgraph',
+			  },
+			  {
+				  lhs    => 'exit_group',
+				  rhs    => [qw/pop_subgraph/],
+				  action => 'pop_subgraph',
 			  },
 			  {   # Node stuff.
 				  lhs => 'node_definition',
@@ -192,16 +330,24 @@ sub grammar
 				  min => 0,
 			  },
 			  {
-				  lhs => 'node_sequence', # 1 of 2.
+				  lhs => 'node_sequence', # 1 of 4.
 				  rhs => [qw/node_statement/],
 			  },
 			  {
-				  lhs => 'node_statement',
-				  rhs => [qw/start_node node_name end_node attr_definition/],
+				  lhs => 'node_sequence', # 2 of 4.
+				  rhs => [qw/node_statement daisy_chain_node/],
 			  },
 			  {
-				  lhs => 'node_sequence', # 2 of 2.
-				  rhs => [qw/node_statement daisy_chain_node/],
+				  lhs => 'node_sequence', # 3 of 4.
+				  rhs => [qw/node_statement edge_definition/],
+			  },
+			  {
+				  lhs => 'node_sequence', # 4 of 4.
+				  rhs => [qw/node_statement group_definition/],
+			  },
+			  {
+				  lhs => 'node_statement',
+				  rhs => [qw/start_node node_name end_node attribute_definition/],
 			  },
 			  {
 				  lhs    => 'start_node',
@@ -210,23 +356,53 @@ sub grammar
 			  },
 			  {
 				  lhs    => 'node_name',
-				  rhs    => [qw/node_name_id/],
+				  rhs    => [qw/node_id/],
 				  min    => 0,
-				  action => 'node_name_id',
+				  action => 'node_id',
 			  },
 			  {
 				  lhs    => 'end_node',
 				  rhs    => [qw/right_bracket/],
 				  action => 'end_node',
 			  },
-			  {   # Attribute stuff.
-				  lhs => 'attr_definition',
-				  rhs => [qw/attr_statement/],
+			  {   # Edge stuff.
+				  lhs => 'edge_definition',
+				  rhs => [qw/edge_sequence/],
 				  min => 0,
 			  },
 			  {
-				  lhs => 'attr_statement',
-				  rhs => [qw/start_attribute attr_sequence end_attribute/],
+				  lhs => 'edge_sequence', # 1 of 4.
+				  rhs => [qw/edge_statement/],
+			  },
+			  {
+				  lhs => 'edge_sequence', # 2 of 4.
+				  rhs => [qw/edge_statement daisy_chain_edge/],
+			  },
+			  {
+				  lhs => 'edge_sequence', # 3 of 4.
+				  rhs => [qw/edge_statement node_definition/],
+			  },
+			  {
+				  lhs => 'edge_sequence', # 4 of 4.
+				  rhs => [qw/edge_statement group_definition/],
+			  },
+			  {
+				  lhs => 'edge_statement',
+				  rhs => [qw/edge_name attribute_definition/],
+			  },
+			  {
+				  lhs    => 'edge_name',
+				  rhs    => [qw/edge_id/],
+				  action => 'edge_id',
+			  },
+			  {   # Attribute stuff.
+				  lhs => 'attribute_definition',
+				  rhs => [qw/attribute_statement/],
+				  min => 0,
+			  },
+			  {
+				  lhs => 'attribute_statement',
+				  rhs => [qw/start_attribute attribute_sequence end_attribute/],
 			  },
 			  {
 				  lhs    => 'start_attribute',
@@ -234,28 +410,28 @@ sub grammar
 				  action => 'start_attribute',
 			  },
 			  {
-				  lhs => 'attr_sequence',
-				  rhs => [qw/attr_declaration/],
+				  lhs => 'attribute_sequence',
+				  rhs => [qw/attribute_declaration/],
 				  min => 1,
 			  },
 			  {
-				  lhs => 'attr_declaration',
-				  rhs => [qw/attr_name colon attr_value attr_terminator/],
+				  lhs => 'attribute_declaration',
+				  rhs => [qw/attribute_name colon attribute_value attribute_terminator/],
 			  },
 			  {
-				  lhs    => 'attr_name',
-				  rhs    => [qw/attr_name_id/],
+				  lhs    => 'attribute_name',
+				  rhs    => [qw/attribute_name_id/],
 				  min    => 1,
-				  action => 'attr_name_id',
+				  action => 'attribute_name_id',
 			  },
 			  {
-				  lhs    => 'attr_value',
-				  rhs    => [qw/attr_value_id/],
+				  lhs    => 'attribute_value',
+				  rhs    => [qw/attribute_value_id/],
 				  min    => 1,
-				  action => 'attr_value_id',
+				  action => 'attribute_value_id',
 			  },
 			  {
-				  lhs => 'attr_terminator',
+				  lhs => 'attribute_terminator',
 				  rhs => [qw/semi_colon/],
 				  min => 1,
 			  },
@@ -263,15 +439,6 @@ sub grammar
 				  lhs    => 'end_attribute',
 				  rhs    => [qw/right_brace/],
 				  action => 'end_attribute',
-			  },
-			  {   # Edge stuff.
-				  lhs    => 'edge_definition',
-				  rhs    => [qw/edge_name attr_definition/],
-			  },
-			  {
-				  lhs    => 'edge_name',
-				  rhs    => [qw/edge_id/],
-				  action => 'edge_id',
 			  },
 			 ],
 		});
@@ -286,33 +453,57 @@ sub grammar
 
 sub _init
 {
-	my($self, $arg)     = @_;
-	$$arg{attrs}        = Set::Array -> new;
-	$$arg{attr_name}    = '';
-	$$arg{format}       ||= 'svg';
-	$$arg{input_file}   ||= ''; # Caller can set.
-	$$arg{items}        = Set::Array -> new;
-	$$arg{logger}       = Log::Handler -> new;
-	$$arg{maxlevel}     ||= 'debug'; # Caller can set.
-	$$arg{minlevel}     ||= 'error'; # Caller can set.
-	$$arg{node_name}    = '';
-	$$arg{output_file}  ||= ''; # Caller can set.
-	$$arg{renderer}     ||= Graph::Easy::Marpa::Renderer::GraphViz2 -> new;
-	$$arg{report_items} ||= 0;  # Caller can set.
-	$$arg{token_file}   ||= ''; # Caller can set.
-	$$arg{tokens}       ||= []; # Caller can set.
-	$self               = from_hash($self, $arg);
-	$myself             = $self;
+	my($self, $arg)           = @_;
+	$$arg{attrs}              = Set::Array -> new;
+	$$arg{attribute_name}     = '';
+	$$arg{counter}            = 0;
+	$$arg{dot_input_file}     ||= ''; # Caller can set.
+	$$arg{format}             ||= 'svg';
+	$$arg{input_file}         ||= ''; # Caller can set.
+	$$arg{items}              = Set::Array -> new;
+	my($user_logger)          = defined $$arg{logger}; # Caller can set (e.g. to '').
+	$$arg{logger}             = $user_logger ? $$arg{logger} : Log::Handler -> new;
+	$$arg{maxlevel}           ||= 'debug'; # Caller can set.
+	$$arg{minlevel}           ||= 'error'; # Caller can set.
+	$$arg{node_name}          = '';
+	$$arg{output_file}        ||= '';   # Caller can set.
+	$$arg{parsed_tokens_file} ||= '';   # Caller can set.
+	$$arg{rankdir}            ||= 'TB'; # Caller can set.
+	my($user_renderer)        = defined $$arg{renderer}; # Caller can set.
+	#$$arg{renderer}          = ...   # Do not execute. Check it below.
+	$$arg{report_items}       ||= 0;  # Caller can set.
+	$$arg{tokens}             ||= []; # Caller can set.
+	$self                     = from_hash($self, $arg);
+	$myself                   = $self;
 
-	$self -> logger -> add
-		(
-		 screen =>
-		 {
-			 maxlevel       => $self -> maxlevel,
-			 message_layout => '%m',
-			 minlevel       => $self -> minlevel,
-		 }
-		);
+	if (! $user_logger)
+	{
+		$self -> logger -> add
+			(
+			 screen =>
+			 {
+				 maxlevel       => $self -> maxlevel,
+				 message_layout => '%m',
+				 minlevel       => $self -> minlevel,
+			 }
+			);
+	}
+
+	if (! $user_renderer)
+	{
+		# We have to pass in the logger here, or GraphViz2 will instantiate one itself.
+		# Don't forget! The caller may have set logger to '' (not undef), to stop logging.
+
+		$self -> renderer
+			(
+			 Graph::Easy::Marpa::Renderer::GraphViz2 -> new
+			 (
+			  dot_input_file => $self -> dot_input_file,
+			  logger         => $self -> logger,
+			  rankdir        => $self -> rankdir,
+			 )
+			);
+	}
 
 	return $self;
 
@@ -324,7 +515,7 @@ sub log
 {
 	my($self, $level, $s) = @_;
 
-	$self -> logger -> $level($s);
+	$self -> logger -> $level($s) if ($self -> logger);
 
 } # End of log.
 
@@ -343,7 +534,7 @@ sub new
 # --------------------------------------------------
 # This is a function, not a method.
 
-sub node_name_id
+sub node_id
 {
 	my(undef, $t1, undef, $t2)  = @_;
 
@@ -351,7 +542,28 @@ sub node_name_id
 
 	return $t1;
 
-} # End of node_name_id.
+} # End of node_id.
+
+# --------------------------------------------------
+# This is a function, not a method.
+
+sub pop_subgraph
+{
+	my(undef, $t1, undef, $t2)  = @_;
+
+	# $t1 will be ')'.
+
+	$myself -> items -> push
+	({
+		count => $myself -> _count,
+		name  => $myself -> group_name,
+		type  => 'pop_subgraph',
+		value => '',
+	});
+
+	return '';
+
+} # End of pop_subgraph.
 
 # -----------------------------------------------
 
@@ -398,9 +610,8 @@ sub report
 
 sub run
 {
-	my($self) = @_;
-
-	my($tokens);
+	my($self)   = @_;
+	my($tokens) = [];
 
 	if ($#{$self -> tokens} < 0)
 	{
@@ -416,7 +627,12 @@ sub run
 	}
 	else
 	{
-		$tokens = $self -> tokens;
+		for my $item (@{$self -> tokens})
+		{
+			$$item[1] =~ s/^'(.*)'$/$1/;
+
+			push @$tokens, [$$item[0], $$item[1] ];
+		}
 	}
 
 	my($recognizer) = Marpa::Recognizer -> new({grammar => $self -> grammar});
@@ -431,7 +647,7 @@ sub run
 
 	$self -> report if ($self -> report_items);
 
-	my($file_name) = $self -> token_file;
+	my($file_name) = $self -> parsed_tokens_file;
 
 	if ($file_name)
 	{
@@ -442,7 +658,14 @@ sub run
 
 	if ($file_name && $self -> renderer)
 	{
-		$self -> renderer -> run(format => $self -> format, items => [$self -> items -> print], output_file => $file_name);
+		$self -> renderer -> run
+			(
+			 dot_input_file => $self -> dot_input_file,
+			 'format'       => $self -> format,
+			 items          => [$self -> items -> print],
+			 logger         => $self -> logger,
+			 output_file    => $file_name,
+			);
 	}
 
 	# Return 0 for success and 1 for failure.
@@ -460,11 +683,31 @@ sub start_attribute
 
 	# $t1 will be '{'.
 
-	$myself -> attr_name('');
+	$myself -> attribute_name('');
 
 	return '';
 
 } # End of start_attribute.
+
+# --------------------------------------------------
+# This is a function, not a method.
+
+sub start_subgraph
+{
+	my(undef, $t1, undef, $t2)  = @_;
+
+	$myself -> group_name($t1);
+	$myself -> items -> push
+	({
+		count => $myself -> _count,
+		name  => $t1,
+		type  => 'push_subgraph',
+		value => '',
+	});
+
+	return $t1;
+
+} # End of start_subgraph.
 
 # --------------------------------------------------
 # This is a function, not a method.
@@ -536,6 +779,15 @@ Key-value pairs accepted in the parameter list (see corresponding methods for de
 
 =over 4
 
+=item o dot_input_file => $file_name
+
+Specify the name of a file that the rendering engine can write to, which will contain the input
+to dot (or whatever). This is good for debugging.
+
+Default: ''.
+
+If '', the file will not be created.
+
 =item o format => $format_name
 
 This is the format of the output file, to be created by the renderer.
@@ -546,17 +798,29 @@ Default is 'svg'.
 
 This is the name of the file to read containing the tokens (items) output from L<Graph::Easy::Marpa::Lexer>.
 
+=item o logger => $logger_object
+
+Specify a logger object.
+
+To disable logging, just set logger to the empty string.
+
+The default value is an object of type L<Log::Handler>.
+
+This logger is passed to L<Graph::Easy::Marpa::Renderer::GraphViz2>.
+
 =item o maxlevel => $level
 
-This option affects L<Log::Handler>. See L<Log::Handler::Levels>.
+This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
+create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
 
-The default maxlevel is 'info'. A typical value is 'debug'.
+The default 'maxlevel' is 'info'. A typical value is 'debug'.
 
 =item o minlevel => $level
 
-This option affects L<Log::Handler>. See L<Log::Handler::Levels>.
+This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
+create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
 
-The default minlevel is 'error'.
+The default 'minlevel' is 'error'.
 
 No lower levels are used.
 
@@ -564,9 +828,31 @@ No lower levels are used.
 
 If an output file name is supplied, and a rendering object is also supplied, then this call is made:
 
-	$self -> renderer -> run(format => $self -> format, items => [$self -> items -> print], output_file => $file_name);
+	$self -> renderer -> run
+	(
+	format      => $self -> format,
+	items       => [$self -> items -> print],
+	logger      => $self -> logger,
+	output_file => $file_name,
+	);
 
 This is how the plotted graph is actually created.
+
+=item o parsed_tokens_file => $token_file_name
+
+This is the name of the file to write containing the tokens (items) output from L<Graph::Easy::Marpa::Parser>.
+
+The default value is '', meaning the file is not written.
+
+See also the input_file, above.
+
+=item o rankdir => $direction
+
+$direction must be one of: LR or RL or TB or BT.
+
+Specify the rankdir of the graph as a whole.
+
+The default value is: 'TB' (top to bottom).
 
 =item o renderer => $renderer_object
 
@@ -580,21 +866,29 @@ which is the default value for this object.
 
 Calls L</report()> to report, via the log, the items recognized in the cooked file.
 
-=item o token_file => $token_file_name
-
-This is the name of the file to write containing the tokens (items) output from L<Graph::Easy::Marpa::Parser>.
-
-See also the input_file, above.
-
 =item o tokens => $arrayref
 
 This is an arrayref of tokens normally output by L<Graph::Easy::Marpa::Lexer>.
 
 In some test files, this arrayref is constructed manually, and the 'input_file' is not used.
 
+See L<Graph::Easy::Marpa::Lexer/tokens()> for a detailed explanation.
+
 =back
 
 =head1 Methods
+
+=head2 dot_input_file([$file_name])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the name of the file into which the rendering engine will write to input to dot (or whatever).
+
+=head2 format([$format])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the format of the output file.
 
 =head2 grammar()
 
@@ -612,44 +906,101 @@ Later, the allowable syntax will be exanded to accept special arrow heads, etc.
 Also, since edges can have attributes, such attributes are another method of describing the desired edge's
 characteristics. That is, besides using a string matching that regexp to specify what the edge looks like when plotted.
 
+=head2 input_file([$cooked_file_name])
+
+The [] indicate an optional parameter.
+
+Get or set the name of the cooked file to read containing the tokens which has been output by L<Graph::Easy::Marpa::Lexer>.
+
 =head2 items()
 
-Returns a object of type L<Set::Array>, which is an arrayref of items output by the state machine.
+Returns a object of type L<Set::Array>, which is an arrayref of items output by the parser.
 
-See the L<Graph::Easy::Marpa/FAQ> for details.
-
-These items are I<not> the same as the arrayref of items returned by the items() methods in
-L<Graph::Easy::Marpa::DFA> and L<Graph::Easy::Marpa::Lexer>.
+See the L</FAQ> for details.
 
 See also run(), below.
 
-=head2 log($level, $s)
+=head2 logger([$logger_object])
 
-Calls $self -> logger -> $level($s).
+Here, the [] indicate an optional parameter.
 
-=head2 logger()
+Get or set the logger object.
 
-Returns a object of type L<Log::Handler>.
+To disable logging, just set logger to the empty string.
 
-=head2 maxlevel([$level])
+This logger is passed to L<Graph::Easy::Marpa::Renderer::GraphViz2>.
 
-The [] indicate an optional parameter.
+=head2 maxlevel([$string])
 
-Get or set the value of the logger's maxlevel option.
+Here, the [] indicate an optional parameter.
 
-=head2 minlevel([$level])
+Get or set the value used by the logger object.
 
-The [] indicate an optional parameter.
+This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
+create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
 
-Get or set the value of the logger's minlevel option.
+=head2 minlevel([$string])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the value used by the logger object.
+
+This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
+create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
+
+=head2 output_file([$output_file_name])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the name of the file to which the renderer will write to resultant graph.
+
+This is how the plotted graph is actually created.
+
+If no renderer is supplied, or no output file is supplied, nothing is written.
+
+=head2 parsed_tokens_file([$token_file_name])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the name of the file to write containing the tokens (items) output from L<Graph::Easy::Marpa::Parser>.
+
+=head2 rankdir([$direction])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the rankdir of the graph as a whole.
 
 =head2 read_csv_file($file_name)
 
 Read the named CSV file into ann arrayref of hashrefs.
 
+=head2 renderer([$renderer_object])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the value of the object which will do the rendering.
+
+If an output file name is supplied, and a rendering object is also supplied, then this call is made:
+
+	$self -> renderer -> run
+	(
+	format      => $self -> format,
+	items       => [$self -> items -> print],
+	logger      => $self -> logger,
+	output_file => $file_name,
+	);
+
+This is how the plotted graph is actually created.
+
 =head2 report()
 
 Report, via the log, the list of items recognized in the cooked file.
+
+=head2 report_items([$Boolean])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the value which determines whether or not L</report()> is called.
 
 =head2 run()
 
@@ -662,7 +1013,21 @@ See t/attr.t, scripts/parse.pl and scripts/parse.sh.
 The end result is an arrayref, accessible with the items() method, of hashrefs representing items
 in the input stream.
 
-The structure of this arrayref of hashrefs is discussed in the L<Graph::Easy::Marpa/FAQ>.
+The structure of this arrayref of hashrefs is discussed in the L</FAQ>.
+
+=head2 tokens([$arrayref])
+
+Here, the [] indicate an optional parameter.
+
+Get or set an arrayref of tokens normally output by L<Graph::Easy::Marpa::Lexer>.
+
+In some test files, this arrayref is constructed manually, and the 'input_file' is not used.
+
+=head1 FAQ
+
+=head2 How is the parsed graph stored in RAM?
+
+See L<Graph::Easy::Marpa::Lexer/FAQ>.
 
 =head1 Machine-Readable Change Log
 

@@ -1,0 +1,7 @@
+# Edges with fancy arrows. OK.
+ [node.1]{color:green}--{color:maroon; arrowhead: box;     dir: forward; label: box}     [node.2]{color:blue}
+ [node.3]{color:green}--{color:maroon; arrowhead: crow;    dir: forward; label: crow}    [node.4]{color:blue}
+ [node.5]{color:green}--{color:maroon; arrowhead: diamond; dir: forward; label: diamond} [node.6]{color:blue}
+ [node.7]{color:green}--{color:maroon; arrowhead: veevee;  dir: forward; label: veevee}  [node.8]{color:blue}
+ [node.9]{color:green}--{color:maroon; arrowhead: teetee;  dir: forward; label: teetee}  [node.10]{color:blue}
+[node.11]{color:green}--{color:maroon; arrowhead: odot;    dir: forward; label: odot}    [node.12]{color:blue}

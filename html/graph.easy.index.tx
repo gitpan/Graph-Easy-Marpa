@@ -10,9 +10,7 @@
 <p>Some sample data is deliberately faulty, and so does not show up here. Some sample data contains fake attributes, just
 to test the code. It will make 'dot' die, but is included here.</p>
 
-<p>The renderer is not finished, and e.g does not properly display a graph ending with an edge not followed by a node.</p>
-
-<p>The output for input file # 6 (data/graph.15.raw) corresponds to the output for input file # 6 (scripts/jointed.edges.pl) in
+<p>The output for input file data/graph.15.raw corresponds to the output for input file # 6 (scripts/jointed.edges.pl) in
 
 <a href="http://savage.net.au/Perl-modules/html/graphviz2/index.html">the GraphViz2 demo.</a></p>
 
@@ -24,5 +22,8 @@ to test the code. It will make 'dot' die, but is included here.</p>
 </tr>
 :}
 </table>
+
+<p>Last updated: <: $date_stamp :>.</p>
+
 </body>
 </html>

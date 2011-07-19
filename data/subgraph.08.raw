@@ -1,0 +1,2 @@
+# Edge + Group (i.e. subgraph). OK.
+-> (cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}

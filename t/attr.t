@@ -75,7 +75,7 @@ for my $attr (@attr)
 
 	 push @token,
 	 ['right_brace',   '}'],
-	 ['edge_id',       '-'];
+	 ['edge_id',       '--'];
 
 	$expect = $result = undef;
 

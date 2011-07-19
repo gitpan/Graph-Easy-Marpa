@@ -1,0 +1,2 @@
+# Global class. OK.
+global {directed: 0} [node.1] -- [node.2]

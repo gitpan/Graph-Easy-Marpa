@@ -1,0 +1,32 @@
+"key","value"
+push_subgraph           , 'cluster_1:'
+left_bracket            , [
+node_id                 , 'Solar system'
+right_bracket           , ]
+edge_id                 , '->'
+left_brace              , {
+attribute_name_id       , 'arrowhead'
+colon                   , :
+attribute_value_id      , 'diamond'
+semi_colon              , ;
+right_brace             , }
+left_bracket            , [
+node_id                 , 'Earth'
+right_bracket           , ]
+pop_subgraph            , 'cluster_1:'
+left_brace              , {
+attribute_name_id       , 'bgcolor'
+colon                   , :
+attribute_value_id      , 'lightgreen'
+semi_colon              , ;
+right_brace             , }
+left_brace              , {
+attribute_name_id       , 'label'
+colon                   , :
+attribute_value_id      , 'Locale'
+semi_colon              , ;
+right_brace             , }
+edge_id                 , '->'
+left_bracket            , [
+node_id                 , 'Australia'
+right_bracket           , ]

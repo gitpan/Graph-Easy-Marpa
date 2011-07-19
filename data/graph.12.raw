@@ -1,2 +1,2 @@
 # Complex. OK.
-[node.1]{a:b;c:d}<->{e:f;}<=>{g:h}[node.2]{i:j}===[node.3]{k:l}
+[node.1]{a:b;c:d}->{e:f;}->{g:h}[node.2]{i:j}--[node.3]{k:l}

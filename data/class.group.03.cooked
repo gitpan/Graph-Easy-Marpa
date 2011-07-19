@@ -1,0 +1,23 @@
+"key","value"
+class                   , 'group'
+left_brace              , {
+class_attribute_name_id , 'bgcolor'
+colon                   , :
+attribute_value_id      , 'red'
+semi_colon              , ;
+right_brace             , }
+push_subgraph           , 'cluster.1:'
+left_bracket            , [
+node_id                 , 'node.1'
+right_bracket           , ]
+edge_id                 , '->'
+left_bracket            , [
+node_id                 , 'node.2'
+right_bracket           , ]
+pop_subgraph            , 'cluster.1:'
+left_brace              , {
+attribute_name_id       , 'class'
+colon                   , :
+attribute_value_id      , 'group'
+semi_colon              , ;
+right_brace             , }

@@ -1,2 +1,2 @@
 # Class with attributes but no graph. Error.
-node{color:yellow}
+node {color: yellow}

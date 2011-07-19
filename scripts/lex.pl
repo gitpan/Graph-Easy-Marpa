@@ -27,6 +27,7 @@ if ($option_parser -> getoptions
  'report_items=i',
  'report_stt=i',
  'stt_file=s',
+ 'timeout=i',
  'type=s',
 ) )
 {
@@ -63,9 +64,8 @@ lex.pl [options]
 	-report_items 0 or 1
 	-report_stt 0 or 1
 	-stt_file sttFileName
-	-type csv or ods
-
-All switches can be reduced to a single letter (except min and max).
+	-timeout seconds
+	-type '' or csv or ods
 
 Exit value: 0 for success, 1 for failure. Die upon error.
 
@@ -162,17 +162,31 @@ The default value is 0.
 
 Specify which file contains the state transition table.
 
-Default: data/default.stt.ods.
+Default: ''.
+
+The default value means the STT is read from the source code of Graph::Easy::Marpa::Lexer.
+
+Candidate files are '', 'data/default.stt.csv' and 'data/default.stt.ods'.
 
 The type of this file must be specified by the -type option.
 
-There is no default value.
+Note: If you use stt_file => your.stt.ods and type => 'ods', L<Module::Load>'s load() will be used to
+load L<OpenOffice::OODoc>. This module is no longer listed in Build.PL and Makefile.PL as a pre-req,
+so you will need to install it manually.
+ 
+=item -timeout seconds
 
-=item -type cvs or ods
+Run the DFA for at most this many seconds.
 
-Specify the type of the stt_file: csv for CSV or ods for Open Office Calc spreadsheet.
+Default: 3.
 
-Default: csv.
+=item -type '' or cvs or ods
+
+Specify the type of the stt_file: '' for internal STT, csv for CSV or ods for Open Office Calc spreadsheet.
+
+Default: ''.
+
+The default value means the STT is read from the source code of Graph::Easy::Marpa::Lexer.
 
 This option must be used with the -stt_file option.
 

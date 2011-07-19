@@ -3,8 +3,6 @@ package Graph::Easy::Marpa;
 use strict;
 use warnings;
 
-use File::Spec;
-
 use Graph::Easy::Marpa::Lexer;
 use Graph::Easy::Marpa::Parser;
 use Graph::Easy::Marpa::Renderer::GraphViz2;
@@ -13,52 +11,66 @@ use Hash::FieldHash ':all';
 
 use Log::Handler;
 
-fieldhash my %cooked_file  => 'cooked_file';
-fieldhash my %description  => 'description';
-fieldhash my %format       => 'format';
-fieldhash my %input_file   => 'input_file';
-fieldhash my %items        => 'items';
-fieldhash my %lexer        => 'lexer';
-fieldhash my %logger       => 'logger';
-fieldhash my %maxlevel     => 'maxlevel';
-fieldhash my %minlevel     => 'minlevel';
-fieldhash my %output_file  => 'output_file';
-fieldhash my %parser       => 'parser';
-fieldhash my %renderer     => 'renderer';
-fieldhash my %report_items => 'report_items';
-fieldhash my %token_file   => 'token_file';
+fieldhash my %cooked_file        => 'cooked_file';
+fieldhash my %description        => 'description';
+fieldhash my %dot_input_file     => 'dot_input_file';
+fieldhash my %format             => 'format';
+fieldhash my %input_file         => 'input_file';
+fieldhash my %items              => 'items';
+fieldhash my %lexer              => 'lexer';
+fieldhash my %logger             => 'logger';
+fieldhash my %maxlevel           => 'maxlevel';
+fieldhash my %minlevel           => 'minlevel';
+fieldhash my %output_file        => 'output_file';
+fieldhash my %parsed_tokens_file => 'parsed_tokens_file';
+fieldhash my %parser             => 'parser';
+fieldhash my %renderer           => 'renderer';
+fieldhash my %report_items       => 'report_items';
+fieldhash my %report_stt         => 'report_stt';
+fieldhash my %stt_file           => 'stt_file';
+fieldhash my %timeout            => 'timeout';
+fieldhash my %type               => 'type';
 
-our $VERSION = '0.91';
+our $VERSION = '1.00';
 
 # --------------------------------------------------
 
 sub _init
 {
-	my($self, $arg)     = @_;
-	$$arg{cooked_file}  ||= ''; # Caller can set.
-	$$arg{description}  ||= ''; # Caller can set.
-	$$arg{format}       ||= 'svg';
-	$$arg{input_file}   ||= ''; # Caller can set.
-	$$arg{lexer}        = '';
-	$$arg{logger}       = Log::Handler -> new;
-	$$arg{maxlevel}     ||= 'debug';# Caller can set.
-	$$arg{minlevel}     ||= 'error'; # Caller can set.
-	$$arg{output_file}  ||= ''; # Caller can set.
-	$$arg{parser}       = '';
-	$$arg{renderer}     ||= '';
-	$$arg{report_items} ||= 0;  # Caller can set.
-	$$arg{token_file}   ||= ''; # Caller can set.
-	$self               = from_hash($self, $arg);
+	my($self, $arg)           = @_;
+	$$arg{cooked_file}        ||= ''; # Caller can set.
+	$$arg{description}        ||= ''; # Caller can set.
+	$$arg{dot_input_file}     ||= ''; # Caller can set.
+	$$arg{format}             ||= 'svg';
+	$$arg{input_file}         ||= ''; # Caller can set.
+	$$arg{lexer}              = '';
+	my($user_logger)          = defined($$arg{logger}); # Caller can set (e.g. to '').
+	$$arg{logger}             = $user_logger ? $$arg{logger} : Log::Handler -> new;
+	$$arg{maxlevel}           ||= 'warning';# Caller can set.
+	$$arg{minlevel}           ||= 'error'; # Caller can set.
+	$$arg{output_file}        ||= ''; # Caller can set.
+	$$arg{parsed_tokens_file} ||= ''; # Caller can set.
+	$$arg{parser}             = '';
+	$$arg{renderer}           ||= '';
+	$$arg{report_items}       ||= 0;  # Caller can set.
+	$$arg{report_stt}         ||= 0;  # Caller can set.
+	$$arg{stt_file}           ||= ''; # Caller can set.
+	$$arg{timeout}            ||= 3;  # Caller can set.
+	$$arg{type}               ||= ''; # Caller can set.
+	$self                     = from_hash($self, $arg);
 
-	$self -> logger -> add
-		(
-		 screen =>
-		 {
-			 maxlevel       => $self -> maxlevel,
-			 message_layout => '%m',
-			 minlevel       => $self -> minlevel,
-		 }
-		);
+	if (! $user_logger)
+	{
+		$self -> logger -> add
+			(
+			 screen =>
+			 {
+				 maxlevel       => $self -> maxlevel,
+				 message_layout => '%m',
+				 minlevel       => $self -> minlevel,
+			 }
+			);
+	}
 
 	return $self;
 
@@ -93,25 +105,47 @@ sub run
 	my($self)  = @_;
 	my($lexer) = Graph::Easy::Marpa::Lexer -> new
 		(
-		 cooked_file => $self -> cooked_file,
-		 description => $self -> description,
-		 input_file  => $self -> input_file,
-		 maxlevel    => 'warning',
-		 stt_file    => File::Spec -> catfile('data', 'default.stt.csv'),
-		 type        => 'csv',
+		 cooked_file  => $self -> cooked_file,
+		 description  => $self -> description,
+		 input_file   => $self -> input_file,
+		 logger       => $self -> logger,
+		 maxlevel     => $self -> maxlevel,
+		 minlevel     => $self -> minlevel,
+		 report_items => $self -> report_items,
+		 report_stt   => $self -> report_stt,
+		 stt_file     => $self -> stt_file,
+		 timeout      => $self -> timeout,
+		 type         => $self -> type,
 		);
 
-	$lexer -> run;
+	# Return 0 for success and 1 for failure.
 
-	my($parser) = Graph::Easy::Marpa::Parser -> new
-		(
-		 format      => $self -> format,
-		 input_file  => $self -> cooked_file,
-		 output_file => $self -> output_file,
-		 token_file  => $self -> token_file,
-		);
+	my($result) = $lexer -> run;
 
-	$parser -> run;
+	if ($result == 0)
+	{
+		$result = Graph::Easy::Marpa::Parser -> new
+			(
+			 dot_input_file     => $self -> dot_input_file,
+			 'format'           => $self -> format,
+			 input_file         => $self -> cooked_file,
+			 logger             => $self -> logger,
+			 maxlevel           => $self -> maxlevel,
+			 minlevel           => $self -> minlevel,
+			 output_file        => $self -> output_file,
+			 parsed_tokens_file => $self -> parsed_tokens_file,
+			 report_items       => $self -> report_items,
+			 tokens             => $lexer -> tokens,
+			) -> run;
+	}
+	else
+	{
+		$self -> log(warn => 'The lexer failed. The parser will not be run') if ($self -> logger);
+	}
+
+	# Return 0 for success and 1 for failure.
+
+	$result;
 
 } # End of run.
 
@@ -154,10 +188,13 @@ L<Graph::Easy::Marpa> - A Marpa- and Set::FA::Element-based parser for Graph::Ea
 	 'format=s',
 	 'help',
 	 'input_file=s',
+	 'logger=s',
 	 'maxlevel=s',
 	 'minlevel=s',
 	 'output_file=s',
-	 'token_file=s',
+	 'parsed_tokens_file=s',
+	 'stt_file=s',
+	 'type=s',
 	) )
 	{
 		pod2usage(1) if ($option{'help'});
@@ -171,7 +208,7 @@ L<Graph::Easy::Marpa> - A Marpa- and Set::FA::Element-based parser for Graph::Ea
 		pod2usage(2);
 	}
 
-This is shipped as scripts/gem.pl, although the shipped version has help built in.
+This is shipped as scripts/gem.pl, although the shipped version has built-in help.
 
 See also scripts/lex.pl and scripts/parse.pl.
 
@@ -281,9 +318,9 @@ This is the name of the file to write containing the tokens (items) output from 
 
 This file can be input to L<Graph::Easy::Marpa::Parser>.
 
-See also the token_file key, below.
+See also the 'parsed_tokens_file' key, below.
 
-=item o description => '[node.1]<->[node.2]'
+=item o description => $graph_description_string
 
 Specify a string for the graph definition.
 
@@ -292,6 +329,15 @@ You are strongly encouraged to surround this string with '...' to protect it fro
 See also the 'input_file' key to read the graph from a file.
 
 The 'description' key takes precedence over the 'input_file' key.
+
+=item o dot_input_file => $file_name
+
+Specify the name of a file that the rendering engine can write to, which will contain the input
+to dot (or whatever). This is good for debugging.
+
+Default: ''.
+
+If '', the file will not be created.
 
 =item o format => $format_name
 
@@ -303,7 +349,7 @@ Default is 'svg'.
 
 Read the graph definition from this file.
 
-See also the 'graph' key to read the graph from the command line.
+See also the 'description' key to read the graph from the command line.
 
 The whole file is slurped in as 1 graph.
 
@@ -311,17 +357,30 @@ The first lines of the file can start with /^\s*#/, and will be discarded as com
 
 The 'description' key takes precedence over the 'input_file' key.
 
+=item o logger => $logger_object
+
+Specify a logger object.
+
+To disable logging, just set logger to the empty string.
+
+The default value is an object of type L<Log::Handler> which outputs to the screen.
+
+This logger is passed to L<Graph::Easy::Marpa::Lexer>, L<Graph::Easy::Marpa::Lexer::DFA>,
+L<Graph::Easy::Marpa::Parser> and L<Graph::Easy::Marpa::Renderer::GraphViz2>.
+
 =item o maxlevel => $level
 
-This option affects L<Log::Handler>. See L<Log::Handler::Levels>.
+This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
+create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
 
-The default maxlevel is 'info'. A typical value is 'debug'.
+The default 'maxlevel' is 'info'. A typical value is 'debug'.
 
 =item o minlevel => $level
 
-This option affects L<Log::Handler>. See L<Log::Handler::Levels>.
+This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
+create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
 
-The default minlevel is 'error'.
+The default 'minlevel' is 'error'.
 
 No lower levels are used.
 
@@ -333,6 +392,12 @@ If an output file name is supplied, and a rendering object is also supplied, the
 
 This is how the plotted graph is actually created.
 
+=item o parsed_tokens_file => $token_file_name
+
+This is the name of the file to write containing the tokens (items) output from L<Graph::Easy::Marpa::Parser>.
+
+See also the 'cooked_file' key, above.
+
 =item o renderer => $renderer_object
 
 This is the object whose run() method will be called to render the result of parsing
@@ -343,13 +408,35 @@ which is the default value for this object.
 
 =item o report_items => $Boolean
 
-Calls L</report()> to report, via the log, the items recognized in the cooked file.
+Calls L<Graph::Easy::Marpa::Parser/report()> to report, via the log, the items recognized in the cooked file.
 
-=item o token_file => $token_file_name
+=item o stt_file => $stt_file_name
 
-This is the name of the file to write containing the tokens (items) output from L<Graph::Easy::Marpa::Parser>.
+Specify which file contains the state transition table.
 
-See also the cooked_file, above.
+Default: ''.
+
+The default value means the STT is read from the source code of Graph::Easy::Marpa::Lexer.
+
+Candidate files are '', 'data/default.stt.csv' and 'data/default.stt.ods'.
+
+The type of this file must be specified by the 'type' key.
+
+=item o timeout => $seconds
+
+Run the DFA for at most this many seconds.
+
+Default: 3.
+
+=item o type => $stt_file_type
+
+Specify the type of the stt_file: '' for internal, csv for CSV, or ods for Open Office Calc spreadsheet.
+
+Default is ''.
+
+The default value means the STT is read from the source code of Graph::Easy::Marpa::Lexer.
+
+This option must be used with the 'stt_file' key.
 
 =back
 
@@ -512,7 +599,7 @@ Run scripts/gem.pl -h for samples of how to drive it.
 Try, using an environment variable for brevity:
 
 	X=graph.13
-	perl -Ilib scripts/gem.pl -i data/$X.raw -c $X.cooked -t $X.items -o $X.svg
+	perl -Ilib scripts/gem.pl -i data/$X.raw -c $X.cooked -o $X.svg -p $X.items
 	cat $X.cooked
 	cat $X.items
 	cat $X.svg
@@ -542,17 +629,44 @@ So, this section gives a more casual explanation.
 
 =item o Attribute names
 
-The attribute name must match /[a-z][a-z0-9_]*/.
+The attribute name must match /^[a-z]+$/.
 
 =item o Attribute values
 
-The attribute value must match /^["']?[^"';\s]["']?$/.
+The attribute value is any string up to the next ';' or '}'.
+
+Attribute values may be quoted with "..." or '...'. These quotes are stripped.
 
 =back
 
 =item o Classes
 
-Class names must match /^(?:edge|graph|group|node|[a-z][a-z0-9_]*)$/.
+Class + subclass names must match /^(edge|global|graph|group|node)(\.[a-z]+)?$/.
+
+The name before the '.' is the class name.
+
+'global' is used to specify whether you want a directed or undirected graph. The default is directed.
+
+	global {directed: 1} [node.1] -> [node.2]
+
+'graph' is used to specify the direction of the graph as a whole, and must be one of: LR or RL or TB or BT.
+The default is TB.
+
+	graph {rankdir: LR} [node.1] -> [node.2]
+
+The name after the '.' is the subclass name. And if '.' is present, the subclass name must be present.
+This means things like 'edge.' etc are syntax errors.
+
+You use the subclass name in the attributes of an edge, a group or a node, whereas 'global' and 'graph'
+appear only once, at the start of the input stream.
+
+	node {shape: square} node.forest {color: green}
+	[node.1] -> [node.2] {class: forest} -> [node.3] {shape: circle; color: blue}
+
+Here, node.1 gets the default shape, square, and node.2 gets both shape square and color green. node.3
+gets shape circle and color blue.
+
+As always, specific attributes override class attributes.
 
 =item o Daisy-chains
 
@@ -560,52 +674,192 @@ Class names must match /^(?:edge|graph|group|node|[a-z][a-z0-9_]*)$/.
 
 =item o Edges
 
-Edges can be daisy-chained by using a comma, ',', space, or attributes, '{...}', to separate them.
+Edges must match /^(->|--)$/.
 
-Hence both of these are valid: '<->,<=>{color:green}' and '<->{color:red}<=>{color:green}'.
+Edges can be daisy-chained by using a comma, ',', newline, space, or attributes, '{...}', to separate them.
+
+Hence both of these are valid: '->,->{color:green}' and '->{color:red}->{color:green}'.
+
+Edges can have attributes such as arrowhead, arrowtail, etc. See L<Graphviz|http://www.graphviz.org/content/attrs>
+
+The edge is actually rendered, via the default renderer L<GraphViz2>, by L<Graphviz|http://www.graphviz.org/>.
+
+=item o Groups
+
+Groups can be daisy chained by juxtaposition, or by using a newline or space to separate them.
 
 =item o Nodes
 
-Nodes can be daisy chained by juxtapostion, or by using the comma, ',', space, or attributes, '{...}', to separate them.
+Nodes can be daisy chained by juxtaposition, or by using the comma, ',', newline, space, or attributes, '{...}', to separate them.
 
 Hence all of these are valid: '[node.1][node.2]' and '[node.1],[node.2]' and '[node.1]{color:red}[node.2]'.
 
 =back
 
-=item o Edges
-
-Specifically, edges must currently match this regexp: /^<?(-|=|\.|~|- |= |\.-|\.\.-){1,}>?$/, which I've gleaned
-from the L<Graph::Easy> docs at L<Edges|http://bloodgate.com/perl/graph/manual/syntax.html#edges>.
-
 =item o Events
 
 These are part of the STT, but are not part of the L<Graph::Easy> language.
 
-Their names must match /[a-zA-Z_][a-zA-Z_0-9.]*/.
+Their names must match /^[a-zA-Z_][a-zA-Z_0-9.]*$/.
+
+=item o Groups
+
+Group names must match /^[a-zA-Z_.][a-zA-Z_0-9. ]*$/.
 
 =item o Nodes
 
-Node names must match /[a-zA-Z_][a-zA-Z_0-9. ]*/.
+Node names must match /^[a-zA-Z_0-9. ]+$/.
+
+Since leading and trailing spaces are stripped, a single space can be used to represent the
+anonymous node.
 
 =item o States
 
 These are part of the STT, but are not part of the L<Graph::Easy> language.
 
-Their names must match /[a-zA-Z_][a-zA-Z_0-9.]*/.
+Their names must match /^[a-zA-Z_][a-zA-Z_0-9]*$/.
 
-In the STT, this regexp applies to both the State name column ('C') and the Next state name column ('E').
-
-=item o Subclass names
-
-Subclass names must start with a class name, and must be separated from the class name with a fullstop, '.'.
-
-The 4 special class names are listed above.
-
-The subclass name itself must match /[a-z][a-z0-9_]*/.
-
-Hence these are both valid: 'node.city' and 'edge.railway'.
+In the STT, this regexp applies to both the State name column ('C' in the spreadsheet data/default.stt.ods)
+and the Next state name column ('E').
 
 =back
+
+=head1 Methods
+
+=head2 cooked_file([$csv_file_name])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the name of the file to write containing the tokens (items) output from L<Graph::Easy::Marpa::Lexer>.
+
+See also the parsed_tokens_file() method, below.
+
+=head2 description([$graph_description_string])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the string for the graph definition.
+
+See also the input_file() method to read the graph from a file, below.
+
+The value supplied to the description() method takes precedence over the value read from the input file.
+
+=head2 dot_input_file([$file_name])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the name of the file into which the rendering engine will write to input to dot (or whatever).
+
+=head2 format([$format])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the format of the output file, to be created by the renderer.
+
+=head2 input_file([$graph_file_name])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the name of the file to read the graph definition from.
+
+See also the description() method.
+
+The whole file is slurped in as 1 graph.
+
+The first lines of the file can start with /^\s*#/, and will be discarded as comments.
+
+The value supplied to the description() method takes precedence over the value read from the input file.
+
+=head2 log($level, $s)
+
+Calls $self -> logger -> $level($s).
+
+=head2 logger([$logger_object])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the logger object.
+
+To disable logging, just set logger to the empty string.
+
+This logger is passed to L<Graph::Easy::Marpa::Lexer>, L<Graph::Easy::Marpa::Lexer::DFA>,
+L<Graph::Easy::Marpa::Parser> and L<Graph::Easy::Marpa::Renderer::GraphViz2>.
+
+=head2 maxlevel([$string])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the value used by the logger object.
+
+This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
+create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
+
+=head2 minlevel([$string])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the value used by the logger object.
+
+This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
+create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
+
+=head2 output_file([$output_file_name])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the name of the file to which the renderer will write to resultant graph.
+
+This is how the plotted graph is actually created.
+
+If no renderer is supplied, or no output file is supplied, nothing is written.
+
+=head2 parsed_tokens_file([$token_file_name])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the name of the file to write containing the tokens (items) output from L<Graph::Easy::Marpa::Parser>.
+
+See also the cooked_file() method, above.
+
+=head2 renderer([$rendering_object])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the rendering object.
+
+This is the object whose run() method will be called to render the result of parsing
+the cooked file received from L<Graph::Easy::Marpa::Lexer>.
+
+The format of the parameters passed to the renderer are documented in L<Graph::Easy::Marpa::Renderer::GraphViz2/run(%arg)>,
+which is the default value for this object.
+
+=head2 report_items([$Boolean])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the flag to report, via the log, the items recognized in the cooked file.
+
+Calls L<Graph::Easy::Marpa::Parser/report()> to do the reporting.
+
+=head2 stt_file([$stt_file_name])
+
+The [] indicate an optional parameter.
+
+Get or set the name of the file containing the state transition table.
+
+This option is used in conjunction with the type() option.
+
+=head2 timeout($seconds)
+
+The [] indicate an optional parameter.
+
+Get or set the timeout for how long to run the DFA.
+
+=head2 type([$type])
+
+The [] indicate an optional parameter.
+
+Get or set the value which determines what type of stt_file is read.
 
 =head1 FAQ
 
@@ -626,179 +880,29 @@ Here is a L<sample|http://bloodgate.com/perl/graph/manual/overview.html>.
 
 =item o So what's a sample of a L<Graph::Easy> graph definition?
 
-	[node_1]{color:red;style:circle}=>{class:fancy;}[node_2]{color:green;}
+	[node_1]{color: red; style: circle} -> {class: fancy;} [node_2]{color: green;}
 
-=item o How are graphs stored in RAM (by L<Graph::Easy::Marpa::Parser>)?
+=item o How are graphs stored in RAM by the lexer and the parser?
 
-As an arrayref of hashrefs, where each hashref records information about one 'item' in the input stream.
-
-Items are:
-
-=over 4
-
-=item o Nodes
-
-A node definition of '[N]' would produce a hashref of:
-
-	{
-	count => $n,
-	name  => 'N',
-	type  => 'node',
-	value => '',
-	}
-
-A node can have a definition of '[]', which means it has no name. Such node are anonymous, and are
-called invisible because while they take up space in the output stream, they have no printable or visible
-characters in the output stream. See L<Graph::Easy> for details.
-
-Node names are case-sensitive, and must be unique (except for anonymous nodes).
-
-Note: Items are numbered from 1 up, but some numbers are missing, since those values are used internally.
-
-=item o Edges
-
-An edge definition of '->' would produce a hashref of:
-
-	{
-	count => N,
-	name  => '->',
-	type  => 'edge',
-	value => '',
-	}
-
-=item o Attributes
-
-An attribute can belong to a node or an edge. An attribute definition of
-'{color: red;}' would produce a hashref of:
-
-	{
-	count => N,
-	name  => 'color',
-	type  => 'attr',
-	value => 'red',
-	}
-
-An attribute definition of '{color: red;shape: circle;}' will produce 2 hashrefs, i.e. 2 elements in the arrayref:
-
-	{
-	count => N,
-	name  => 'color',
-	type  => 'attr',
-	value => 'red',
-	}
-
-	{
-	count => N,
-	name  => 'shape',
-	type  => 'attr',
-	value => 'circle',
-	}
-
-=item o Classes
-
-There are various special items in the arrayref of items, all placeholders.
-
-They contain the default values of attributes you wish to assign to every item of a particular type.
-
-They do not take up any place in the output stream, and you declare them in the input stream,
-and assign attributes to them, in the same way you assign attributes to any node or edge.
-
-They are I<not> the same as the anonymous nodes mentioned above.
-
-Classes can have subclasses.
-
-=over 4
-
-=item o The graph class
-
-This class's name is 'graph', and it looks like:
-
-	{
-	count => N,
-	name  => 'graph',
-	type  => 'class',
-	value => '',
-	}
-
-The attributes attached to this class apply to the graph as a whole.
-
-=item o The group class
-
-A group is a name given to a set of nodes.
-
-This class's name is 'group', and it looks like:
-
-	{
-	count => N,
-	name  => 'group',
-	type  => 'class',
-	value => '',
-	}
-
-The attributes attached to this class apply to each group.
-
-=item o The node class
-
-This node's name is 'node', and it looks like:
-
-	{
-	count => N,
-	name  => 'node',
-	type  => 'class',
-	value => '',
-	}
-
-The attributes attached to this class apply to each node.
-
-Attributes of a subclass of node, or belonging to a node, override the node class's attributes.
-
-A subclass name for a node must start with 'node.', as in 'node.city'.
-
-=item o The edge class
-
-This class's name is 'edge', and it looks like:
-
-	{
-	count => N,
-	name  => 'edge',
-	type  => 'class',
-	value => '',
-	}
-
-The attributes attached to this class apply to each edge.
-
-Attributes of a subclass of edge, or belonging to an edge, override the edge class's attributes.
-
-A subclass name for an edge must start with 'edge.', as in 'edge.road'.
-
-=item o The L<daisy-chain|http://en.wikipedia.org/wiki/Daisy-chain> item
-
-This item indicates the graph definition contained 2 adjacent nodes, as in '[node.1],[node.2]',
-which means any following attributes must be assigned to all nodes in the daisy-chain.
-
-It looks like:
-
-	{
-	count => N,
-	name  => ',',
-	type  => 'daisy_chain',
-	value => '',
-	}
-
-=back
-
-=back
+See L<Graph::Easy::Marpa::Lexer/FAQ>.
 
 =item o How are attributes assigned to nodes and edges?
 
 Since the scan of the input stream is linear, any attribute detected belongs to the nearest preceeding
 node(s) or edge.
 
+=item o How are attributes assigned to groups?
+
+The only attributes which can be passed to a subgraph (group) are those that 'dot' accepts under the 'graph'
+part of a subgraph definition.
+
+This means the attribute 'rank' cannot be passed, yet.
+
 =item o Is there sample data I can examine?
 
-See data/*.raw and the corresponding data/*.csv.
+See data/*.raw and the corresponding data/*.cooked and html/*.svg.
 
-*.raw are input for the lexer, and *.csv are output from the lexer.
+*.raw are input for the lexer, and *.cooked are output from the lexer.
 
 Note: Some files contain deliberate mistakes. See above for instructions on running scripts/lex.pl and scripts/lex.sh.
 
@@ -813,56 +917,33 @@ We can't use \w+ because 'graph{a:b}' matches that under Perl 5.12.2.
 
 =item o How to I re-generate the web page of demos?
 
-Patch scripts/generate.index.pl to use a permanent directory instead of calling File::Temp -> newdir(...).
-Then, run it.
+By default, scripts/generate.index.pl outputs to File::Temp -> newdir(...).
+But by running it with a command line parameter, that value willl be used for the output directory.
+
+=item o What are the defaults for GraphViz2, the default rendering engine?
+
+	 GraphViz2 -> new
+	 (
+	  edge    => $class{edge}   || {color => 'grey'},
+	  global  => $class{global} || {directed => 1},
+	  graph   => $class{graph}  || {rankdir => $self -> rankdir},
+	  logger  => $self -> logger,
+	  node    => $class{node} || {shape => 'oval'},
+	  verbose => 0,
+	 )
+
+where $class($name) is taken from the class declarations at the start of the input stream.
 
 =back
 
 =head1 TODO
 
-=head2 Pass lexed graph definition from lexer to parser via RAM, not just via a disk file
-
-This saves a bit of time, since then the lexer would not have to write a file,
-and the parser would not have to read one.
-
-=head2 Add an anonymous node at the end of the input, if necessary
-
-This counteracts a buglet in the renderer, in that it doesn't plot edges unless followed by a node.
-So, a graph with a trailing edge will not show that edge.
-
-=head2 Proof-read all docs, specifically checking parameters for scripts and methods
-
-Ensure docs for arrayref of items passed to the renderer is up-to-date.
-
-=head2 Add a timeout on the lexer, not just on calling 'dot'
+=head2 Implement HTML-style labels
 
 =head2 Use regexps from the STT to do more validation
 
-=head2 Document difference in syntax compared with L<Graph::Easy>
-
-Not in detail, probably.
-
-=head2 Email AT&T about the link to Leon's code in their wiki
-
-=head2 Implement classes and subclasses, and groups
-
-=head2 Implement user-control of arrow shape
-
-=head2 Implement user-control over the selection of rendering engine
-
-This means the parser needs a graph type option, too.
-
-=head2 Put data/default.stt.csv into the source code of the lexer
-
-This saves a bit of time, since then the lexer would not have to read a separate file.
-
-=head2 Allow logger objects to be provided in more places
-
-Hence sub _init() would then read:
-
-	$arg{logger} = defined($arg{logger}) ? $arg{logger} : Log::Handler -> new.
-
-Then, the caller can use logger => '' to turn off logging.
+At the moment, some validation is done in L<Graph::Easy::Marpa::Lexer::DFA> by manually copying
+regexps from the STT to the subs validate_*().
 
 =head1 Machine-Readable Change Log
 

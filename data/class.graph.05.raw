@@ -1,0 +1,2 @@
+# Graph class. OK.
+graph {rankdir: LR} [node.1] -- [node.2]

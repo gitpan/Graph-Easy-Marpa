@@ -1,0 +1,3 @@
+# Classes with attributes. OK.
+edge {color: green} node {color: lightblue} [node.1] {color: pink} -> [node.2]
+
