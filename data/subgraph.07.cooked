@@ -1,5 +1,5 @@
 "key","value"
-push_subgraph           , 'cluster_1:'
+push_subgraph           , 'cluster_1'
 left_bracket            , [
 node_id                 , 'Solar system'
 right_bracket           , ]
@@ -13,7 +13,7 @@ right_brace             , }
 left_bracket            , [
 node_id                 , 'Earth'
 right_bracket           , ]
-pop_subgraph            , 'cluster_1:'
+pop_subgraph            , 'cluster_1'
 left_brace              , {
 attribute_name_id       , 'bgcolor'
 colon                   , :

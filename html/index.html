@@ -3,7 +3,7 @@
 		<title>Index of sample SVG files created by Graph::Easy::Marpa.</title>
 </head>
 <body>
-		<h1>Index of sample SVG files created by Graph::Easy::Marpa V 0.92.</h1>
+		<h1>Index of sample SVG files created by Graph::Easy::Marpa V 1.01.</h1>
 
 <p>All scripts, input files and output files required to generate these examples are shipped in the Graph::Easy::Marpa distro.</p>
 
@@ -116,16 +116,16 @@ to test the code. It will make 'dot' die, but is included here.</p>
   <td><img src = "./group.01.svg" /><br /><br />Output file # 25 - html/group.01.svg<br /># Group with attributes. OK.</td>
 </tr>
 <tr>
-  <td>Input file # 26 - data/node.02.raw:<br /># Anonymous node. OK.<br />[ ]</td>
-  <td><img src = "./node.02.svg" /><br /><br />Output file # 26 - html/node.02.svg<br /># Anonymous node. OK.</td>
+  <td>Input file # 26 - data/node.02.raw:<br /># Anonymous node without attributes made to vanish. OK.<br />[]</td>
+  <td><img src = "./node.02.svg" /><br /><br />Output file # 26 - html/node.02.svg<br /># Anonymous node without attributes made to vanish. OK.</td>
 </tr>
 <tr>
   <td>Input file # 27 - data/node.03.raw:<br /># Named node with space. OK.<br />[Perl 6]</td>
   <td><img src = "./node.03.svg" /><br /><br />Output file # 27 - html/node.03.svg<br /># Named node with space. OK.</td>
 </tr>
 <tr>
-  <td>Input file # 28 - data/node.04.raw:<br /># Anonymous node with attributes. OK.<br />[]{color:red}</td>
-  <td><img src = "./node.04.svg" /><br /><br />Output file # 28 - html/node.04.svg<br /># Anonymous node with attributes. OK.</td>
+  <td>Input file # 28 - data/node.04.raw:<br /># Anonymous node with attributes made to vanish. OK.<br />[]{color:red}</td>
+  <td><img src = "./node.04.svg" /><br /><br />Output file # 28 - html/node.04.svg<br /># Anonymous node with attributes made to vanish. OK.</td>
 </tr>
 <tr>
   <td>Input file # 29 - data/node.05.raw:<br /># Named node with attributes. OK.<br />[node.1]{color:red}</td>
@@ -164,60 +164,72 @@ to test the code. It will make 'dot' die, but is included here.</p>
   <td><img src = "./node.13.svg" /><br /><br />Output file # 37 - html/node.13.svg<br /># Juxtaposed nodes (with comma) without attributes. OK.</td>
 </tr>
 <tr>
-  <td>Input file # 38 - data/subgraph.04.raw:<br /># Group (i.e. subgraph). OK.<br />(cluster_1:[Great]->{arrowhead: odot}[Small]){bgcolor: lightblue; label: Creatures}</td>
-  <td><img src = "./subgraph.04.svg" /><br /><br />Output file # 38 - html/subgraph.04.svg<br /># Group (i.e. subgraph). OK.</td>
+  <td>Input file # 38 - data/node.14.raw:<br /># Anonymous node without attributes made to vanish. OK.<br />[node.1] -> [] -> [node.2]</td>
+  <td><img src = "./node.14.svg" /><br /><br />Output file # 38 - html/node.14.svg<br /># Anonymous node without attributes made to vanish. OK.</td>
 </tr>
 <tr>
-  <td>Input file # 39 - data/subgraph.05.raw:<br /># Group (i.e. subgraph) + Group. OK.<br />(cluster_1: [Solar system] -> {arrowhead: diamond} [Earth]) {bgcolor: lightgreen; label: Locale}<br />(cluster_2: [Great] -> {arrowhead: odot} [Small]) {bgcolor: lightblue; label: Creatures}</td>
-  <td><img src = "./subgraph.05.svg" /><br /><br />Output file # 39 - html/subgraph.05.svg<br /># Group (i.e. subgraph) + Group. OK.</td>
+  <td>Input file # 39 - data/node.15.raw:<br /># Anonymous node with attributes made to vanish. OK.<br />[node.1] -> [] {color: red; label: 'Anonymous!'} -> [node.2]</td>
+  <td><img src = "./node.15.svg" /><br /><br />Output file # 39 - html/node.15.svg<br /># Anonymous node with attributes made to vanish. OK.</td>
 </tr>
 <tr>
-  <td>Input file # 40 - data/subgraph.06.raw:<br /># Node + Group (i.e. subgraph). OK.<br />[Sol] (cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}</td>
-  <td><img src = "./subgraph.06.svg" /><br /><br />Output file # 40 - html/subgraph.06.svg<br /># Node + Group (i.e. subgraph). OK.</td>
+  <td>Input file # 40 - data/node.16.raw:<br /># Class node, and anonymous node made to vanish. OK.<br />node {color: red} [node.1] -> [] {label: 'Hide me!'} -> [node.2]</td>
+  <td><img src = "./node.16.svg" /><br /><br />Output file # 40 - html/node.16.svg<br /># Class node, and anonymous node made to vanish. OK.</td>
 </tr>
 <tr>
-  <td>Input file # 41 - data/subgraph.07.raw:<br /># Group (i.e. subgraph) + Node. OK.<br />(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale} [Sol] </td>
-  <td><img src = "./subgraph.07.svg" /><br /><br />Output file # 41 - html/subgraph.07.svg<br /># Group (i.e. subgraph) + Node. OK.</td>
+  <td>Input file # 41 - data/subgraph.04.raw:<br /># Group (i.e. subgraph). OK.<br />(cluster_1:[Great]->{arrowhead: odot}[Small]){bgcolor: lightblue; label: Creatures}</td>
+  <td><img src = "./subgraph.04.svg" /><br /><br />Output file # 41 - html/subgraph.04.svg<br /># Group (i.e. subgraph). OK.</td>
 </tr>
 <tr>
-  <td>Input file # 42 - data/subgraph.08.raw:<br /># Edge + Group (i.e. subgraph). OK.<br />-> (cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}</td>
-  <td><img src = "./subgraph.08.svg" /><br /><br />Output file # 42 - html/subgraph.08.svg<br /># Edge + Group (i.e. subgraph). OK.</td>
+  <td>Input file # 42 - data/subgraph.05.raw:<br /># Group (i.e. subgraph) + Group. OK.<br />(cluster_1: [Solar system] -> {arrowhead: diamond} [Earth]) {bgcolor: lightgreen; label: Locale}<br />(cluster_2: [Great] -> {arrowhead: odot} [Small]) {bgcolor: lightblue; label: Creatures}</td>
+  <td><img src = "./subgraph.05.svg" /><br /><br />Output file # 42 - html/subgraph.05.svg<br /># Group (i.e. subgraph) + Group. OK.</td>
 </tr>
 <tr>
-  <td>Input file # 43 - data/subgraph.09.raw:<br /># Group (i.e. subgraph) + Edge. OK.<br />(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale} -></td>
-  <td><img src = "./subgraph.09.svg" /><br /><br />Output file # 43 - html/subgraph.09.svg<br /># Group (i.e. subgraph) + Edge. OK.</td>
+  <td>Input file # 43 - data/subgraph.06.raw:<br /># Node + Group (i.e. subgraph). OK.<br />[Sol] (cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}</td>
+  <td><img src = "./subgraph.06.svg" /><br /><br />Output file # 43 - html/subgraph.06.svg<br /># Node + Group (i.e. subgraph). OK.</td>
 </tr>
 <tr>
-  <td>Input file # 44 - data/subgraph.10.raw:<br /># Node + Edge + Group (i.e. subgraph). OK.<br />[Andromeda] -><br />(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}</td>
-  <td><img src = "./subgraph.10.svg" /><br /><br />Output file # 44 - html/subgraph.10.svg<br /># Node + Edge + Group (i.e. subgraph). OK.</td>
+  <td>Input file # 44 - data/subgraph.07.raw:<br /># Group (i.e. subgraph) + Node. OK.<br />(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale} [Sol] </td>
+  <td><img src = "./subgraph.07.svg" /><br /><br />Output file # 44 - html/subgraph.07.svg<br /># Group (i.e. subgraph) + Node. OK.</td>
 </tr>
 <tr>
-  <td>Input file # 45 - data/subgraph.11.raw:<br /># Node + Edge + Node + Edge + Group (i.e. subgraph). OK.<br />[Andromeda] -> [Milky Way] -><br />(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}</td>
-  <td><img src = "./subgraph.11.svg" /><br /><br />Output file # 45 - html/subgraph.11.svg<br /># Node + Edge + Node + Edge + Group (i.e. subgraph). OK.</td>
+  <td>Input file # 45 - data/subgraph.08.raw:<br /># Edge + Group (i.e. subgraph). OK.<br />-> (cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}</td>
+  <td><img src = "./subgraph.08.svg" /><br /><br />Output file # 45 - html/subgraph.08.svg<br /># Edge + Group (i.e. subgraph). OK.</td>
 </tr>
 <tr>
-  <td>Input file # 46 - data/subgraph.12.raw:<br /># Group (i.e. subgraph) + Edge + Node. OK.<br />(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}<br />-> [Australia]</td>
-  <td><img src = "./subgraph.12.svg" /><br /><br />Output file # 46 - html/subgraph.12.svg<br /># Group (i.e. subgraph) + Edge + Node. OK.</td>
+  <td>Input file # 46 - data/subgraph.09.raw:<br /># Group (i.e. subgraph) + Edge. OK.<br />(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale} -></td>
+  <td><img src = "./subgraph.09.svg" /><br /><br />Output file # 46 - html/subgraph.09.svg<br /># Group (i.e. subgraph) + Edge. OK.</td>
 </tr>
 <tr>
-  <td>Input file # 47 - data/subgraph.13.raw:<br /># Group (i.e. subgraph) + Edge + Node + Edge + Node + Edge + Node. OK.<br />(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}<br />-> [Australia] -> [Victoria] -> [Melbourne] -> [Murrumbeena]</td>
-  <td><img src = "./subgraph.13.svg" /><br /><br />Output file # 47 - html/subgraph.13.svg<br /># Group (i.e. subgraph) + Edge + Node + Edge + Node + Edge + Node. OK.</td>
+  <td>Input file # 47 - data/subgraph.10.raw:<br /># Node + Edge + Group (i.e. subgraph). OK.<br />[Andromeda] -><br />(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}</td>
+  <td><img src = "./subgraph.10.svg" /><br /><br />Output file # 47 - html/subgraph.10.svg<br /># Node + Edge + Group (i.e. subgraph). OK.</td>
 </tr>
 <tr>
-  <td>Input file # 48 - data/subgraph.14.raw:<br /># Group (i.e. subgraph) + Edge + Group. OK.<br />(cluster_1: [Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}<br />-><br />(cluster_2: [Australia] -> [Victoria] -> [Melbourne] -> [Murrumbeena]){bgcolor: lightblue; label: Home}</td>
-  <td><img src = "./subgraph.14.svg" /><br /><br />Output file # 48 - html/subgraph.14.svg<br /># Group (i.e. subgraph) + Edge + Group. OK.</td>
+  <td>Input file # 48 - data/subgraph.11.raw:<br /># Node + Edge + Node + Edge + Group (i.e. subgraph). OK.<br />[Andromeda] -> [Milky Way] -><br />(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}</td>
+  <td><img src = "./subgraph.11.svg" /><br /><br />Output file # 48 - html/subgraph.11.svg<br /># Node + Edge + Node + Edge + Group (i.e. subgraph). OK.</td>
 </tr>
 <tr>
-  <td>Input file # 49 - data/subgraph.15.raw:<br /># Group (i.e. subgraph) without a node before the edge. OK.<br />(cluster_1: -> [Small] )</td>
-  <td><img src = "./subgraph.15.svg" /><br /><br />Output file # 49 - html/subgraph.15.svg<br /># Group (i.e. subgraph) without a node before the edge. OK.</td>
+  <td>Input file # 49 - data/subgraph.12.raw:<br /># Group (i.e. subgraph) + Edge + Node. OK.<br />(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}<br />-> [Australia]</td>
+  <td><img src = "./subgraph.12.svg" /><br /><br />Output file # 49 - html/subgraph.12.svg<br /># Group (i.e. subgraph) + Edge + Node. OK.</td>
 </tr>
 <tr>
-  <td>Input file # 50 - data/subgraph.16.raw:<br /># Group (i.e. subgraph) without a node after the edge. OK.<br />(cluster_1: [Small] -> )</td>
-  <td><img src = "./subgraph.16.svg" /><br /><br />Output file # 50 - html/subgraph.16.svg<br /># Group (i.e. subgraph) without a node after the edge. OK.</td>
+  <td>Input file # 50 - data/subgraph.13.raw:<br /># Group (i.e. subgraph) + Edge + Node + Edge + Node + Edge + Node. OK.<br />(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}<br />-> [Australia] -> [Victoria] -> [Melbourne] -> [Murrumbeena]</td>
+  <td><img src = "./subgraph.13.svg" /><br /><br />Output file # 50 - html/subgraph.13.svg<br /># Group (i.e. subgraph) + Edge + Node + Edge + Node + Edge + Node. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 51 - data/subgraph.14.raw:<br /># Group (i.e. subgraph) + Edge + Group. OK.<br />(cluster_1: [Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}<br />-><br />(cluster_2: [Australia] -> [Victoria] -> [Melbourne] -> [Murrumbeena]){bgcolor: lightblue; label: Home}</td>
+  <td><img src = "./subgraph.14.svg" /><br /><br />Output file # 51 - html/subgraph.14.svg<br /># Group (i.e. subgraph) + Edge + Group. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 52 - data/subgraph.15.raw:<br /># Group (i.e. subgraph) without a node before the edge. OK.<br />(cluster_1: -> [Small] )</td>
+  <td><img src = "./subgraph.15.svg" /><br /><br />Output file # 52 - html/subgraph.15.svg<br /># Group (i.e. subgraph) without a node before the edge. OK.</td>
+</tr>
+<tr>
+  <td>Input file # 53 - data/subgraph.16.raw:<br /># Group (i.e. subgraph) without a node after the edge. OK.<br />(cluster_1: [Small] -> )</td>
+  <td><img src = "./subgraph.16.svg" /><br /><br />Output file # 53 - html/subgraph.16.svg<br /># Group (i.e. subgraph) without a node after the edge. OK.</td>
 </tr>
 </table>
 
-<p>Last updated: 2011-07-19 15:03:04.</p>
+<p>Last updated: 2011-07-20 14:36:21.</p>
 
 </body>
 </html>

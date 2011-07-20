@@ -9,11 +9,11 @@
 <g id="graph1" class="graph" transform="scale(1 1) rotate(0) translate(4 486)">
 <title>Perl</title>
 <polygon fill="white" stroke="white" points="-4,5 -4,-486 171,-486 171,5 -4,5"/>
-<g id="graph2" class="cluster"><title>cluster_1:</title>
+<g id="graph2" class="cluster"><title>cluster_1</title>
 <polygon fill="lightgreen" stroke="black" points="14,-319 14,-474 152,-474 152,-319 14,-319"/>
 <text text-anchor="middle" x="83" y="-457.4" font-family="Times Roman,serif" font-size="14.00">Locale</text>
 </g>
-<g id="graph3" class="cluster"><title>cluster_2:</title>
+<g id="graph3" class="cluster"><title>cluster_2</title>
 <polygon fill="lightblue" stroke="black" points="8,-8 8,-311 158,-311 158,-8 8,-8"/>
 <text text-anchor="middle" x="83" y="-294.4" font-family="Times Roman,serif" font-size="14.00">Home</text>
 </g>

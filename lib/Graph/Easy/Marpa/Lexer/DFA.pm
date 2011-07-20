@@ -21,42 +21,125 @@ fieldhash my %start      => 'start';
 fieldhash my %verbose    => 'verbose';
 
 our $myself; # Is a copy of $self for functions called by Set::FA::Element.
-our $VERSION = '1.00';
+our $VERSION = '1.01';
+
+# --------------------------------------------------
+# Ensure each anonymous node has (at least) these attributes:
+# o color: 'invis'.
+# o label: ''.
+
+sub check_anonymous_nodes
+{
+	my($self) = @_;
+	my(@item) = $self -> items -> print;
+	my(%fix)  =
+	(
+		color => 'invis',
+		label => '',
+	);
+
+	# Loop over all items.
+
+	my($i) = 0;
+
+	my(@attribute);
+	my(%found);
+	my($item);
+	my($last_i);
+	my(@new_item);
+
+	while ($i <= $#item)
+	{
+		# 1: Find the anonymous nodes.
+
+		$item = $item[$i];
+
+		push @new_item, $item;
+
+		if ( ($$item{type} ne 'node') || ($$item{name} ne '') )
+		{
+			$i++;
+
+			next;
+		}
+
+		# 2: Collect the anonymous node's attributes, if any.
+		# Warning: $last_i must be set to $i, and not some arbitrary
+		# value such as - 1, because of the $i = $last_i + 1 at the end,
+		# which matters when [] has no attributes, and we never enter this loop.
+
+		@attribute = ();
+		$last_i    = $i;
+
+		for (my $j = $i + 1; $j <= $#item; $j++)
+		{
+			$item = $item[$j];
+
+			last if ($$item{type} ne 'attribute');
+
+			$last_i = $j;
+
+			push @attribute, $item;
+		}
+
+		# 3: Check for attributes color and label.
+
+		%found = ();
+
+		for (my $j = 0; $j <= $#attribute; $j++)
+		{
+			for my $key (keys %fix)
+			{
+				$found{$key} = $j if ($attribute[$j]{name} eq $key);
+			}
+		}
+
+		# 4: Update attributes.
+		# o If present, overwrite.
+		# o If absent, fabricate.
+
+		for my $key (keys %fix)
+		{
+			# We need defined because the index in $found{$key} may be 0.
+
+			if (defined $found{$key})
+			{
+				$attribute[$found{$key}]{value} = $fix{$key};
+			}
+			else
+			{
+				# Setting count = 1 does not matter because the caller
+				# (the lexer) calls the renumber_items() method.
+
+				push @attribute,
+				{
+					count => 1,
+					name  => $key,
+					type  => 'attribute',
+					value => $fix{$key},
+				};
+			}
+		}
+
+		# 5: Add the attributes to the array of new items.
+
+		push @new_item, @attribute;
+
+		# 6: Skip the previous attribute(s).
+
+		$i = $last_i + 1;
+	}
+
+	$self -> items(Set::Array -> new(@new_item) );
+
+} # End of check_anonymous_nodes.
 
 # --------------------------------------------------
 
-sub _clean_up
+sub check_class_attributes
 {
-	my($self)  = @_;
-	my($group) = $self -> group;
-
-	if ($group)
-	{
-		die "Error: Group '$group' not closed";
-	}
-
-	# Clean up left-overs.
-
-	my($param) = $self -> param;
-
-	# Is there a class?
-
-	if ($$param{class}{match})
-	{
-		validate_class_name($self -> dfa);
-	}
-
-	# Is there an edge?
-	# Need this because edges don't have terminators.
-
-	if ($$param{edge}{match})
-	{
-		validate_edge_name($self -> dfa);
-	}
-
-	# Classes must have attributes.
-
-	my(@item) = @{$self -> items};
+	my($self) = @_;
+	my(@item) = $self -> items -> print;
 
 	my($name, $next_type);
 	my($type);
@@ -83,6 +166,48 @@ sub _clean_up
 			}
 		}
 	}
+
+} # End of check_class_attributes.
+
+# --------------------------------------------------
+
+sub _clean_up
+{
+	my($self)  = @_;
+	my($group) = $self -> group;
+
+	if ($group)
+	{
+		die "Error: Group '$group' not closed";
+	}
+
+	# Clean up left-overs.
+
+	my($param) = $self -> param;
+
+	# Is there a class?
+	# Probably don't need this, since a class can't end a graph.
+
+	if ($$param{class}{match})
+	{
+		validate_class_name($self -> dfa);
+	}
+
+	# Is there an edge?
+	# Need this because edges don't have terminators.
+
+	if ($$param{edge}{match})
+	{
+		validate_edge_name($self -> dfa);
+	}
+
+	# Anonymous node must be invisible.
+
+	$self -> check_anonymous_nodes;
+
+	# Classes must have attributes.
+
+	$self -> check_class_attributes;
 
 } # End of _clean_up.
 
@@ -421,6 +546,7 @@ sub save_group_name
 {
 	my($dfa)   = @_;
 	my($match) = trim($dfa -> match);
+	$match     =~ s/:$//;
 
 	# The empty group.
 
@@ -457,6 +583,7 @@ sub save_node_name
 {
 	my($dfa)   = @_;
 	my($match) = trim($dfa -> match);
+	$match     =~ s/]$//;
 
 	# The anonymous node.
 
@@ -735,7 +862,7 @@ sub validate_group_name
 	my($param)       = $myself -> param;
 	my($group)       = $$param{group}{match};
 	$$param{group}   = {};
-	my($valid_group) = '[a-zA-Z_.][a-zA-Z_0-9. ]*:';
+	my($valid_group) = '[a-zA-Z_.][a-zA-Z_0-9. ]*';
 
 	if ($group !~ /^$valid_group$/)
 	{

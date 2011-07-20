@@ -1,5 +1,8 @@
 Revision history for Perl extension Graph::Easy::Marpa.
 
+1.01  Wed Jul 20 14:24:00 2011
+	  - Remove the restriction that anonymous nodes had to have at least 1 space in their name.
+
 1.00  Tue Jul 19 15:42:00 2011
 	  - Implement subgraphs (i.e. groups), classes and subclasses. See the FAQ for notes on group attributes.
 	  - Put a copy of the CSV version of the STT in the __DATA__ section of the lexer, to speed up reading it.

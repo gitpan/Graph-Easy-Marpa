@@ -44,7 +44,7 @@ fieldhash my %tokens       => 'tokens';
 fieldhash my %type         => 'type';
 
 our $myself; # Is a copy of $self for functions called by Set::FA::Element.
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 # --------------------------------------------------
 
@@ -1141,6 +1141,10 @@ Get or set the value which determines what type of stt_file is read.
 
 =head1 FAQ
 
+=head2 Where are the functions named in the STT?
+
+In L<Graph::Easy::Marpa::Lexer::DFA>.
+
 =head2 How is the lexed or parsed graph stored in RAM?
 
 Items are stored in an arrayref. This arrayref is available via the L</items()> method.
@@ -1261,9 +1265,28 @@ A node definition of '[Name]' would produce a hashref of:
 	value => '',
 	}
 
-A node can have a definition of '[ ]', which means it has no name. Such node are anonymous, and are
-called invisible because while they take up space in the output stream, they have no printable or visible
+A node can have a definition of '[]', which means it has no name. Such node are called anonymous (or
+invisible) because while they take up space in the output stream, they have no printable or visible
 characters in the output stream. See L<Graph::Easy> for details.
+
+Each anonymous node will have at least these 2 attributes:
+
+	{
+	count => $n,
+	name  => 'color',
+	type  => 'attribute',
+	value => 'invis',
+	}
+
+	{
+	count => $n,
+	name  => 'label',
+	type  => 'attribute',
+	value => '',
+	}
+
+You can of course give your anonymous nodes any attributes, but they will be forced to have
+these 2 attributes.
 
 Node names are case-sensitive.
 
@@ -1333,10 +1356,10 @@ __DATA__
 ,,,"\[","start_node",,,"(?:->|--)","Edge name"
 ,,,"\s+","global",,,"[a-zA-Z_][a-zA-Z_0-9]*","Event name"
 ,,,,,,,"[a-zA-Z_.][a-zA-Z_0-9. ]*:","Group name"
-,,,,,,,"[a-zA-Z_0-9. ]+","Node name"
+,,,,,,,"[^\]]*]","Node name"
 ,,"class",",","daisy_chain_class","validate_class_name",,"[a-zA-Z_][a-zA-Z_0-9]*","State name"
 ,,,"{","start_class_attribute",,,,
-,,,"\(","start_group",,,,
+,,,"\(","start_group",,,"[a-zA-Z_0-9. ]","Real node name"
 ,,,"\[","start_node",,,,
 ,,,"(?:->|--)","start_edge",,,,
 ,,,"\s+","class",,,,
@@ -1370,12 +1393,8 @@ __DATA__
 ,,,"(?:->|--)","start_edge",,,,
 ,,,"\s+","post_group",,,,
 ,,,,,,,,
-,,"start_node","[a-zA-Z_0-9. ]+","node",,"save_node_name",,
-,,,"]","post_node",,,,
+,"Yes","start_node","[^\]]*]","post_node",,"save_node_name",,
 ,,,"\s+","start_node",,,,
-,,,,,,,,
-,,"node","]","post_node",,,,
-,,,"\s+","node",,,,
 ,,,,,,,,
 ,"Yes","post_node","{","start_attribute","validate_node_name",,,
 ,,,"\(","start_group",,,,

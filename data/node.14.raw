@@ -1,2 +1,2 @@
 # Anonymous node without attributes made to vanish. OK.
-[]
+[node.1] -> [] -> [node.2]

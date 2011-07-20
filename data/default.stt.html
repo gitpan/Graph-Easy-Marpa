@@ -4,9 +4,10 @@
 </head>
 <body>
 
-<h1 align="center">Graph::Easy::Marpa's State Transition Table</h1>
+<h1 align="center">State Transition Table for Graph::Easy::Marpa V 1.01</h1>
 
-<p>This is the STT for the dialect of Graph::Easy's graph description language recognized by <a href="http://search.cpan.org/perldoc?Graph%3A%3AEasy%3A%3AMarpa">Graph::Easy::Marpa</a>.</p>
+<p>This is the STT for the dialect of Graph::Easy's graph description language recognized by
+<a href="http://search.cpan.org/perldoc?Graph%3A%3AEasy%3A%3AMarpa">Graph::Easy::Marpa</a> V 1.01.</p>
 
 <p>This table has been exported from an OpenOffice Calc spreadsheet as a CSV file,
 with the latter being incorporated into this HTML.</p>
@@ -118,7 +119,7 @@ and, specifically, attribute values can be quoted with either "..." or '...'. Su
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[a-zA-Z_0-9. ]+</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">[^\]]*]</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">Node name</div></td>
 </tr>
 <tr>
@@ -151,8 +152,8 @@ and, specifically, attribute values can be quoted with either "..." or '...'. Su
 <td><div style="border: thin solid; margin: 0; padding: 0">start_group</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">[a-zA-Z_0-9. ]</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">Real node name</div></td>
 </tr>
 <tr>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -519,10 +520,10 @@ and, specifically, attribute values can be quoted with either "..." or '...'. Su
 </tr>
 <tr>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">Yes</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">start_node</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">[a-zA-Z_0-9. ]+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">node</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">[^\]]*]</div></td>
+<td><div style="border: thin solid; margin: 0; padding: 0">post_node</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">save_node_name</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
@@ -532,52 +533,8 @@ and, specifically, attribute values can be quoted with either "..." or '...'. Su
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">]</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">post_node</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">\s+</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">start_node</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">node</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">]</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">post_node</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-</tr>
-<tr>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">\s+</div></td>
-<td><div style="border: thin solid; margin: 0; padding: 0">node</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>
 <td><div style="border: thin solid; margin: 0; padding: 0">.</div></td>

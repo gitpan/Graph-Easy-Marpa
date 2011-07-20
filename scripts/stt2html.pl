@@ -3,6 +3,8 @@
 use strict;
 use warnings;
 
+use Graph::Easy::Marpa;
+
 use IO::File;
 
 use List::Cycle;
@@ -616,7 +618,8 @@ print $templater -> render
 (
  'rainbow.page.tx',
  {
-	 title => 'State Transition Table for Graph::Easy::Marpa::Lexer',
-	 table => $table,
+	 title   => 'State Transition Table for Graph::Easy::Marpa::Lexer',
+	 table   => $table,
+	 version => $Graph::Easy::Marpa::VERSION,
  },
 );

@@ -10,7 +10,7 @@ use Hash::FieldHash ':all';
 
 use Perl6::Slurp;
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 # ------------------------------------------------
 

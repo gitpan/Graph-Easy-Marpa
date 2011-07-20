@@ -31,7 +31,7 @@ fieldhash my %stt_file           => 'stt_file';
 fieldhash my %timeout            => 'timeout';
 fieldhash my %type               => 'type';
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 # --------------------------------------------------
 
@@ -683,6 +683,12 @@ Hence both of these are valid: '->,->{color:green}' and '->{color:red}->{color:g
 Edges can have attributes such as arrowhead, arrowtail, etc. See L<Graphviz|http://www.graphviz.org/content/attrs>
 
 The edge is actually rendered, via the default renderer L<GraphViz2>, by L<Graphviz|http://www.graphviz.org/>.
+
+Note: The syntax for edges is just a visual clue for the user. The directed 'v' undirected nature of the graph
+depends on the value of the 'directed' attribute present (explicitly or implicitly) in the input stream.
+
+The default is {directed: 1}. See data/class.global.01.raw for a case where we use {directed: 0} attached to
+class 'global'.
 
 =item o Groups
 

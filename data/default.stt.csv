@@ -5,10 +5,10 @@
 ,,,"\[","start_node",,,"(?:->|--)","Edge name"
 ,,,"\s+","global",,,"[a-zA-Z_][a-zA-Z_0-9]*","Event name"
 ,,,,,,,"[a-zA-Z_.][a-zA-Z_0-9. ]*:","Group name"
-,,,,,,,"[a-zA-Z_0-9. ]+","Node name"
+,,,,,,,"[^\]]*]","Node name"
 ,,"class",",","daisy_chain_class","validate_class_name",,"[a-zA-Z_][a-zA-Z_0-9]*","State name"
 ,,,"{","start_class_attribute",,,,
-,,,"\(","start_group",,,,
+,,,"\(","start_group",,,"[a-zA-Z_0-9. ]","Real node name"
 ,,,"\[","start_node",,,,
 ,,,"(?:->|--)","start_edge",,,,
 ,,,"\s+","class",,,,
@@ -42,12 +42,8 @@
 ,,,"(?:->|--)","start_edge",,,,
 ,,,"\s+","post_group",,,,
 ,,,,,,,,
-,,"start_node","[a-zA-Z_0-9. ]+","node",,"save_node_name",,
-,,,"]","post_node",,,,
+,"Yes","start_node","[^\]]*]","post_node",,"save_node_name",,
 ,,,"\s+","start_node",,,,
-,,,,,,,,
-,,"node","]","post_node",,,,
-,,,"\s+","node",,,,
 ,,,,,,,,
 ,"Yes","post_node","{","start_attribute","validate_node_name",,,
 ,,,"\(","start_group",,,,

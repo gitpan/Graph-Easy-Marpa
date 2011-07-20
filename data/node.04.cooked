@@ -5,6 +5,12 @@ right_bracket           , ]
 left_brace              , {
 attribute_name_id       , 'color'
 colon                   , :
-attribute_value_id      , 'red'
+attribute_value_id      , 'invis'
+semi_colon              , ;
+right_brace             , }
+left_brace              , {
+attribute_name_id       , 'label'
+colon                   , :
+attribute_value_id      , ''
 semi_colon              , ;
 right_brace             , }

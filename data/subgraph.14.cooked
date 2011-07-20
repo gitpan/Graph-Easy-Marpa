@@ -1,5 +1,5 @@
 "key","value"
-push_subgraph           , 'cluster_1:'
+push_subgraph           , 'cluster_1'
 left_bracket            , [
 node_id                 , 'Solar system'
 right_bracket           , ]
@@ -13,7 +13,7 @@ right_brace             , }
 left_bracket            , [
 node_id                 , 'Earth'
 right_bracket           , ]
-pop_subgraph            , 'cluster_1:'
+pop_subgraph            , 'cluster_1'
 left_brace              , {
 attribute_name_id       , 'bgcolor'
 colon                   , :
@@ -27,7 +27,7 @@ attribute_value_id      , 'Locale'
 semi_colon              , ;
 right_brace             , }
 edge_id                 , '->'
-push_subgraph           , 'cluster_2:'
+push_subgraph           , 'cluster_2'
 left_bracket            , [
 node_id                 , 'Australia'
 right_bracket           , ]
@@ -43,7 +43,7 @@ edge_id                 , '->'
 left_bracket            , [
 node_id                 , 'Murrumbeena'
 right_bracket           , ]
-pop_subgraph            , 'cluster_2:'
+pop_subgraph            , 'cluster_2'
 left_brace              , {
 attribute_name_id       , 'bgcolor'
 colon                   , :

@@ -1,0 +1,2 @@
+# Class node, and anonymous node made to vanish. OK.
+node {color: red} [node.1] -> [] {label: 'Hide me!'} -> [node.2]

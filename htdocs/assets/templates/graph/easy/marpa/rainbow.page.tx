@@ -4,9 +4,10 @@
 </head>
 <body>
 
-<h1 align="center">Graph::Easy::Marpa's State Transition Table</h1>
+<h1 align="center">State Transition Table for Graph::Easy::Marpa V <: $version :></h1>
 
-<p>This is the STT for the dialect of Graph::Easy's graph description language recognized by <a href="http://search.cpan.org/perldoc?Graph%3A%3AEasy%3A%3AMarpa">Graph::Easy::Marpa</a>.</p>
+<p>This is the STT for the dialect of Graph::Easy's graph description language recognized by
+<a href="http://search.cpan.org/perldoc?Graph%3A%3AEasy%3A%3AMarpa">Graph::Easy::Marpa</a> V <: $version :>.</p>
 
 <p>This table has been exported from an OpenOffice Calc spreadsheet as a CSV file,
 with the latter being incorporated into this HTML.</p>

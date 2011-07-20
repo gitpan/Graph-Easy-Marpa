@@ -9,7 +9,7 @@
 <g id="graph1" class="graph" transform="scale(1 1) rotate(0) translate(4 130)">
 <title>Perl</title>
 <polygon fill="white" stroke="white" points="-4,5 -4,-130 105,-130 105,5 -4,5"/>
-<g id="graph2" class="cluster"><title>cluster_1:</title>
+<g id="graph2" class="cluster"><title>cluster_1</title>
 <polygon fill="none" stroke="black" points="8,-8 8,-62 92,-62 92,-8 8,-8"/>
 </g>
 <!-- dummy.prefix.node -->
