@@ -33,6 +33,7 @@ opendir(INX, $data_dir_name) || die "Can't opendir($data_dir_name): $!";
 my(@raw_name) = sort grep{/raw$/} readdir INX;
 closedir INX;
 
+my($format) = 'svg';
 my($script) = File::Spec -> catfile('scripts', 'gem.pl');
 
 my($cooked_name);
@@ -47,11 +48,11 @@ for my $raw_name (@raw_name)
 	$name         = File::Spec -> catfile($data_dir_name, $raw_name);
 	($cooked_name = $name) =~ s/raw$/cooked/;
 	$html_name    = File::Spec -> catfile($html_dir_name, $raw_name);
-	$html_name    =~ s/raw$/svg/;
+	$html_name    =~ s/raw$/$format/;
 
 	try
 	{
-		($stdout, $stderr) = capture{system $^X, '-Ilib', $script, '-i', $name, '-c', $cooked_name, '-o', $html_name};
+		($stdout, $stderr) = capture{system $^X, '-Ilib', $script, '-i', $name, '-c', $cooked_name, '-f', $format, '-o', $html_name};
 
 		if ($stderr)
 		{
@@ -77,26 +78,25 @@ for my $raw_name (@raw_name)
 	};
 }
 
-my(%svg_file) = Graph::Easy::Marpa::Utils -> new -> get_svg_files;
+my(%image_file) = Graph::Easy::Marpa::Utils -> new -> get_files($format);
 
 my($line, @line);
-my($svg_name);
 
-for my $key (sort keys %svg_file)
+for my $key (sort keys %image_file)
 {
 	$name           = "$data_dir_name/$key.raw";
 	$line           = slurp $name;
 	@line           = split(/\n/, $line);
-	$svg_file{$key} =
+	$image_file{$key} =
 	{
 		input  => $name,
-		output => "$html_dir_name/$key.svg",
+		output => "$html_dir_name/$key.$format",
 		raw    => join('<br />', @line),
 		title  => $line[0],
 	};
 }
 
-my(@key)        = sort grep{defined} keys %svg_file;
+my(@key)        = sort grep{defined} keys %image_file;
 my($templater)  = Text::Xslate -> new
 (
   input_layer => '',
@@ -113,11 +113,11 @@ my($index) = $templater -> render
 		  {
 			  {
 				  count  => ++$count,
-				  input  => mark_raw($svg_file{$_}{input}),
-				  output => mark_raw($svg_file{$_}{output}),
-				  raw    => mark_raw($svg_file{$_}{raw}),
-				  svg    => "./$_.svg",
-				  title  => mark_raw($svg_file{$_}{title}),
+				  image  => "./$_.$format",
+				  input  => mark_raw($image_file{$_}{input}),
+				  output => mark_raw($image_file{$_}{output}),
+				  raw    => mark_raw($image_file{$_}{raw}),
+				  title  => mark_raw($image_file{$_}{title}),
 			  }
 		  } @key
 		 ],

@@ -1,3 +1,3 @@
 # Group (i.e. subgraph) + Edge + Node + Edge + Node + Edge + Node. OK.
-(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: lightgreen; label: Locale}
+(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}
 -> [Australia] -> [Victoria] -> [Melbourne] -> [Murrumbeena]

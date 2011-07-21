@@ -150,9 +150,7 @@ html/edge.05.svg
 html/edge.06.svg
 html/edge.07.svg
 html/edge.08.svg
-html/graph.10.svg
 html/graph.11.svg
-html/graph.12.svg
 html/graph.13.svg
 html/graph.14.svg
 html/graph.15.svg
@@ -168,7 +166,6 @@ html/node.07.svg
 html/node.08.svg
 html/node.09.svg
 html/node.10.svg
-html/node.11.svg
 html/node.12.svg
 html/node.13.svg
 html/node.14.svg
@@ -201,6 +198,7 @@ README
 scripts/gem.pl
 scripts/gem.sh
 scripts/generate.demo.pl
+scripts/generate.demo.sh
 scripts/lex.pl
 scripts/lex.sh
 scripts/parse.pl

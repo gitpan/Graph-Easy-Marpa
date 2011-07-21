@@ -21,7 +21,7 @@ Module::Build -> new
 	 Date::Format          => 2.24,
 	 File::Basename        => 2.78,
 	 File::Spec            => 3.33,
-	 GraphViz2             => 1.06,
+	 GraphViz2             => 1.09,
  	 Hash::FieldHash       => 0.10,
 	 IO::File              => 1.14,
 	 List::Compare         => 0.37,

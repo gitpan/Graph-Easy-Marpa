@@ -31,7 +31,7 @@ fieldhash my %stt_file           => 'stt_file';
 fieldhash my %timeout            => 'timeout';
 fieldhash my %type               => 'type';
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 # --------------------------------------------------
 

@@ -19,8 +19,8 @@
 </g>
 <!-- dummy.prefix.node&#45;&gt;dummy.suffix.node -->
 <g id="edge2" class="edge"><title>dummy.prefix.node&#45;&gt;dummy.suffix.node</title>
-<path fill="none" stroke="cyan" d="M27,-71.8314C27,-64.131 27,-54.9743 27,-46.4166"/>
-<polygon fill="cyan" stroke="cyan" points="30.5001,-46.4132 27,-36.4133 23.5001,-46.4133 30.5001,-46.4132"/>
+<path fill="none" stroke="cornflowerblue" d="M27,-71.8314C27,-64.131 27,-54.9743 27,-46.4166"/>
+<polygon fill="cornflowerblue" stroke="cornflowerblue" points="30.5001,-46.4132 27,-36.4133 23.5001,-46.4133 30.5001,-46.4132"/>
 </g>
 </g>
 </svg>

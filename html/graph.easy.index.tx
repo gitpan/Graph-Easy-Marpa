@@ -1,9 +1,9 @@
 <html>
 <head>
-		<title>Index of sample SVG files created by Graph::Easy::Marpa.</title>
+		<title>Index of sample files created by Graph::Easy::Marpa.</title>
 </head>
 <body>
-		<h1>Index of sample SVG files created by Graph::Easy::Marpa V <: $version :>.</h1>
+		<h1>Index of sample files created by Graph::Easy::Marpa V <: $version :>.</h1>
 
 <p>All scripts, input files and output files required to generate these examples are shipped in the Graph::Easy::Marpa distro.</p>
 
@@ -18,7 +18,7 @@ to test the code. It will make 'dot' die, but is included here.</p>
 :for $data -> $row {
 <tr>
   <td>Input file # <: $row.count :> - <: $row.input :>:<br /><: $row.raw :></td>
-  <td><img src = "<: $row.svg :>" /><br /><br />Output file # <: $row.count :> - <: $row.output :><br /><: $row.title :></td>
+  <td><img src = "<: $row.format :>" /><br /><br />Output file # <: $row.count :> - <: $row.output :><br /><: $row.title :></td>
 </tr>
 :}
 </table>

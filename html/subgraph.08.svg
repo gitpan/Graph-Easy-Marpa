@@ -10,7 +10,7 @@
 <title>Perl</title>
 <polygon fill="white" stroke="white" points="-4,5 -4,-211 159,-211 159,5 -4,5"/>
 <g id="graph2" class="cluster"><title>cluster_1</title>
-<polygon fill="lightgreen" stroke="black" points="8,-8 8,-163 146,-163 146,-8 8,-8"/>
+<polygon fill="cornflowerblue" stroke="black" points="8,-8 8,-163 146,-163 146,-8 8,-8"/>
 <text text-anchor="middle" x="77" y="-146.4" font-family="Times Roman,serif" font-size="14.00">Locale</text>
 </g>
 <!-- dummy.prefix.node -->

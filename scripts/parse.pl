@@ -19,10 +19,12 @@ if ($option_parser -> getoptions
 (
  \%option,
  'dot_input_file=s',
+ 'format=s',
  'help',
  'input_file=s',
  'maxlevel=s',
  'minlevel=s',
+ 'output_file=s',
  'rankdir=s',
  'report_items=i',
 ) )
@@ -50,10 +52,12 @@ parse.pl [options]
 
 	Options:
 	-dot_input_file aDotInputFileName
+	-format outputGraphFormat
 	-help
 	-input_file inFileName
 	-maxlevel logOption1
 	-minlevel logOption2
+	-output_file aDotOutputFile
 	-rankdir LR or RL or TB or BT
 	-report_items 0 or 1
 	-tokenFile aTokenFileName
@@ -82,6 +86,10 @@ Default: ''.
 
 If '', the file will not be created.
 
+=item -format outputGraphFormat
+
+The format (e.g. 'svg') to pass to the rendering engine.
+
 =item -help
 
 Print help and exit.
@@ -90,7 +98,7 @@ Print help and exit.
 
 Specify which data set to read.
 
-Typical names are data/raw.1.dat and data/cooked.1.csv.
+Typical names are data/graph.14.cooked etc.
 
 There is no default value.
 
@@ -112,9 +120,9 @@ The default minlevel is 'error'.
 
 No lower levels are used.
 
-=item o -output_file aGraphOutputFile
+=item o -output_file aDotOutputFile
 
-A file to which the graph is written.
+A file to which the output from dot is written.
 
 If not specified (the default), the graph is not saved.
 

@@ -70,7 +70,7 @@ gem.pl [options]
 	-logger loggerOrEmptyString
 	-maxlevel logOption1
 	-minlevel logOption2
-	-output_file aGraphOutputFile
+	-output_file aDotOutputFile
 	-parsed_tokens_file aTokenFileName
 	-rankdir LR or RL or TB or BT
 	-report_items 0 or 1
@@ -158,9 +158,9 @@ The default minlevel is 'error'.
 
 No lower levels are used.
 
-=item o -output_file aGraphOutputFile
+=item o -output_file aDotOutputFile
 
-A file to which the graph is written.
+A file to which the output from dot is written.
 
 If not specified (the default), the graph is not saved.
 

@@ -20,7 +20,7 @@ pop_subgraph            , 'cluster_1'
 left_brace              , {
 attribute_name_id       , 'bgcolor'
 colon                   , :
-attribute_value_id      , 'lightgreen'
+attribute_value_id      , 'cornflowerblue'
 semi_colon              , ;
 right_brace             , }
 left_brace              , {

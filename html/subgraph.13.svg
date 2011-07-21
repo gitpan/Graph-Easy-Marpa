@@ -10,7 +10,7 @@
 <title>Perl</title>
 <polygon fill="white" stroke="white" points="-4,5 -4,-455 159,-455 159,5 -4,5"/>
 <g id="graph2" class="cluster"><title>cluster_1</title>
-<polygon fill="lightgreen" stroke="black" points="8,-288 8,-443 146,-443 146,-288 8,-288"/>
+<polygon fill="cornflowerblue" stroke="black" points="8,-288 8,-443 146,-443 146,-288 8,-288"/>
 <text text-anchor="middle" x="77" y="-426.4" font-family="Times Roman,serif" font-size="14.00">Locale</text>
 </g>
 <!-- Solar system -->

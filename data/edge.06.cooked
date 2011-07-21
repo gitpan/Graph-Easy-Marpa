@@ -3,7 +3,7 @@ edge_id                 , '--'
 left_brace              , {
 attribute_name_id       , 'color'
 colon                   , :
-attribute_value_id      , 'cyan'
+attribute_value_id      , 'cornflowerblue'
 semi_colon              , ;
 right_brace             , }
 edge_id                 , '--'
