@@ -17,7 +17,7 @@ fieldhash my %minlevel       => 'minlevel';
 fieldhash my %output_file    => 'output_file';
 fieldhash my %rankdir        => 'rankdir';
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 # --------------------------------------------------
 

@@ -32,6 +32,7 @@ Module::Build -> new
 	 Perl6::Slurp          => 0.03,
 	 Set::Array            => 0.23,
 	 Set::FA               => 1.06,
+	 Sort::Naturally       => 1.02,
 	 Text::CSV_XS          => 0.80,
 	 Try::Tiny             => 0.09,
  },

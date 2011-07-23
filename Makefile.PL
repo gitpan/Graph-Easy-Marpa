@@ -39,6 +39,7 @@ WriteMakefile
 	 Perl6::Slurp          => 0.03,
 	 Set::Array            => 0.23,
 	 Set::FA               => 1.06,
+	 Sort::Naturally       => 1.02,
  	 Test::More            => 0.94,
  	 Test::Pod             => 1.44,
 	 Text::CSV_XS          => 0.80,

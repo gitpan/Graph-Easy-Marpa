@@ -1,5 +1,8 @@
 Revision history for Perl extension Graph::Easy::Marpa.
 
+1.03  Sat Jul 23 16:36:00 2011
+	  - Add Sort::Naturally to Build.PL and Makefile.PL, since it's used in t/*.t.
+
 1.02  Thu Jul 21 13:37:00 2011
 	  - Change colors so they're compatible with both the X11 and SVG color schemes.
  	  - Require GraphViz2 V 1.09 to have access to output image formats such as png:gd etc.
