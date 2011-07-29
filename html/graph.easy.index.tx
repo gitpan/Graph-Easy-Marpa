@@ -18,7 +18,7 @@ to test the code. It will make 'dot' die, but is included here.</p>
 :for $data -> $row {
 <tr>
   <td>Input file # <: $row.count :> - <: $row.input :>:<br /><: $row.raw :></td>
-  <td><img src = "<: $row.format :>" /><br /><br />Output file # <: $row.count :> - <: $row.output :><br /><: $row.title :></td>
+  <td><img src = "<: $row.image :>" /><br /><br />Output file # <: $row.count :> - <: $row.output :><br /><: $row.title :></td>
 </tr>
 :}
 </table>

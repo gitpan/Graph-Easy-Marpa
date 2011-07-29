@@ -1,4 +1,8 @@
 #!/usr/bin/env perl
+#
+# Note: Command line parameters:
+# o Output dir name. Defaults to a temp dir.
+# o Image type. Defaults to svg.
 
 use strict;
 use warnings;
@@ -33,7 +37,7 @@ opendir(INX, $data_dir_name) || die "Can't opendir($data_dir_name): $!";
 my(@raw_name) = sort grep{/raw$/} readdir INX;
 closedir INX;
 
-my($format) = 'svg';
+my($format) = shift || 'svg';
 my($script) = File::Spec -> catfile('scripts', 'gem.pl');
 
 my($cooked_name);

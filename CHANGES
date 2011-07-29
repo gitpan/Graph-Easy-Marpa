@@ -1,5 +1,10 @@
 Revision history for Perl extension Graph::Easy::Marpa.
 
+1.04  Fri Jul 29 14:12:00 2011
+	  - Make scripts/gem.pl pass rankdir thru to parser.
+	  - Make scripts/generate.demo.sh pass image type thru to scripts/generate.demo.pl.
+	  - Fix scripts/graph.easy.index.tx img src field patch which got lost with a git reset.
+
 1.03  Sat Jul 23 16:36:00 2011
 	  - Add Sort::Naturally to Build.PL and Makefile.PL, since it's used in t/*.t.
 

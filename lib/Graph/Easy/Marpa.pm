@@ -24,6 +24,7 @@ fieldhash my %minlevel           => 'minlevel';
 fieldhash my %output_file        => 'output_file';
 fieldhash my %parsed_tokens_file => 'parsed_tokens_file';
 fieldhash my %parser             => 'parser';
+fieldhash my %rankdir            => 'rankdir';
 fieldhash my %renderer           => 'renderer';
 fieldhash my %report_items       => 'report_items';
 fieldhash my %report_stt         => 'report_stt';
@@ -31,7 +32,7 @@ fieldhash my %stt_file           => 'stt_file';
 fieldhash my %timeout            => 'timeout';
 fieldhash my %type               => 'type';
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 # --------------------------------------------------
 
@@ -134,6 +135,7 @@ sub run
 			 minlevel           => $self -> minlevel,
 			 output_file        => $self -> output_file,
 			 parsed_tokens_file => $self -> parsed_tokens_file,
+			 rankdir            => $self -> rankdir,
 			 report_items       => $self -> report_items,
 			 tokens             => $lexer -> tokens,
 			) -> run;
