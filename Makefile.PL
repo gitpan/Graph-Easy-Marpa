@@ -27,6 +27,7 @@ WriteMakefile
 	 Data::Section::Simple => 0.02,
 	 Date::Format          => 2.24,
 	 File::Basename        => 2.78,
+	 File::Slurp           => 9999.19,
 	 File::Spec            => 3.33,
 	 GraphViz2             => 1.09,
  	 Hash::FieldHash       => 0.10,

@@ -1,14 +1,17 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
 <head>
-		<title>Index of sample files created by Graph::Easy::Marpa.</title>
+	<title>Index of sample files created by Graph::Easy::Marpa.</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 </head>
 <body>
-		<h1>Index of sample files created by Graph::Easy::Marpa V <: $version :>.</h1>
+	<h1>Index of sample files created by <a href="http://metacpan.org/release/Graph-Easy-Marpa">Graph::Easy::Marpa</a> V <: $version :>.</h1>
 
 <p>All scripts, input files and output files required to generate these examples are shipped in the Graph::Easy::Marpa distro.</p>
 
 <p>Some sample data is deliberately faulty, and so does not show up here. Some sample data contains fake attributes, just
-to test the code. It will make 'dot' die, but is included here.</p>
+to test the code. These will make 'dot' die, but are included here.</p>
 
 <p>The output for input file data/graph.15.raw corresponds to the output for input file # 6 (scripts/jointed.edges.pl) in
 
@@ -18,12 +21,16 @@ to test the code. It will make 'dot' die, but is included here.</p>
 :for $data -> $row {
 <tr>
   <td>Input file # <: $row.count :> - <: $row.input :>:<br /><: $row.raw :></td>
-  <td><img src = "<: $row.image :>" /><br /><br />Output file # <: $row.count :> - <: $row.output :><br /><: $row.title :></td>
+  <td><img src = "<: $row.image :>" alt = "<: $row.title :>" /><br /><br />Output file # <: $row.count :> - <: $row.output :><br /><: $row.title :></td>
 </tr>
 :}
 </table>
 
 <p>Last updated: <: $date_stamp :>.</p>
+
+<p>
+<a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0 Transitional" height="31" width="88" /></a>
+</p>
 
 </body>
 </html>
