@@ -41,7 +41,7 @@ fieldhash my %tokens             => 'tokens';
 # $myself is a copy of $self for use by functions called by Marpa.
 
 our $myself;
-our $VERSION = '1.05';
+our $VERSION = '1.06';
 
 # --------------------------------------------------
 # This is a function, not a method.
@@ -150,7 +150,7 @@ sub end_attribute
 	$myself -> items -> push($myself -> attrs -> print);
 	$myself -> attrs -> clear;
 
-	return '';
+	return $t1;
 
 } # End of end_attribute.
 
@@ -171,7 +171,7 @@ sub end_node
 		value => '',
 	});
 
-	return '';
+	return $t1;
 
 } # End of end_node.
 
@@ -213,7 +213,7 @@ sub grammar
 	my($self)    = @_;
 	my($grammar) = Marpa::Grammar -> new
 		({
-		 actions       => 'Graph::Easy::Marpa::Parser',
+		 actions       => __PACKAGE__,
 		 lhs_terminals => 0,
 		 start         => 'graph_grammar',
 		 rules         =>
@@ -561,7 +561,7 @@ sub pop_subgraph
 		value => '',
 	});
 
-	return '';
+	return $t1;
 
 } # End of pop_subgraph.
 
@@ -685,9 +685,24 @@ sub start_attribute
 
 	$myself -> attribute_name('');
 
-	return '';
+	return $t1;
 
 } # End of start_attribute.
+
+# --------------------------------------------------
+# This is a function, not a method.
+
+sub start_node
+{
+	my(undef, $t1, undef, $t2)  = @_;
+
+	# $t1 will be '['.
+
+	$myself -> node_name('');
+
+	return $t1;
+
+} # End of start_node.
 
 # --------------------------------------------------
 # This is a function, not a method.
@@ -708,21 +723,6 @@ sub start_subgraph
 	return $t1;
 
 } # End of start_subgraph.
-
-# --------------------------------------------------
-# This is a function, not a method.
-
-sub start_node
-{
-	my(undef, $t1, undef, $t2)  = @_;
-
-	# $t1 will be '['.
-
-	$myself -> node_name('');
-
-	return '';
-
-} # End of start_node.
 
 # --------------------------------------------------
 

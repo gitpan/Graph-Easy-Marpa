@@ -21,7 +21,7 @@ fieldhash my %start      => 'start';
 fieldhash my %verbose    => 'verbose';
 
 our $myself; # Is a copy of $self for functions called by Set::FA::Element.
-our $VERSION = '1.05';
+our $VERSION = '1.06';
 
 # --------------------------------------------------
 # Ensure each anonymous node has (at least) these attributes:
@@ -300,10 +300,9 @@ sub pop_group
 
 sub _process_graph
 {
-	my($self)  = @_;
-	my($input) = $self -> graph_text;
+	my($self) = @_;
 
-	my($result) = 1 - $self -> dfa -> accept($input);
+	my($result) = 1 - $self -> dfa -> accept($self -> graph_text);
 
 	if ($result)
 	{
@@ -1001,7 +1000,7 @@ There is no default. The code dies if a value is not supplied.
 
 Specify the verbosity level when calling L<Set::FA::Element>.
 
-Dedault: 0.
+Default: 0.
 
 =back
 

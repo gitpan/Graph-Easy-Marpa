@@ -32,7 +32,7 @@ fieldhash my %stt_file           => 'stt_file';
 fieldhash my %timeout            => 'timeout';
 fieldhash my %type               => 'type';
 
-our $VERSION = '1.05';
+our $VERSION = '1.06';
 
 # --------------------------------------------------
 
@@ -147,7 +147,7 @@ sub run
 
 	# Return 0 for success and 1 for failure.
 
-	$result;
+	return $result;
 
 } # End of run.
 

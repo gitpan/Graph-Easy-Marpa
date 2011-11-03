@@ -44,7 +44,7 @@ fieldhash my %tokens       => 'tokens';
 fieldhash my %type         => 'type';
 
 our $myself; # Is a copy of $self for functions called by Set::FA::Element.
-our $VERSION = '1.05';
+our $VERSION = '1.06';
 
 # --------------------------------------------------
 
@@ -1016,10 +1016,6 @@ See the L</FAQ> for details.
 
 Calls $self -> logger -> $level($s).
 
-=head2 log($level, $s)
-
-Calls $self -> logger -> $level($s).
-
 =head2 logger([$logger_object])
 
 Here, the [] indicate an optional parameter.
@@ -1050,7 +1046,7 @@ create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
 
 =head2 read_csv_file($file_name)
 
-Read the named CSV file into ann arrayref of hashrefs.
+Read the named CSV file into an arrayref of hashrefs.
 
 =head2 report()
 
@@ -1365,6 +1361,7 @@ __DATA__
 ,,,"\s+","class",,,,
 ,,,,,,,,
 ,,"start_class_attribute","[a-z]+\s*:","class_attribute_value",,"save_class_attribute_name",,
+,,,"\s+","start_class_attribute",,,,
 ,,,,,,,,
 ,,"class_attribute_value","[^}]+}","post_class_attribute","validate_class_attribute_name","save_class_attribute_value",,
 ,,,,,,,,

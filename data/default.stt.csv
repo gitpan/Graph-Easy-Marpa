@@ -14,6 +14,7 @@
 ,,,"\s+","class",,,,
 ,,,,,,,,
 ,,"start_class_attribute","[a-z]+\s*:","class_attribute_value",,"save_class_attribute_name",,
+,,,"\s+","start_class_attribute",,,,
 ,,,,,,,,
 ,,"class_attribute_value","[^}]+}","post_class_attribute","validate_class_attribute_name","save_class_attribute_value",,
 ,,,,,,,,

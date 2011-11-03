@@ -1,5 +1,12 @@
 Revision history for Perl extension Graph::Easy::Marpa.
 
+1.06  Mon Aug  8 11:08:00 2011
+	  - Improve home-grown validate.build.make.pl to include not just *.pm files, but also *.pl and *.t files, so as to find more dependencies.
+	  - Add Capture::Tiny, File::Remove, File::Temp, Getopt::Long, List::Cycle, Pod::Usage and Text::Xlate to Build.PL and Makefile.PL.
+	  - And yes I know, List::Cycle is not really needed (yet) :-).
+	  - Patch the STT so that attribute definitions for classes can have leading spaces, as edge and node attribute definitions already could.
+	  	Eg: 'graph {rankdir: TB }' can now be 'graph { rankdir: TB}'. Note the new space in front of 'rankdir'.
+
 1.05  Tue Aug  2 15:32:00 2011
 	  - Add File::Slurp to Build.PL and Makefile.PL because its readdir() method is used in t/cooked.t and t/raw.t.
 	  - Add http://metacpan.org/ link to html/graph.easy.index.tx, so it appears in html/index.html.
