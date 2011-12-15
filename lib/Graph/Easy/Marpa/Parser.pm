@@ -11,7 +11,7 @@ use IO::File;
 
 use Log::Handler;
 
-use Marpa;
+use Marpa::XS;
 
 use Set::Array;
 
@@ -41,7 +41,7 @@ fieldhash my %tokens             => 'tokens';
 # $myself is a copy of $self for use by functions called by Marpa.
 
 our $myself;
-our $VERSION = '1.06';
+our $VERSION = '1.07';
 
 # --------------------------------------------------
 # This is a function, not a method.
@@ -216,6 +216,17 @@ sub grammar
 		 actions       => __PACKAGE__,
 		 lhs_terminals => 0,
 		 start         => 'graph_grammar',
+		 symbols       =>
+		 {
+			 group_name =>
+			 {
+				 null_value => '',
+			 },
+			 node_name =>
+			 {
+				 null_value => '',
+			 },
+		 },
 		 rules         =>
 			 [
 			  {   # Global stuff.
@@ -610,8 +621,8 @@ sub report
 
 sub run
 {
-	my($self)   = @_;
-	my($tokens) = [];
+	my($self)       = @_;
+	my($recognizer) = Marpa::Recognizer -> new({grammar => $self -> grammar});
 
 	if ($#{$self -> tokens} < 0)
 	{
@@ -622,7 +633,7 @@ sub run
 
 			$$record{value} =~ s/^'(.*)'$/$1/;
 
-			push @$tokens, [$$record{key}, $$record{value}];
+			$recognizer -> read($$record{key}, $$record{value});
 		}
 	}
 	else
@@ -631,13 +642,9 @@ sub run
 		{
 			$$item[1] =~ s/^'(.*)'$/$1/;
 
-			push @$tokens, [$$item[0], $$item[1] ];
+			$recognizer -> read($$item[0], $$item[1]);
 		}
 	}
-
-	my($recognizer) = Marpa::Recognizer -> new({grammar => $self -> grammar});
-
-	$recognizer -> tokens($tokens);
 
 	my($result) = $recognizer -> value;
 	$result     = $result ? ${$result} : 'Parse failed';

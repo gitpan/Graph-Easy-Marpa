@@ -32,7 +32,7 @@ fieldhash my %stt_file           => 'stt_file';
 fieldhash my %timeout            => 'timeout';
 fieldhash my %type               => 'type';
 
-our $VERSION = '1.06';
+our $VERSION = '1.07';
 
 # --------------------------------------------------
 
@@ -941,6 +941,16 @@ But by running it with a command line parameter, that value willl be used for th
 	 )
 
 where $class($name) is taken from the class declarations at the start of the input stream.
+
+=item o How can I switch from Marpa::XS to Marpa::PP?
+
+Install Marpa::PP manually. It is not mentioned in Build.PL or Makefile.PL.
+
+Patch Graph::Easy::Marpa::Parser (line 14) from Marpa::XS to Marpa:PP.
+
+Run the tests which ship with this module.
+
+I've tried this, and the tests all worked. Other tests I run also worked.
 
 =back
 

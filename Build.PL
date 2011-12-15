@@ -32,7 +32,7 @@ Module::Build -> new
 	 List::Compare         => 0.37,
 	 List::Cycle           => 1.00,
 	 Log::Handler          => 0.71,
-	 Marpa                 => 0.202000,
+	 Marpa::XS             => 0.026000,
 	 Module::Load          => 0.18,
 	 #OpenOffice::OODoc    => 2.125, # Optionally used in Lexer.pm.
 	 Perl6::Slurp          => 0.03,

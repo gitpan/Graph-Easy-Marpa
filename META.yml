@@ -17,22 +17,22 @@ name: Graph-Easy-Marpa
 provides:
   Graph::Easy::Marpa:
     file: lib/Graph/Easy/Marpa.pm
-    version: 1.06
+    version: 1.07
   Graph::Easy::Marpa::Lexer:
     file: lib/Graph/Easy/Marpa/Lexer.pm
-    version: 1.06
+    version: 1.07
   Graph::Easy::Marpa::Lexer::DFA:
     file: lib/Graph/Easy/Marpa/Lexer/DFA.pm
-    version: 1.06
+    version: 1.07
   Graph::Easy::Marpa::Parser:
     file: lib/Graph/Easy/Marpa/Parser.pm
-    version: 1.06
+    version: 1.07
   Graph::Easy::Marpa::Renderer::GraphViz2:
     file: lib/Graph/Easy/Marpa/Renderer/GraphViz2.pm
-    version: 1.06
+    version: 1.07
   Graph::Easy::Marpa::Utils:
     file: lib/Graph/Easy/Marpa/Utils.pm
-    version: 1.06
+    version: 1.07
 requires:
   Capture::Tiny: 0.11
   Data::Section::Simple: 0.02
@@ -49,7 +49,7 @@ requires:
   List::Compare: 0.37
   List::Cycle: 1
   Log::Handler: 0.71
-  Marpa: 0.202
+  Marpa::XS: 0.026
   Module::Load: 0.18
   Perl6::Slurp: 0.03
   Pod::Usage: 1.36
@@ -61,4 +61,4 @@ requires:
   Try::Tiny: 0.09
 resources:
   license: http://opensource.org/licenses/artistic-license.php
-version: 1.06
+version: 1.07

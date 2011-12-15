@@ -44,7 +44,7 @@ fieldhash my %tokens       => 'tokens';
 fieldhash my %type         => 'type';
 
 our $myself; # Is a copy of $self for functions called by Set::FA::Element.
-our $VERSION = '1.06';
+our $VERSION = '1.07';
 
 # --------------------------------------------------
 

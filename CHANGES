@@ -1,5 +1,13 @@
 Revision history for Perl extension Graph::Easy::Marpa.
 
+1.07  Wed Dec 14 13:29:00 2011
+	  - Fix declaration of null_value for some rules, to stop heaps of warnings during testing and/or running gem.pl.
+	  	The messages you get look like: Zero length sequence for symbol without null value: "group_name",
+		if you don't have symbol descriptors declared for symbols whose value can be empty.
+		Search Graph::Easy::Marpa::Parser for 'symbols' to see what I had to do because group and node names can be empty.
+	  - Update Build.PL and Makefile.PL to only require Marpa::XS V 0.026000 (not 0.108000), which is the latest as of today.
+	  - Add a discussion of Marpa::PP to the FAQ, since I've tested it too.
+
 1.06  Mon Aug  8 11:08:00 2011
 	  - Improve home-grown validate.build.make.pl to include not just *.pm files, but also *.pl and *.t files, so as to find more dependencies.
 	  - Add Capture::Tiny, File::Remove, File::Temp, Getopt::Long, List::Cycle, Pod::Usage and Text::Xlate to Build.PL and Makefile.PL.
