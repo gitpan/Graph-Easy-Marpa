@@ -92,13 +92,13 @@ You can use scripts/lex.sh to simplify this process:
 
 =over 4
 
-=item -cooked_file aCookedFileName
+=item o -cooked_file aCookedFileName
 
 The name of a CSV file of cooked tokens to write. This file can be input to the parser.
 
 The default value is '', meaning no output file will be written.
 
-=item -description graphDescription
+=item o -description graphDescription
 
 Specify a graph description string for the DFA to process.
 
@@ -110,11 +110,11 @@ The -description option takes precedence over the -input_file option.
 
 There is no default value.
 
-=item -help
+=item o -help
 
 Print help and exit.
 
-=item -input_file aRawFileName
+=item o -input_file aRawFileName
 
 Read the graph description string from a file.
 
@@ -128,7 +128,7 @@ The -description option takes precedence over the -input_file option.
 
 There is no default value.
 
-=item -maxlevel logOption1
+=item o -maxlevel logOption1
 
 This option affects Log::Handler.
 
@@ -136,7 +136,7 @@ See the Log::handler docs.
 
 The default maxlevel is 'info'. Another typical value is 'debug'.
 
-=item -minlevel logOption2
+=item o -minlevel logOption2
 
 This option affects Log::Handler.
 
@@ -146,19 +146,19 @@ The default minlevel is 'error'.
 
 No lower levels are used.
 
-=item -report_items 0 or 1
+=item o -report_items 0 or 1
 
 Report the items recognised by the state machine.
 
 The default value is 0.
 
-=item -report_stt 0 or 1
+=item o -report_stt 0 or 1
 
 Call Set::FA::Element.report(). Set min and max log levels to 'info' for this.
 
 The default value is 0.
 
-=item -stt_file sttFileName
+=item o -stt_file sttFileName
 
 Specify which file contains the state transition table.
 
@@ -173,14 +173,14 @@ The type of this file must be specified by the -type option.
 Note: If you use stt_file => your.stt.ods and type => 'ods', L<Module::Load>'s load() will be used to
 load L<OpenOffice::OODoc>. This module is no longer listed in Build.PL and Makefile.PL as a pre-req,
 so you will need to install it manually.
- 
-=item -timeout seconds
+
+=item o -timeout seconds
 
 Run the DFA for at most this many seconds.
 
 Default: 3.
 
-=item -type '' or cvs or ods
+=item o -type '' or cvs or ods
 
 Specify the type of the stt_file: '' for internal STT, csv for CSV or ods for Open Office Calc spreadsheet.
 

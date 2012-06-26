@@ -21,7 +21,7 @@ fieldhash my %start      => 'start';
 fieldhash my %verbose    => 'verbose';
 
 our $myself; # Is a copy of $self for functions called by Set::FA::Element.
-our $VERSION = '1.07';
+our $VERSION = '1.09';
 
 # --------------------------------------------------
 # Ensure each anonymous node has (at least) these attributes:
@@ -427,14 +427,14 @@ sub save_attribute_name
 
 sub save_attribute_value
 {
-	my($dfa)                 = @_;
-	my($attribute_name)      = $dfa -> match;
-	$attribute_name          =~ s/;?}$//;
-	my($param)               = $myself -> param;
-	$$param{attribute_value} =
+	my($dfa)                  = @_;
+	my($attribute_value)      = $dfa -> match;
+	$attribute_value          =~ s/;?}$//;
+	my($param)                = $myself -> param;
+	$$param{attribute_value}  =
 	{
 		count => $myself -> _count,
-		match => trim($attribute_name),
+		match => trim($attribute_value),
 	};
 
 	$myself -> param($param);
@@ -467,14 +467,14 @@ sub save_class_attribute_name
 
 sub save_class_attribute_value
 {
-	my($dfa)                       = @_;
-	my($attribute_name)            = $dfa -> match;
-	$attribute_name                =~ s/;?}$//;
-	my($param)                     = $myself -> param;
-	$$param{class_attribute_value} =
+	my($dfa)                        = @_;
+	my($attribute_value)            = $dfa -> match;
+	$attribute_value                =~ s/;?}$//;
+	my($param)                      = $myself -> param;
+	$$param{class_attribute_value}  =
 	{
 		count => $myself -> _count,
-		match => trim($attribute_name),
+		match => trim($attribute_value),
 	};
 
 	$myself -> param($param);
@@ -605,6 +605,51 @@ sub save_node_name
 } # End of save_node_name.
 
 # --------------------------------------------------
+# By this time the code in both validate_attribute_value() and
+# validate_class_attribute_value() has the 1st attribute's name
+# and a string containing the attribute's value.
+# Unfortunately, this string may also contain further attribute
+# 'name;value' pairs, so here we split the string on ';' chars,
+# and then reassemble any HTML entities which are in our list
+# of acceptable entities (amp, gt, lt and quot).
+
+sub splitter
+{
+	my($self, $s) = @_;
+	my(@s)        = split(/;/, $s);
+	my($finished) = 0;
+
+	my($i);
+	my($last);
+
+	while (! $finished)
+	{
+		$i        = 0;
+		$finished = 1;
+		$last     = $#s;
+
+		while ($i < $last)
+		{
+			if ($s[$i] =~ /&(amp|gt|lt|quot)$/)
+			{
+				splice(@s, $i, 2, "$s[$i];$s[$i + 1]");
+
+				$finished = 0;
+
+				last;
+			}
+			else
+			{
+				$i++;
+			}
+		}
+	}
+
+	return @s;
+
+} # End of splitter.
+
+# --------------------------------------------------
 # Warning: This is a function.
 
 sub trim
@@ -647,7 +692,7 @@ sub validate_attribute_value
 	$myself -> param($param);
 	$myself -> log(debug => "validate_attribute_value($attribute_value)");
 
-	my(@value) = split(/\s*;\s*/, $attribute_value);
+	my(@value) = $myself -> splitter($attribute_value);
 
 	if ( ($#value % 2) < 0)
 	{
@@ -735,7 +780,7 @@ sub validate_class_attribute_value
 	$myself -> param($param);
 	$myself -> log(debug => "validate_class_attribute_value($attribute_value)");
 
-	my(@value) = split(/\s*;\s*/, $attribute_value);
+	my(@value) = $myself -> splitter($attribute_value);
 
 	if ( ($#value % 2) < 0)
 	{

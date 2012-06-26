@@ -77,7 +77,7 @@ You can use scripts/parse.sh to simplify this process:
 
 =over 4
 
-=item -dot_input_file aDotInputFileName
+=item o -dot_input_file aDotInputFileName
 
 Specify the name of a file that the rendering engine can write to, which will contain the input
 to dot (or whatever). This is good for debugging.
@@ -86,15 +86,15 @@ Default: ''.
 
 If '', the file will not be created.
 
-=item -format outputGraphFormat
+=item o -format outputGraphFormat
 
 The format (e.g. 'svg') to pass to the rendering engine.
 
-=item -help
+=item o -help
 
 Print help and exit.
 
-=item -input_file inFileName
+=item o -input_file inFileName
 
 Specify which data set to read.
 
@@ -102,7 +102,7 @@ Typical names are data/graph.14.cooked etc.
 
 There is no default value.
 
-=item -maxlevel logOption1
+=item o -maxlevel logOption1
 
 This option affects Log::Handler.
 
@@ -110,7 +110,7 @@ See the Log::handler docs.
 
 The default maxlevel is 'info'. Another typical value is 'debug'.
 
-=item -minlevel logOption2
+=item o -minlevel logOption2
 
 This option affects Log::Handler.
 
@@ -128,13 +128,13 @@ If not specified (the default), the graph is not saved.
 
 The default is ''.
 
-=item -rankdir LR or RL or TB or BT
+=item o -rankdir LR or RL or TB or BT
 
 Specify the rankdir of the graph as a whole.
 
 Default: TB (top to bottom).
 
-=item -report_items 0 or 1
+=item o -report_items 0 or 1
 
 Report the items recognized in the cooked file.
 

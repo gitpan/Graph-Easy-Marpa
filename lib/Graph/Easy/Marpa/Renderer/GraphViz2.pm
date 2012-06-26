@@ -17,7 +17,7 @@ fieldhash my %minlevel       => 'minlevel';
 fieldhash my %output_file    => 'output_file';
 fieldhash my %rankdir        => 'rankdir';
 
-our $VERSION = '1.07';
+our $VERSION = '1.09';
 
 # --------------------------------------------------
 
@@ -97,7 +97,7 @@ sub find_last_edge_or_node
 	for my $j (0 .. $#$items)
 	{
 		$i = $#$items - $j;
-		
+
 		if ($$items[$i]{type} eq 'edge')
 		{
 			$type = 'edge';
@@ -156,7 +156,7 @@ sub _get_attributes
 		$$option{$$next_item{name} } = $$next_item{value};
 	}
 
-	# 1: If one of the attributes is a class, gett the class attributes.
+	# 1: If one of the attributes is a class, get the class attributes.
 	# The value in the %$option hash will be the subclass name.
 	#
 	# 2: If there is no subclass, the item still inherits the class attributes, if any.
@@ -193,7 +193,7 @@ sub _get_attributes
 
 		$self -> _get_subclass_attributes($attr, $option);
 	}
-	
+
 } # End of _get_attributes;
 
 # --------------------------------------------------
@@ -503,7 +503,7 @@ sub run
 	}
 
 	# Return 0 for success and 1 for failure.
-	
+
 	return 0;
 
 } # End of run.

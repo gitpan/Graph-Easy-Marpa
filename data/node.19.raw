@@ -1,0 +1,2 @@
+# Node with HTML-style label. OK.
+[node.1] {label: <<table><tr><td>HTML-style label with an embedded &amp;<br />and several &lt;br /&gt;s for line wrapping <br /> thereby demonstrating encoded entities work<br />&amp; (i.e. but) <br /> note however the complete absence of commas<br />because output can go to a CSV file<br />which means commas are prohibited</td></tr></table>>; color: red}

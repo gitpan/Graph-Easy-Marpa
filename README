@@ -39,7 +39,7 @@ shell>exit            (for Unix-like systems)
 
 On all systems:
 
-Run Marpa.pm through you favourite pod2html translator.
+Run Marpa.pm through your favourite pod2html translator.
 
 2 Installing from an ActiveState distro
 ---------------------------------------

@@ -44,7 +44,7 @@ fieldhash my %tokens       => 'tokens';
 fieldhash my %type         => 'type';
 
 our $myself; # Is a copy of $self for functions called by Set::FA::Element.
-our $VERSION = '1.07';
+our $VERSION = '1.09';
 
 # --------------------------------------------------
 
@@ -943,7 +943,7 @@ The type of this file must be specified by the 'type' key.
 Note: If you use stt_file => your.stt.ods and type => 'ods', L<Module::Load>'s load() will be used to
 load L<OpenOffice::OODoc>. This module is no longer listed in Build.PL and Makefile.PL as a pre-req,
 so you will need to install it manually.
- 
+
 =item o type => $stt_file_type
 
 Specify the type of the stt_file: '' for internal, csv for CSV, or ods for Open Office Calc spreadsheet.
@@ -1136,6 +1136,26 @@ The [] indicate an optional parameter.
 Get or set the value which determines what type of stt_file is read.
 
 =head1 FAQ
+
+=head2 Why doesn't the lexer/parser handle my HTML-style labels?
+
+Traps for young players:
+
+=over 4
+
+=item o The <br /> component must include the '/'. <br align='center'> is not accepted by Graphviz
+
+=item o The <br />'s attributes must use single quotes because output files use CSV with double quotes
+
+=item o Likewise, the use of CSV files means commas are prohibited
+
+=item o Lastly, the HTML entites you can use are &amp;, &gt;, &lt; and &quot;
+
+These 4 are the only 4 the code in L<Graph::Easy::Marpa::Lexer::DFA> looks for.
+
+=back
+
+See data/node.19.* for a good example.
 
 =head2 Where are the functions named in the STT?
 

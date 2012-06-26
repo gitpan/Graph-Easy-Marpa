@@ -100,6 +100,12 @@ data/node.15.cooked
 data/node.15.raw
 data/node.16.cooked
 data/node.16.raw
+data/node.17.cooked
+data/node.17.raw
+data/node.18.cooked
+data/node.18.raw
+data/node.19.cooked
+data/node.19.raw
 data/subgraph.01.raw
 data/subgraph.02.raw
 data/subgraph.03.raw
@@ -171,6 +177,9 @@ html/node.13.svg
 html/node.14.svg
 html/node.15.svg
 html/node.16.svg
+html/node.17.svg
+html/node.18.svg
+html/node.19.svg
 html/subgraph.04.svg
 html/subgraph.05.svg
 html/subgraph.06.svg

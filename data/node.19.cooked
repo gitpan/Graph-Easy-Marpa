@@ -1,0 +1,16 @@
+"key","value"
+left_bracket            , [
+node_id                 , 'node.1'
+right_bracket           , ]
+left_brace              , {
+attribute_name_id       , 'color'
+colon                   , :
+attribute_value_id      , 'red'
+semi_colon              , ;
+right_brace             , }
+left_brace              , {
+attribute_name_id       , 'label'
+colon                   , :
+attribute_value_id      , '<<table><tr><td>HTML-style label with an embedded &amp;<br />and several &lt;br /&gt;s for line wrapping <br /> thereby demonstrating encoded entities work<br />&amp; (i.e. but) <br /> note however the complete absence of commas<br />because output can go to a CSV file<br />which means commas are prohibited</td></tr></table>>'
+semi_colon              , ;
+right_brace             , }

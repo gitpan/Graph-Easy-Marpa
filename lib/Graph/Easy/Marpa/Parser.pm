@@ -11,7 +11,7 @@ use IO::File;
 
 use Log::Handler;
 
-use Marpa::XS;
+use Marpa::R2;
 
 use Set::Array;
 
@@ -41,7 +41,7 @@ fieldhash my %tokens             => 'tokens';
 # $myself is a copy of $self for use by functions called by Marpa.
 
 our $myself;
-our $VERSION = '1.07';
+our $VERSION = '1.09';
 
 # --------------------------------------------------
 # This is a function, not a method.
@@ -211,248 +211,237 @@ sub _generate_item_file
 sub grammar
 {
 	my($self)    = @_;
-	my($grammar) = Marpa::Grammar -> new
-		({
-		 actions       => __PACKAGE__,
-		 lhs_terminals => 0,
-		 start         => 'graph_grammar',
-		 symbols       =>
-		 {
-			 group_name =>
-			 {
-				 null_value => '',
-			 },
-			 node_name =>
-			 {
-				 null_value => '',
-			 },
-		 },
-		 rules         =>
-			 [
-			  {   # Global stuff.
-				  lhs => 'graph_grammar',
-				  rhs => [qw/class_and_graph/],
-			  },
-			  {
-				  lhs => 'class_and_graph',
-				  rhs => [qw/class_definition graph_definition/],
-			  },
-			  {   # Class stuff.
-				  lhs => 'class_definition',
-				  rhs => [qw/class_sequence/],
-				  min => 0,
-			  },
-			  {
-				  lhs => 'class_sequence', # 1 of 2.
-				  rhs => [qw/class_statement/],
-			  },
-			  {
-				  lhs => 'class_sequence', # 2 of 2.
-				  rhs => [qw/class_statement daisy_chain_class/],
-			  },
-			  {
-				  lhs => 'class_statement',
-				  rhs => [qw/class_name class_attribute_definition/],
-			  },
-			  {
-				  lhs    => 'class_name',
-				  rhs    => [qw/class/],
-				  action => 'class_name',
-			  },
-			  {   # Graph stuff.
-				  lhs => 'graph_definition',
-				  rhs => [qw/graph_statement/],
-			  },
-			  {
-				  lhs => 'graph_statement', # 1 of 3.
-				  rhs => [qw/group_definition/],
-			  },
-			  {
-				  lhs => 'graph_statement', # 2 of 3.
-				  rhs => [qw/node_definition/],
-			  },
-			  {
-				  lhs => 'graph_statement', # 3 of 3.
-				  rhs => [qw/edge_definition/],
-			  },
-			  {   # Class attribute stuff. Some components are defined under 'Attribute stuff', below.
-				  lhs => 'class_attribute_definition',
-				  rhs => [qw/class_attribute_statement/],
-				  min => 0,
-			  },
-			  {
-				  lhs => 'class_attribute_statement',
-				  rhs => [qw/start_attribute class_attribute_sequence end_attribute/],
-			  },
-			  {
-				  lhs => 'class_attribute_sequence',
-				  rhs => [qw/class_attribute_declaration/],
-				  min => 1,
-			  },
-			  {
-				  lhs => 'class_attribute_declaration',
-				  rhs => [qw/class_attribute_name colon attribute_value attribute_terminator/],
-			  },
-			  {
-				  lhs    => 'class_attribute_name',
-				  rhs    => [qw/class_attribute_name_id/],
-				  min    => 1,
-				  action => 'attribute_name_id',
-			  },
-			  {   # Group stuff.
-				  lhs => 'group_definition',
-				  rhs => [qw/group_sequence/],
-				  min => 0,
-			  },
-			  {
-				  lhs => 'group_sequence', # 1 of 4.
-				  rhs => [qw/group_statement/],
-			  },
-			  {
-				  lhs => 'group_sequence', # 2 of 4.
-				  rhs => [qw/group_statement daisy_chain_group/],
-			  },
-			  {
-				  lhs => 'group_sequence', # 3 of 4.
-				  rhs => [qw/group_statement node_definition/],
-			  },
-			  {
-				  lhs => 'group_sequence', # 4 of 4.
-				  rhs => [qw/group_statement edge_definition/],
-			  },
-			  {
-				  lhs => 'group_statement',
-				  rhs => [qw/group_name graph_statement exit_group attribute_definition/],
-			  },
-			  {
-				  lhs    => 'group_name',
-				  rhs    => [qw/push_subgraph/],
-				  min    => 0,
-				  action => 'start_subgraph',
-			  },
-			  {
-				  lhs    => 'exit_group',
-				  rhs    => [qw/pop_subgraph/],
-				  action => 'pop_subgraph',
-			  },
-			  {   # Node stuff.
-				  lhs => 'node_definition',
-				  rhs => [qw/node_sequence/],
-				  min => 0,
-			  },
-			  {
-				  lhs => 'node_sequence', # 1 of 4.
-				  rhs => [qw/node_statement/],
-			  },
-			  {
-				  lhs => 'node_sequence', # 2 of 4.
-				  rhs => [qw/node_statement daisy_chain_node/],
-			  },
-			  {
-				  lhs => 'node_sequence', # 3 of 4.
-				  rhs => [qw/node_statement edge_definition/],
-			  },
-			  {
-				  lhs => 'node_sequence', # 4 of 4.
-				  rhs => [qw/node_statement group_definition/],
-			  },
-			  {
-				  lhs => 'node_statement',
-				  rhs => [qw/start_node node_name end_node attribute_definition/],
-			  },
-			  {
-				  lhs    => 'start_node',
-				  rhs    => [qw/left_bracket/],
-				  action => 'start_node',
-			  },
-			  {
-				  lhs    => 'node_name',
-				  rhs    => [qw/node_id/],
-				  min    => 0,
-				  action => 'node_id',
-			  },
-			  {
-				  lhs    => 'end_node',
-				  rhs    => [qw/right_bracket/],
-				  action => 'end_node',
-			  },
-			  {   # Edge stuff.
-				  lhs => 'edge_definition',
-				  rhs => [qw/edge_sequence/],
-				  min => 0,
-			  },
-			  {
-				  lhs => 'edge_sequence', # 1 of 4.
-				  rhs => [qw/edge_statement/],
-			  },
-			  {
-				  lhs => 'edge_sequence', # 2 of 4.
-				  rhs => [qw/edge_statement daisy_chain_edge/],
-			  },
-			  {
-				  lhs => 'edge_sequence', # 3 of 4.
-				  rhs => [qw/edge_statement node_definition/],
-			  },
-			  {
-				  lhs => 'edge_sequence', # 4 of 4.
-				  rhs => [qw/edge_statement group_definition/],
-			  },
-			  {
-				  lhs => 'edge_statement',
-				  rhs => [qw/edge_name attribute_definition/],
-			  },
-			  {
-				  lhs    => 'edge_name',
-				  rhs    => [qw/edge_id/],
-				  action => 'edge_id',
-			  },
-			  {   # Attribute stuff.
-				  lhs => 'attribute_definition',
-				  rhs => [qw/attribute_statement/],
-				  min => 0,
-			  },
-			  {
-				  lhs => 'attribute_statement',
-				  rhs => [qw/start_attribute attribute_sequence end_attribute/],
-			  },
-			  {
-				  lhs    => 'start_attribute',
-				  rhs    => [qw/left_brace/],
-				  action => 'start_attribute',
-			  },
-			  {
-				  lhs => 'attribute_sequence',
-				  rhs => [qw/attribute_declaration/],
-				  min => 1,
-			  },
-			  {
-				  lhs => 'attribute_declaration',
-				  rhs => [qw/attribute_name colon attribute_value attribute_terminator/],
-			  },
-			  {
-				  lhs    => 'attribute_name',
-				  rhs    => [qw/attribute_name_id/],
-				  min    => 1,
-				  action => 'attribute_name_id',
-			  },
-			  {
-				  lhs    => 'attribute_value',
-				  rhs    => [qw/attribute_value_id/],
-				  min    => 1,
-				  action => 'attribute_value_id',
-			  },
-			  {
-				  lhs => 'attribute_terminator',
-				  rhs => [qw/semi_colon/],
-				  min => 1,
-			  },
-			  {
-				  lhs    => 'end_attribute',
-				  rhs    => [qw/right_brace/],
-				  action => 'end_attribute',
-			  },
-			 ],
-		});
+	my($grammar) = Marpa::R2::Grammar -> new
+	({
+		actions => __PACKAGE__,
+		start   => 'graph_grammar',
+		rules   =>
+		[
+		{   # Global stuff.
+			lhs    => 'graph_grammar',
+			rhs    => [qw/class_and_graph/],
+			action => 'parse_result',
+		},
+		{
+			lhs => 'class_and_graph',
+			rhs => [qw/class_definition graph_definition/],
+		},
+		{   # Class stuff.
+			lhs => 'class_definition',
+			rhs => [qw/class_sequence/],
+			min => 0,
+		},
+		{
+			lhs => 'class_sequence', # 1 of 2.
+			rhs => [qw/class_statement/],
+		},
+		{
+			lhs => 'class_sequence', # 2 of 2.
+			rhs => [qw/class_statement daisy_chain_class/],
+		},
+		{
+			lhs => 'class_statement',
+			rhs => [qw/class_name class_attribute_definition/],
+		},
+		{
+			lhs    => 'class_name',
+			rhs    => [qw/class/],
+			action => 'class_name',
+		},
+		{   # Graph stuff.
+			lhs => 'graph_definition',
+			rhs => [qw/graph_statement/],
+		},
+		{
+			lhs => 'graph_statement', # 1 of 3.
+			rhs => [qw/group_definition/],
+		},
+		{
+			lhs => 'graph_statement', # 2 of 3.
+			rhs => [qw/node_definition/],
+		},
+		{
+			lhs => 'graph_statement', # 3 of 3.
+			rhs => [qw/edge_definition/],
+		},
+		{   # Class attribute stuff. Some components are defined under 'Attribute stuff', below.
+			lhs => 'class_attribute_definition',
+			rhs => [qw/class_attribute_statement/],
+			min => 0,
+		},
+		{
+			lhs => 'class_attribute_statement',
+			rhs => [qw/start_attribute class_attribute_sequence end_attribute/],
+		},
+		{
+			lhs => 'class_attribute_sequence',
+			rhs => [qw/class_attribute_declaration/],
+			min => 1,
+		},
+		{
+			lhs => 'class_attribute_declaration',
+			rhs => [qw/class_attribute_name colon attribute_value attribute_terminator/],
+		},
+		{
+			lhs    => 'class_attribute_name',
+			rhs    => [qw/class_attribute_name_id/],
+			min    => 1,
+			action => 'attribute_name_id',
+		},
+		{   # Group stuff.
+			lhs => 'group_definition',
+			rhs => [qw/group_sequence/],
+			min => 0,
+		},
+		{
+			lhs => 'group_sequence', # 1 of 4.
+			rhs => [qw/group_statement/],
+		},
+		{
+			lhs => 'group_sequence', # 2 of 4.
+			rhs => [qw/group_statement daisy_chain_group/],
+		},
+		{
+			lhs => 'group_sequence', # 3 of 4.
+			rhs => [qw/group_statement node_definition/],
+		},
+		{
+			lhs => 'group_sequence', # 4 of 4.
+			rhs => [qw/group_statement edge_definition/],
+		},
+		{
+			lhs => 'group_statement',
+			rhs => [qw/group_name graph_statement exit_group attribute_definition/],
+		},
+		{
+			lhs    => 'group_name',
+			rhs    => [qw/push_subgraph/],
+			min    => 0,
+			action => 'start_subgraph',
+		},
+		{
+			lhs    => 'exit_group',
+			rhs    => [qw/pop_subgraph/],
+			action => 'pop_subgraph',
+		},
+		{   # Node stuff.
+			lhs => 'node_definition',
+			rhs => [qw/node_sequence/],
+			min => 0,
+		},
+		{
+			lhs => 'node_sequence', # 1 of 4.
+			rhs => [qw/node_statement/],
+		},
+		{
+			lhs => 'node_sequence', # 2 of 4.
+			rhs => [qw/node_statement daisy_chain_node/],
+		},
+		{
+			lhs => 'node_sequence', # 3 of 4.
+			rhs => [qw/node_statement edge_definition/],
+		},
+		{
+			lhs => 'node_sequence', # 4 of 4.
+			rhs => [qw/node_statement group_definition/],
+		},
+		{
+			lhs => 'node_statement',
+			rhs => [qw/start_node node_name end_node attribute_definition/],
+		},
+		{
+			lhs    => 'start_node',
+			rhs    => [qw/left_bracket/],
+			action => 'start_node',
+		},
+		{
+			lhs    => 'node_name',
+			rhs    => [qw/node_id/],
+			min    => 0,
+			action => 'node_id',
+		},
+		{
+			lhs    => 'end_node',
+			rhs    => [qw/right_bracket/],
+			action => 'end_node',
+		},
+		{   # Edge stuff.
+			lhs => 'edge_definition',
+			rhs => [qw/edge_sequence/],
+			min => 0,
+		},
+		{
+			lhs => 'edge_sequence', # 1 of 4.
+			rhs => [qw/edge_statement/],
+		},
+		{
+			lhs => 'edge_sequence', # 2 of 4.
+			rhs => [qw/edge_statement daisy_chain_edge/],
+		},
+		{
+			lhs => 'edge_sequence', # 3 of 4.
+			rhs => [qw/edge_statement node_definition/],
+		},
+		{
+			lhs => 'edge_sequence', # 4 of 4.
+			rhs => [qw/edge_statement group_definition/],
+		},
+		{
+			lhs => 'edge_statement',
+			rhs => [qw/edge_name attribute_definition/],
+		},
+		{
+			lhs    => 'edge_name',
+			rhs    => [qw/edge_id/],
+			action => 'edge_id',
+		},
+		{   # Attribute stuff.
+			lhs => 'attribute_definition',
+			rhs => [qw/attribute_statement/],
+			min => 0,
+		},
+		{
+			lhs => 'attribute_statement',
+			rhs => [qw/start_attribute attribute_sequence end_attribute/],
+		},
+		{
+			lhs    => 'start_attribute',
+			rhs    => [qw/left_brace/],
+			action => 'start_attribute',
+		},
+		{
+			lhs => 'attribute_sequence',
+			rhs => [qw/attribute_declaration/],
+			min => 1,
+		},
+		{
+			lhs => 'attribute_declaration',
+			rhs => [qw/attribute_name colon attribute_value attribute_terminator/],
+		},
+		{
+			lhs    => 'attribute_name',
+			rhs    => [qw/attribute_name_id/],
+			min    => 1,
+			action => 'attribute_name_id',
+		},
+		{
+			lhs    => 'attribute_value',
+			rhs    => [qw/attribute_value_id/],
+			min    => 1,
+			action => 'attribute_value_id',
+		},
+		{
+			lhs => 'attribute_terminator',
+			rhs => [qw/semi_colon/],
+			min => 1,
+		},
+		{
+			lhs    => 'end_attribute',
+			rhs    => [qw/right_brace/],
+			action => 'end_attribute',
+		},
+		],
+	});
 
 	$grammar -> precompute;
 
@@ -558,6 +547,19 @@ sub node_id
 # --------------------------------------------------
 # This is a function, not a method.
 
+sub parse_result
+{
+	my(undef, $t1, undef, $t2)  = @_;
+
+	# Return 0 for success and 1 for failure.
+
+	return 0;
+
+} # End of parse_result.
+
+# --------------------------------------------------
+# This is a function, not a method.
+
 sub pop_subgraph
 {
 	my(undef, $t1, undef, $t2)  = @_;
@@ -622,7 +624,7 @@ sub report
 sub run
 {
 	my($self)       = @_;
-	my($recognizer) = Marpa::Recognizer -> new({grammar => $self -> grammar});
+	my($recognizer) = Marpa::R2::Recognizer -> new({grammar => $self -> grammar});
 
 	if ($#{$self -> tokens} < 0)
 	{
@@ -647,8 +649,7 @@ sub run
 	}
 
 	my($result) = $recognizer -> value;
-	$result     = $result ? ${$result} : 'Parse failed';
-	$result     = $result ? $result    : 0;
+	$result     = defined $result ? ref $result ? ${$result} : $result : 'Parse failed';
 
 	die $result if ($result);
 
@@ -676,7 +677,7 @@ sub run
 	}
 
 	# Return 0 for success and 1 for failure.
-	
+
 	return 0;
 
 } # End of run.

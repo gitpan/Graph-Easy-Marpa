@@ -32,7 +32,7 @@ fieldhash my %stt_file           => 'stt_file';
 fieldhash my %timeout            => 'timeout';
 fieldhash my %type               => 'type';
 
-our $VERSION = '1.07';
+our $VERSION = '1.09';
 
 # --------------------------------------------------
 
@@ -159,29 +159,29 @@ sub run
 
 =head1 NAME
 
-L<Graph::Easy::Marpa> - A Marpa- and Set::FA::Element-based parser for Graph::Easy
+Graph::Easy::Marpa - A Marpa-based parser for Graph::Easy-style Graphviz files
 
 =head1 Synopsis
 
 =head2 Sample Code
 
 	#!/usr/bin/env perl
-	
+
 	use strict;
 	use warnings;
-	
+
 	use Graph::Easy::Marpa;
-	
+
 	use Getopt::Long;
-	
+
 	use Pod::Usage;
-	
+
 	# -----------------------------------------------
-	
+
 	my($option_parser) = Getopt::Long::Parser -> new();
-	
+
 	my(%option);
-	
+
 	if ($option_parser -> getoptions
 	(
 	 \%option,
@@ -200,9 +200,9 @@ L<Graph::Easy::Marpa> - A Marpa- and Set::FA::Element-based parser for Graph::Ea
 	) )
 	{
 		pod2usage(1) if ($option{'help'});
-	
+
 		# Return 0 for success and 1 for failure.
-	
+
 		exit Graph::Easy::Marpa -> new(%option) -> run;
 	}
 	else
@@ -955,8 +955,6 @@ I've tried this, and the tests all worked. Other tests I run also worked.
 =back
 
 =head1 TODO
-
-=head2 Implement HTML-style labels
 
 =head2 Use regexps from the STT to do more validation
 

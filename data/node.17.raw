@@ -1,0 +1,2 @@
+# Node with HTML-style label. OK.
+[node.1] {label: <<table border='1'><tr><td>HTML-style label</td></tr></table>>}

@@ -1,5 +1,18 @@
 Revision history for Perl extension Graph::Easy::Marpa.
 
+1.09  Mon Jun 25 14:10:00 2012
+	- Handle HTML-style labels, even if they contain ';' chars, e.g. by using HTML entities such as &lt;.
+	- Add matching test files data/node.(17, 18, 19).(raw, cooked). See also the demo page.
+	- Change the abstract slightly to mention we process Graphviz files in the Graph::Easy format.
+	- Expand the FAQ re HTML-style labels.
+	- Encode HTML entities when including the demos' source code in the demo page, because now demos can
+		contain HTML-like labels.
+
+1.08  Sun Dec 25 10:33:00 2011
+	  - Change <img... to <object...> in the demo creation code, to keep poor old FireFox happy.
+	  - Change various things in html/graph.easy.index.tx to we validate as XHTML 1.0 Strict.
+	  - Switch from Marpa::XS to Marpa::R2.
+
 1.07  Wed Dec 14 13:29:00 2011
 	  - Fix declaration of null_value for some rules, to stop heaps of warnings during testing and/or running gem.pl.
 	  	The messages you get look like: Zero length sequence for symbol without null value: "group_name",

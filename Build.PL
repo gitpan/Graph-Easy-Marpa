@@ -4,7 +4,7 @@ Module::Build -> new
 (
  module_name    => 'Graph::Easy::Marpa',
  license        => 'artistic',
- dist_abstract  => 'Marpa-based parser for Graph::Easy',
+ dist_abstract  => 'A Marpa-based parser for Graph::Easy-style Graphviz files',
  dist_author    => 'Ron Savage <ron@savage.net.au>',
  build_requires =>
  {
@@ -32,7 +32,7 @@ Module::Build -> new
 	 List::Compare         => 0.37,
 	 List::Cycle           => 1.00,
 	 Log::Handler          => 0.71,
-	 Marpa::XS             => 0.026000,
+	 Marpa::R2             => 2.003,
 	 Module::Load          => 0.18,
 	 #OpenOffice::OODoc    => 2.125, # Optionally used in Lexer.pm.
 	 Perl6::Slurp          => 0.03,

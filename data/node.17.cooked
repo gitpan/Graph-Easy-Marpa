@@ -1,0 +1,10 @@
+"key","value"
+left_bracket            , [
+node_id                 , 'node.1'
+right_bracket           , ]
+left_brace              , {
+attribute_name_id       , 'label'
+colon                   , :
+attribute_value_id      , '<<table border='1'><tr><td>HTML-style label</td></tr></table>>'
+semi_colon              , ;
+right_brace             , }

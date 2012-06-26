@@ -8,7 +8,7 @@ WriteMakefile
  ($] ge '5.005') ?
  (
   AUTHOR   => 'Ron Savage (ron@savage.net.au)',
-  ABSTRACT => 'Marpa-based parser for Graph::Easy',
+  ABSTRACT => 'A Marpa-based parser for Graph::Easy-style Graphviz files',
     ) : (),
  clean =>
  {
@@ -39,7 +39,7 @@ WriteMakefile
 	 List::Compare         => 0.37,
 	 List::Cycle           => 1.00,
 	 Log::Handler          => 0.71,
-	 Marpa::XS             => 0.026000,
+	 Marpa::R2             => 2.003,
 	 Module::Load          => 0.18,
 	 #OpenOffice::OODoc    => 2.125, # Optionally used in Lexer.pm.
 	 Perl6::Slurp          => 0.03,

@@ -17,6 +17,8 @@ use File::Temp;
 
 use Graph::Easy::Marpa::Utils;
 
+use HTML::Entities::Interpolate;
+
 use Perl6::Slurp;
 
 use Text::Xslate 'mark_raw';
@@ -95,7 +97,7 @@ for my $key (sort keys %image_file)
 	{
 		input  => $name,
 		output => "$html_dir_name/$key.$format",
-		raw    => join('<br />', @line),
+		raw    => join('<br />', map{$Entitize{$_} || ''} @line),
 		title  => $line[0],
 	};
 }
