@@ -32,7 +32,7 @@ fieldhash my %stt_file           => 'stt_file';
 fieldhash my %timeout            => 'timeout';
 fieldhash my %type               => 'type';
 
-our $VERSION = '1.09';
+our $VERSION = '1.10';
 
 # --------------------------------------------------
 
@@ -871,14 +871,36 @@ Get or set the value which determines what type of stt_file is read.
 
 =head1 FAQ
 
-=over 4
+=head2 Why do I get error messages like the following?
 
-=item o What is the purpose of this set of modules?
+	Error: <stdin>:1: syntax error near line 1
+	context: digraph >>>  Graph <<<  {
+
+Graphviz reserves some words as keywords, meaning they can't be used as an ID, e.g. for the name of the graph.
+So, don't do this:
+
+	strict graph graph{...}
+	strict graph Graph{...}
+	strict graph strict{...}
+	etc...
+
+Likewise for non-strict graphs, and digraphs. You can however add double-quotes around such reserved words:
+
+	strict graph "graph"{...}
+
+Even better, use a more meaningful name for your graph...
+
+The keywords are: node, edge, graph, digraph, subgraph and strict. Compass points are not keywords.
+
+See L<keywords|http://www.graphviz.org/content/dot-language> in the discussion of the syntax of DOT
+for details.
+
+=head2 What is the purpose of this set of modules?
 
 It's the basis of a long-term project to formalize the way L<Graph::Easy> processes its graph definitions,
 which in turn is meant to make on-going support for L<Graph::Easy> much easier.
 
-=item o What are Graph::Easy graphs?
+=head2 What are Graph::Easy graphs?
 
 You really should read the L<Graph::Easy> docs.
 
@@ -886,27 +908,27 @@ In short, it means a text string containing a definition of a graph, using a cle
 that can be used to describe the sort of graph you wish to plot. Then, L<Graph::Easy> does the plotting.
 Here is a L<sample|http://bloodgate.com/perl/graph/manual/overview.html>.
 
-=item o So what's a sample of a L<Graph::Easy> graph definition?
+=head2 So what's a sample of a L<Graph::Easy> graph definition?
 
 	[node_1]{color: red; style: circle} -> {class: fancy;} [node_2]{color: green;}
 
-=item o How are graphs stored in RAM by the lexer and the parser?
+=head2 How are graphs stored in RAM by the lexer and the parser?
 
 See L<Graph::Easy::Marpa::Lexer/FAQ>.
 
-=item o How are attributes assigned to nodes and edges?
+=head2 How are attributes assigned to nodes and edges?
 
 Since the scan of the input stream is linear, any attribute detected belongs to the nearest preceeding
 node(s) or edge.
 
-=item o How are attributes assigned to groups?
+=head2 How are attributes assigned to groups?
 
 The only attributes which can be passed to a subgraph (group) are those that 'dot' accepts under the 'graph'
 part of a subgraph definition.
 
 This means the attribute 'rank' cannot be passed, yet.
 
-=item o Is there sample data I can examine?
+=head2 Is there sample data I can examine?
 
 See data/*.raw and the corresponding data/*.cooked and html/*.svg.
 
@@ -914,21 +936,21 @@ See data/*.raw and the corresponding data/*.cooked and html/*.svg.
 
 Note: Some files contain deliberate mistakes. See above for instructions on running scripts/lex.pl and scripts/lex.sh.
 
-=item o What about the fact the Graph::Easy can read various other definition formats?
+=head2 What about the fact the Graph::Easy can read various other definition formats?
 
 I have no plans to support such formats. Nevertheless, having written these modules, it should be fairly
 easy to derive classes which perform that sort of work.
 
-=item o What's with the regexp for class names in data/default.stt.ods?
+=head2 What's with the regexp for class names in data/default.stt.ods?
 
 We can't use \w+ because 'graph{a:b}' matches that under Perl 5.12.2.
 
-=item o How to I re-generate the web page of demos?
+=head2 How to I re-generate the web page of demos?
 
 By default, scripts/generate.index.pl outputs to File::Temp -> newdir(...).
 But by running it with a command line parameter, that value willl be used for the output directory.
 
-=item o What are the defaults for GraphViz2, the default rendering engine?
+=head2 What are the defaults for GraphViz2, the default rendering engine?
 
 	 GraphViz2 -> new
 	 (
@@ -942,7 +964,7 @@ But by running it with a command line parameter, that value willl be used for th
 
 where $class($name) is taken from the class declarations at the start of the input stream.
 
-=item o How can I switch from Marpa::XS to Marpa::PP?
+=head2 How can I switch from Marpa::XS to Marpa::PP?
 
 Install Marpa::PP manually. It is not mentioned in Build.PL or Makefile.PL.
 
@@ -951,8 +973,6 @@ Patch Graph::Easy::Marpa::Parser (line 14) from Marpa::XS to Marpa:PP.
 Run the tests which ship with this module.
 
 I've tried this, and the tests all worked. Other tests I run also worked.
-
-=back
 
 =head1 TODO
 

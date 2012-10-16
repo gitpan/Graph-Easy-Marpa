@@ -44,7 +44,7 @@ fieldhash my %tokens       => 'tokens';
 fieldhash my %type         => 'type';
 
 our $myself; # Is a copy of $self for functions called by Set::FA::Element.
-our $VERSION = '1.09';
+our $VERSION = '1.10';
 
 # --------------------------------------------------
 
@@ -372,7 +372,7 @@ sub get_graph_from_file
 	shift(@line) while ( ($#line >= 0) && ($line[0] =~ /^\s*#/) );
 
 	$self -> log(debug => 'Graph file: ' . $self -> input_file);
-	$self -> graph_text(join('', @line) );
+	$self -> graph_text(join(' ', @line) );
 
 } # End of get_graph_from_file.
 
