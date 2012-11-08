@@ -3,31 +3,212 @@ package Graph::Easy::Marpa::Utils;
 use strict;
 use warnings;
 
+use Config;
+
+use Date::Simple;
+
 use File::Basename; # For basename().
 use File::Spec;
 
+use Graph::Easy::Marpa::Config;
+
 use Hash::FieldHash ':all';
 
-use Perl6::Slurp;
+use HTML::Entities::Interpolate;
 
-our $VERSION = '1.10';
+use IO::File;
+
+use Perl6::Slurp; # For slurp().
+
+use Text::CSV_XS;
+use Text::Xslate 'mark_raw';
+
+fieldhash my %config => 'config';
+
+our $VERSION = '1.11';
+
+# ------------------------------------------------
+
+sub generate_demo_environment
+{
+	my($self) = @_;
+
+	my(@environment);
+
+	# mark_raw() is needed because of the HTML tag <a>.
+
+	push @environment,
+	{left => 'Author', right => mark_raw(qq|<a href="http://savage.net.au/">Ron Savage</a>|)},
+	{left => 'Date',   right => Date::Simple -> today},
+	{left => 'OS',     right => 'Debian V 6'},
+	{left => 'Perl',   right => $Config{version} };
+
+	return \@environment;
+
+} # End of generate_demo_environment.
+
+# -----------------------------------------------
+
+sub generate_demo_index
+{
+	my($self)          = @_;
+	my($data_dir_name) = 'data';
+	my($html_dir_name) = 'html';
+	my(%image_file)    = $self -> get_files($html_dir_name, 'svg');
+
+	my($line, @line);
+	my($name);
+
+	for my $key (sort keys %image_file)
+	{
+		$name           = "$data_dir_name/$key.raw";
+		$line           = slurp $name;
+		@line           = split(/\n/, $line);
+		$image_file{$key} =
+		{
+			input  => $name,
+			output => "$html_dir_name/$key.svg",
+			raw    => join('<br />', map{$Entitize{$_} || ''} @line),
+			title  => $line[0],
+		};
+	}
+
+	my(@key)       = sort grep{defined} keys %image_file;
+	my($config)    = $self -> config;
+	my($templater) = Text::Xslate -> new
+	(
+		input_layer => '',
+		path        => $$config{template_path},
+	);
+	my($count) = 0;
+	my($index) = $templater -> render
+	(
+	'graph.easy.index.tx',
+	{
+		default_css     => "$$config{css_url}/default.css",
+		data =>
+			[
+			map
+			{
+				{
+					count  => ++$count,
+					image  => "./$_.svg",
+					input  => mark_raw($image_file{$_}{input}),
+					output => mark_raw($image_file{$_}{output}),
+					raw    => mark_raw($image_file{$_}{raw}),
+					title  => mark_raw($image_file{$_}{title}),
+				}
+			} @key
+			],
+		environment     => $self -> generate_demo_environment,
+		fancy_table_css => "$$config{css_url}/fancy.table.css",
+		version         => $VERSION,
+	}
+	);
+	my($file_name) = File::Spec -> catfile($html_dir_name, 'index.html');
+
+	open(OUT, '>', $file_name);
+	print OUT $index;
+	close OUT;
+
+	print "Wrote $file_name\n";
+
+	# Return 0 for success and 1 for failure.
+
+	return 0;
+
+} # End of generate_demo_index.
+
+# ------------------------------------------------
+
+sub generate_stt_index
+{
+	my($self)          = @_;
+	my(@heading)       = qw/Start Accept State Event Next Entry Exit Regexp Interpretation/;
+	my($data_dir_name) = 'data';
+	my($stt_file_name) = File::Spec -> catfile($data_dir_name, 'default.stt.csv');
+	my($stt)           = $self -> read_csv_file($stt_file_name);
+
+	my($column, @column);
+	my(@row);
+
+	for $column (@heading)
+	{
+		push @column, {td => $column};
+	}
+
+	push @row, [@column];
+
+	for my $item (@$stt)
+	{
+		@column = ();
+
+		for $column (@heading)
+		{
+			push @column, {td => mark_raw($$item{$column} || '.')};
+		}
+
+		push @row, [@column];
+	}
+
+	@column = ();
+
+	for $column (@heading)
+	{
+		push @column, {td => $column};
+	}
+
+	push @row, [@column];
+
+	my($config)    = $self -> config;
+	my($templater) = Text::Xslate -> new
+	(
+		input_layer => '',
+		path        => $$config{template_path},
+	);
+	my($html_dir_name) = 'html';
+	my($file_name)     = File::Spec -> catfile($html_dir_name, 'stt.html');
+
+	open(OUT, '>', $file_name) || die "Can't open(> $file_name): $!";
+	print OUT $templater -> render
+	(
+	'stt.tx',
+	{
+		border          => 1,
+		default_css     => "$$config{css_url}/default.css",
+		environment     => $self -> generate_demo_environment,
+		fancy_table_css => "$$config{css_url}/fancy.table.css",
+		row             => [@row],
+		summary         => 'STT',
+		title           => 'State Transition Table for Graph::Easy::Marpa::Lexer',
+		version         => $VERSION,
+	},
+	);
+	close OUT;
+
+	print "Wrote $file_name\n";
+
+	# Return 0 for success and 1 for failure.
+
+	return 0;
+
+} # End of generate_stt_index.
 
 # ------------------------------------------------
 
 sub get_files
 {
-	my($self, $format) = @_;
-	my($dir_name)      = 'html';
+	my($self, $html_dir_name, $type) = @_;
 
-	opendir(INX, $dir_name);
-	my(@file) = sort grep{/$format$/} readdir INX;
+	opendir(INX, $html_dir_name);
+	my(@file) = sort grep{/$type$/} readdir INX;
 	closedir INX;
 
 	my(%file);
 
 	for my $file_name (@file)
 	{
-		$file{basename($file_name, ".$format")} = $file_name;
+		$file{basename($file_name, ".$type")} = $file_name;
 	}
 
 	return %file;
@@ -39,7 +220,8 @@ sub get_files
 sub _init
 {
 	my($self, $arg) = @_;
-	$self = from_hash($self, $arg);
+	$$arg{config}   = Graph::Easy::Marpa::Config -> new -> config;
+	$self           = from_hash($self, $arg);
 
 	return $self;
 
@@ -56,6 +238,20 @@ sub new
 	return $self;
 
 }	# End of new.
+
+# -----------------------------------------------
+
+sub read_csv_file
+{
+	my($self, $file_name) = @_;
+	my($csv) = Text::CSV_XS -> new({allow_whitespace => 1});
+	my($io)  = IO::File -> new($file_name, 'r');
+
+	$csv -> column_names($csv -> getline($io) );
+
+	return $csv -> getline_hr_all($io);
+
+} # End of read_csv_file.
 
 # -----------------------------------------------
 

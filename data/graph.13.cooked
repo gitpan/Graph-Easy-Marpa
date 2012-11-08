@@ -31,7 +31,7 @@ colon                   , :
 attribute_value_id      , 'crimson'
 semi_colon              , ;
 right_brace             , }
-edge_id                 , '--'
+edge_id                 , '->'
 left_brace              , {
 attribute_name_id       , 'color'
 colon                   , :

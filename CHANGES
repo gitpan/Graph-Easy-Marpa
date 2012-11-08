@@ -1,5 +1,23 @@
 Revision history for Perl extension Graph::Easy::Marpa.
 
+1.11  Thu Nov  8 12:38:00 2012
+	- No user-visible code changes.
+	- For pre-reqs such as strict, warnings, etc, which ship with Perl, set the version # to 0.
+		Reported as RT#80663 by Father Chrysostomos for Tree::DAG_Node.
+	- Remove color cycle code from scripts/stt.html, since it was never used.
+	- Rename HTML templates (to match) from rainbow.table.tx to basic.table.tx and rainbow.row.tx to basic.column.tx.
+	- Rename rainbow.page.tx to stt.tx.
+	- Move html/graph.easy.index.tx to htdocs/assets/templates/graph/easy/marpa.
+	- Add Graph::Easy::Marpa::Config to manage location of templates.
+	- Add config/.htgraph.easy.marpa.conf.
+	- Add scripts/copy.config.pl.
+	- Move code from scripts/stt.pl into Graph::Easy::Marpa::Utils.
+	- Ship html/stt.html.
+	- Add environment report to HTML templates.
+	- Link graph demo template and stt template to each other.
+	- Update pre-reqs.
+	- Remove demo files which contained syntax errors: data/graph.10.raw, data/graph.12.raw and data/node.11.raw.
+
 1.10  Tue Oct 16 09:49:00 2012
 	- Fix a bug in the lexer where it used to combine multiple lines in the input file by, basically, using
 		join('', <IN>), which meant the last char of a line was juxtaposed with the first char of the next

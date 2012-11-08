@@ -1,6 +1,7 @@
 Build.PL
 Changelog.ini
 CHANGES
+config/.htgraph.easy.marpa.conf
 data/class.edge.01.raw
 data/class.edge.02.raw
 data/class.edge.03.cooked
@@ -55,12 +56,8 @@ data/edge.07.cooked
 data/edge.07.raw
 data/edge.08.cooked
 data/edge.08.raw
-data/graph.10.cooked
-data/graph.10.raw
 data/graph.11.cooked
 data/graph.11.raw
-data/graph.12.cooked
-data/graph.12.raw
 data/graph.13.cooked
 data/graph.13.raw
 data/graph.14.cooked
@@ -88,8 +85,6 @@ data/node.09.cooked
 data/node.09.raw
 data/node.10.cooked
 data/node.10.raw
-data/node.11.cooked
-data/node.11.raw
 data/node.12.cooked
 data/node.12.raw
 data/node.13.cooked
@@ -135,9 +130,14 @@ data/subgraph.15.cooked
 data/subgraph.15.raw
 data/subgraph.16.cooked
 data/subgraph.16.raw
-htdocs/assets/templates/graph/easy/marpa/rainbow.page.tx
-htdocs/assets/templates/graph/easy/marpa/rainbow.row.tx
-htdocs/assets/templates/graph/easy/marpa/rainbow.table.tx
+htdocs/assets/css/graph/easy/marpa/default.css
+htdocs/assets/css/graph/easy/marpa/fancy.table.css
+htdocs/assets/css/graph/easy/marpa/web.page.css
+htdocs/assets/templates/graph/easy/marpa/basic.column.tx
+htdocs/assets/templates/graph/easy/marpa/basic.table.tx
+htdocs/assets/templates/graph/easy/marpa/fancy.table.tx
+htdocs/assets/templates/graph/easy/marpa/graph.easy.index.tx
+htdocs/assets/templates/graph/easy/marpa/stt.tx
 html/class.edge.03.svg
 html/class.edge.05.svg
 html/class.edge.06.svg
@@ -160,7 +160,6 @@ html/graph.11.svg
 html/graph.13.svg
 html/graph.14.svg
 html/graph.15.svg
-html/graph.easy.index.tx
 html/group.01.svg
 html/index.html
 html/node.02.svg
@@ -180,6 +179,7 @@ html/node.16.svg
 html/node.17.svg
 html/node.18.svg
 html/node.19.svg
+html/stt.html
 html/subgraph.04.svg
 html/subgraph.05.svg
 html/subgraph.06.svg
@@ -194,6 +194,7 @@ html/subgraph.14.svg
 html/subgraph.15.svg
 html/subgraph.16.svg
 lib/Graph/Easy/Marpa.pm
+lib/Graph/Easy/Marpa/Config.pm
 lib/Graph/Easy/Marpa/Lexer.pm
 lib/Graph/Easy/Marpa/Lexer/DFA.pm
 lib/Graph/Easy/Marpa/Parser.pm
@@ -204,6 +205,8 @@ MANIFEST			This list of files
 META.json
 META.yml
 README
+scripts/cooked2svg.pl
+scripts/copy.config.pl
 scripts/gem.pl
 scripts/gem.sh
 scripts/generate.demo.pl

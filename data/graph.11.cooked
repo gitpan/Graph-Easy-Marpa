@@ -25,4 +25,3 @@ right_brace             , }
 left_bracket            , [
 node_id                 , 'node.2'
 right_bracket           , ]
-edge_id                 , '--'

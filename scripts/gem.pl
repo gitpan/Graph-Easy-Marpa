@@ -85,13 +85,13 @@ Exit value: 0 for success, 1 for failure. Die upon error.
 
 =over 4
 
-=item -cooked_file aCookedFileName
+=item o -cooked_file aCookedFileName
 
 Specify the name of a CSV file of cooked tokens to write. This file can be input to the parser.
 
 There is no default value.
 
-=item -description graphDescription
+=item o -description graphDescription
 
 Specify a graph description string for the DFA to process.
 
@@ -103,7 +103,7 @@ The -description option takes precedence over the -input_file option.
 
 There is no default value.
 
-=item -dot_input_file aDotInputFileName
+=item o -dot_input_file aDotInputFileName
 
 Specify the name of a file that the rendering engine can write to, which will contain the input
 to dot (or whatever). This is good for debugging.
@@ -112,15 +112,15 @@ Default: ''.
 
 If '', the file will not be created.
 
-=item -format outputGraphFormat
+=item o -format outputGraphFormat
 
 The format (e.g. 'svg') to pass to the rendering engine.
 
-=item -help
+=item o -help
 
 Print help and exit.
 
-=item -input_file aRawFileName
+=item o -input_file aRawFileName
 
 Read the graph description string from a file.
 
@@ -134,13 +134,13 @@ The -description option takes precedence over the -input_file option.
 
 There is no default value.
 
-=item -logger loggerOrEmptyString
+=item o -logger loggerOrEmptyString
 
 Specify a logger to pass to the lexer and the parser.
 
 In scripts/gem.sh, use -l '' to stop logging.
 
-=item -maxlevel logOption1
+=item o -maxlevel logOption1
 
 This option affects Log::Handler.
 
@@ -148,7 +148,7 @@ See the Log::handler docs.
 
 The default maxlevel is 'info'. Another typical value is 'debug'.
 
-=item -minlevel logOption2
+=item o -minlevel logOption2
 
 This option affects Log::Handler.
 
@@ -174,25 +174,25 @@ If not specified (the default), the tokens are not saved.
 
 The default is ''.
 
-=item -rankdir LR or RL or TB or BT
+=item o -rankdir LR or RL or TB or BT
 
 Specify the rankdir of the graph as a whole.
 
 Default: TB (top to bottom).
 
-=item -report_items 0 or 1
+=item o -report_items 0 or 1
 
 Report the items recognized in the cooked file.
 
 The default value is 0.
 
-=item -report_stt 0 or 1
+=item o -report_stt 0 or 1
 
 Call Set::FA::Element.report(). Set min and max log levels to 'info' for this.
 
 The default value is 0.
 
-=item -stt_file sttFileName
+=item o -stt_file sttFileName
 
 Specify which file contains the state transition table.
 
@@ -207,14 +207,14 @@ The type of this file must be specified by the -type option.
 Note: If you use stt_file => your.stt.ods and type => 'ods', L<Module::Load>'s load() will be used to
 load L<OpenOffice::OODoc>. This module is no longer listed in Build.PL and Makefile.PL as a pre-req,
 so you will need to install it manually.
- 
-=item -timeout seconds
+
+=item o -timeout seconds
 
 Run the DFA for at most this many seconds.
 
 Default: 3.
 
-=item -type '' or cvs or ods
+=item o -type '' or cvs or ods
 
 Specify the type of the stt_file: '' for internal STT, csv for CSV or ods for Open Office Calc spreadsheet.
 

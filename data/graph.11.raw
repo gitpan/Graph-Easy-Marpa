@@ -1,2 +1,2 @@
 # Ends with edge without attributes. OK.
-[node.1]{color: red}->{color: green;}->{color: red}[node.2]--
+[node.1]{color: red}->{color: green;}->{color: red}[node.2]

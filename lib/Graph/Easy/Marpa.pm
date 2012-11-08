@@ -32,7 +32,7 @@ fieldhash my %stt_file           => 'stt_file';
 fieldhash my %timeout            => 'timeout';
 fieldhash my %type               => 'type';
 
-our $VERSION = '1.10';
+our $VERSION = '1.11';
 
 # --------------------------------------------------
 
@@ -870,6 +870,10 @@ The [] indicate an optional parameter.
 Get or set the value which determines what type of stt_file is read.
 
 =head1 FAQ
+
+=head2 What is the homepage of Marpa?
+
+L<http://jeffreykegler.github.com/Marpa-web-site/>.
 
 =head2 Why do I get error messages like the following?
 

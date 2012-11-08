@@ -21,7 +21,7 @@ fieldhash my %start      => 'start';
 fieldhash my %verbose    => 'verbose';
 
 our $myself; # Is a copy of $self for functions called by Set::FA::Element.
-our $VERSION = '1.10';
+our $VERSION = '1.11';
 
 # --------------------------------------------------
 # Ensure each anonymous node has (at least) these attributes:

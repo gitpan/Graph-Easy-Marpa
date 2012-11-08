@@ -30,8 +30,6 @@ my($stdout, $stderr);
 
 for my $raw_name (@raw_name)
 {
-	print "Processing $raw_name. \n";
-
 	@raw_file        = slurp($raw_name, {chomp => 1});
 	$expected_result = ($1 || '') if ($raw_file[0] =~ /(Error|OK)\.$/);
 
