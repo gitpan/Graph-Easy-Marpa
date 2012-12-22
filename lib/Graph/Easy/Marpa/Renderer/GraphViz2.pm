@@ -17,7 +17,7 @@ fieldhash my %minlevel       => 'minlevel';
 fieldhash my %output_file    => 'output_file';
 fieldhash my %rankdir        => 'rankdir';
 
-our $VERSION = '1.11';
+our $VERSION = '1.12';
 
 # --------------------------------------------------
 
@@ -292,7 +292,7 @@ sub log
 {
 	my($self, $level, $s) = @_;
 
-	$self -> logger -> $level($s) if ($self -> logger);
+	$self -> logger -> log($level => $s) if ($self -> logger);
 
 } # End of log.
 

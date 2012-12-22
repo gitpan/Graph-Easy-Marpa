@@ -22,7 +22,7 @@ right_brace             , }
 left_brace              , {
 class_attribute_name_id , 'shape'
 colon                   , :
-attribute_value_id      , 'square'
+attribute_value_id      , 'rect'
 semi_colon              , ;
 right_brace             , }
 left_bracket            , [

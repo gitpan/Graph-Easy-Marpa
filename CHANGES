@@ -1,5 +1,22 @@
 Revision history for Perl extension Graph::Easy::Marpa.
 
+1.12  Thu Dec 20 15:27:00 2012
+	- Change all uses of shape 'square' to 'rect', since older versions of Graphviz didn't have 'square'.
+		This affects data/class.group.04.raw, data/class.node.09.raw, and POD in Marpa.pm and Lexer.pm
+		The corresponding data/*.cooked files change as a result, when they are re-generated.
+	- Change all functions (not methods) in Parser.pm from my(undef...) to my($stash...).
+		This feature of Marpa is not used, but might be one day. The $stash is a hashref of per-parse info.
+	- Change sub log():
+		From: $self -> logger -> $level($s)        if ($self -> logger)
+		To:   $self -> logger -> log($level => $s) if ($self -> logger)
+		The reason for this is that if your logger is derived from another class or role, that class or
+		role had to provide not just the log() method, but all of debug(), info(), notice(), warning(),
+		warn(), error(), err(), critical(), crit(), alert(), emergency() and emerg(), just in case any
+		of them are needed.
+		I should not have used that design, because it forces other code to provide too much complexity.
+		This affects Graph::Easy::Marpa, Graph::Easy::Marpa::Lexer, Graph::Easy::Marpa::Parser and
+		Graph::Easy::Marpa::Renderer::GraphViz2.
+
 1.11  Thu Nov  8 12:38:00 2012
 	- No user-visible code changes.
 	- For pre-reqs such as strict, warnings, etc, which ship with Perl, set the version # to 0.

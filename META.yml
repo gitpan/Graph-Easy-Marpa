@@ -17,25 +17,25 @@ name: Graph-Easy-Marpa
 provides:
   Graph::Easy::Marpa:
     file: lib/Graph/Easy/Marpa.pm
-    version: 1.11
+    version: 1.12
   Graph::Easy::Marpa::Config:
     file: lib/Graph/Easy/Marpa/Config.pm
-    version: 1.11
+    version: 1.12
   Graph::Easy::Marpa::Lexer:
     file: lib/Graph/Easy/Marpa/Lexer.pm
-    version: 1.11
+    version: 1.12
   Graph::Easy::Marpa::Lexer::DFA:
     file: lib/Graph/Easy/Marpa/Lexer/DFA.pm
-    version: 1.11
+    version: 1.12
   Graph::Easy::Marpa::Parser:
     file: lib/Graph/Easy/Marpa/Parser.pm
-    version: 1.11
+    version: 1.12
   Graph::Easy::Marpa::Renderer::GraphViz2:
     file: lib/Graph/Easy/Marpa/Renderer/GraphViz2.pm
-    version: 1.11
+    version: 1.12
   Graph::Easy::Marpa::Utils:
     file: lib/Graph/Easy/Marpa/Utils.pm
-    version: 1.11
+    version: 1.12
 requires:
   Capture::Tiny: 0.11
   Config: 0
@@ -69,4 +69,4 @@ requires:
   warnings: 0
 resources:
   license: http://www.perlfoundation.org/artistic_license_1_0
-version: 1.11
+version: 1.12

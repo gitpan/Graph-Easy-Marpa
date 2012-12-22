@@ -32,7 +32,7 @@ fieldhash my %stt_file           => 'stt_file';
 fieldhash my %timeout            => 'timeout';
 fieldhash my %type               => 'type';
 
-our $VERSION = '1.11';
+our $VERSION = '1.12';
 
 # --------------------------------------------------
 
@@ -83,7 +83,7 @@ sub log
 {
 	my($self, $level, $s) = @_;
 
-	$self -> logger -> $level($s);
+	$self -> logger -> log($level => $s) if ($self -> logger);
 
 } # End of log.
 
@@ -662,10 +662,10 @@ This means things like 'edge.' etc are syntax errors.
 You use the subclass name in the attributes of an edge, a group or a node, whereas 'global' and 'graph'
 appear only once, at the start of the input stream.
 
-	node {shape: square} node.forest {color: green}
+	node {shape: rect} node.forest {color: green}
 	[node.1] -> [node.2] {class: forest} -> [node.3] {shape: circle; color: blue}
 
-Here, node.1 gets the default shape, square, and node.2 gets both shape square and color green. node.3
+Here, node.1 gets the default shape, rect, and node.2 gets both shape rect and color green. node.3
 gets shape circle and color blue.
 
 As always, specific attributes override class attributes.
@@ -780,7 +780,11 @@ The value supplied to the description() method takes precedence over the value r
 
 =head2 log($level, $s)
 
-Calls $self -> logger -> $level($s).
+Calls $self -> logger -> log($level => $s) if ($self -> logger).
+
+Up until V 1.11, this used to call $self -> logger -> $level($s), but the change was made to allow
+simpler loggers, meaning they did not have to implement all the methods covered by $level().
+See CHANGES for details. For more on log levels, see L<Log::Handler::Levels>.
 
 =head2 logger([$logger_object])
 

@@ -44,7 +44,7 @@ fieldhash my %tokens       => 'tokens';
 fieldhash my %type         => 'type';
 
 our $myself; # Is a copy of $self for functions called by Set::FA::Element.
-our $VERSION = '1.11';
+our $VERSION = '1.12';
 
 # --------------------------------------------------
 
@@ -434,7 +434,7 @@ sub log
 {
 	my($self, $level, $s) = @_;
 
-	$self -> logger -> $level($s) if ($self -> logger);
+	$self -> logger -> log($level => $s) if ($self -> logger);
 
 } # End of log.
 
@@ -1234,7 +1234,7 @@ A class definition of 'edge {color: white}' would produce 2 hashrefs:
 	value => 'white',
 	}
 
-A class definition of 'node.green {color: green; shape: square}' would produce 3 hashrefs:
+A class definition of 'node.green {color: green; shape: rect}' would produce 3 hashrefs:
 
 	{
 	count => $n,
@@ -1254,7 +1254,7 @@ A class definition of 'node.green {color: green; shape: square}' would produce 3
 	count => $n,
 	name  => 'shape',
 	type  => 'attribute',
-	value => 'square',
+	value => 'rect',
 	}
 
 Class and class attribute hashrefs always appear at the start of the arrayref of items.

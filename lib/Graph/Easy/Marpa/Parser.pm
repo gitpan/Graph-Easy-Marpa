@@ -41,14 +41,14 @@ fieldhash my %tokens             => 'tokens';
 # $myself is a copy of $self for use by functions called by Marpa.
 
 our $myself;
-our $VERSION = '1.11';
+our $VERSION = '1.12';
 
 # --------------------------------------------------
 # This is a function, not a method.
 
 sub attribute_name_id
 {
-	my(undef, $t1, undef, $t2)  = @_;
+	my($stash, $t1, undef, $t2)  = @_;
 
 	$myself -> attribute_name($t1);
 
@@ -61,7 +61,7 @@ sub attribute_name_id
 
 sub attribute_value_id
 {
-	my(undef, $t1, undef, $t2)  = @_;
+	my($stash, $t1, undef, $t2)  = @_;
 
 	$myself -> attrs -> push
 	({
@@ -80,7 +80,7 @@ sub attribute_value_id
 
 sub class_name
 {
-	my(undef, $t1, undef, $t2)  = @_;
+	my($stash, $t1, undef, $t2)  = @_;
 
 	$myself -> items -> push
 	({
@@ -115,7 +115,7 @@ sub _count
 
 sub edge_id
 {
-	my(undef, $t1, undef, $t2)  = @_;
+	my($stash, $t1, undef, $t2)  = @_;
 
 	# This regexp defines what is and isn't allowed for edge names.
 
@@ -141,7 +141,7 @@ sub edge_id
 
 sub end_attribute
 {
-	my(undef, $t1, undef, $t2)  = @_;
+	my($stash, $t1, undef, $t2)  = @_;
 
 	# $t1 will be '}'.
 	# Add all attributes to the item list.
@@ -159,7 +159,7 @@ sub end_attribute
 
 sub end_node
 {
-	my(undef, $t1, undef, $t2)  = @_;
+	my($stash, $t1, undef, $t2)  = @_;
 
 	# $t1 will be ']'.
 
@@ -515,7 +515,7 @@ sub log
 {
 	my($self, $level, $s) = @_;
 
-	$self -> logger -> $level($s) if ($self -> logger);
+	$self -> logger -> log($level => $s) if ($self -> logger);
 
 } # End of log.
 
@@ -536,7 +536,7 @@ sub new
 
 sub node_id
 {
-	my(undef, $t1, undef, $t2)  = @_;
+	my($stash, $t1, undef, $t2)  = @_;
 
 	$myself -> node_name($t1);
 
@@ -549,7 +549,7 @@ sub node_id
 
 sub parse_result
 {
-	my(undef, $t1, undef, $t2)  = @_;
+	my($stash, $t1, undef, $t2)  = @_;
 
 	# Return 0 for success and 1 for failure.
 
@@ -562,7 +562,7 @@ sub parse_result
 
 sub pop_subgraph
 {
-	my(undef, $t1, undef, $t2)  = @_;
+	my($stash, $t1, undef, $t2)  = @_;
 
 	# $t1 will be ')'.
 
@@ -687,7 +687,7 @@ sub run
 
 sub start_attribute
 {
-	my(undef, $t1, undef, $t2)  = @_;
+	my($stash, $t1, undef, $t2)  = @_;
 
 	# $t1 will be '{'.
 
@@ -702,7 +702,7 @@ sub start_attribute
 
 sub start_node
 {
-	my(undef, $t1, undef, $t2)  = @_;
+	my($stash, $t1, undef, $t2)  = @_;
 
 	# $t1 will be '['.
 
@@ -717,7 +717,7 @@ sub start_node
 
 sub start_subgraph
 {
-	my(undef, $t1, undef, $t2)  = @_;
+	my($stash, $t1, undef, $t2)  = @_;
 
 	$myself -> group_name($t1);
 	$myself -> items -> push
