@@ -1,0 +1,9 @@
+digraph Perl
+{
+graph [ rankdir="TB" ]
+node [ shape="oval" ]
+edge [ color="green" ]
+"node.1"
+"node.2"
+"node.1" -> "node.2" [ color="green" label="" ]
+}

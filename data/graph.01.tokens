@@ -1,0 +1,8 @@
+"key","name","value"
+"node","node.1",""
+"attribute","color","red"
+"edge","->",""
+"attribute","color","green"
+"edge","->",""
+"attribute","color","red"
+"node","node.2",""

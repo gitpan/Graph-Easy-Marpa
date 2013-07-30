@@ -1,0 +1,3 @@
+# Group with attributes. OK.
+(cluster.1: [node.1] -> [node.2]) {class: group}
+

@@ -1,0 +1,12 @@
+digraph Perl
+{
+graph [ rankdir="TB" ]
+node [ shape="oval" ]
+edge [ color="grey" ]
+"Murrumbeena" [ color="blue" ]
+"Carnegie" [ color="crimson" ]
+"Chadstone" [ color="blueviolet" ]
+"Murrumbeena" -> "Carnegie" [ color="green" label="" ]
+"Murrumbeena" -> "Carnegie" [ color="red" label="" ]
+"Carnegie" -> "Chadstone" [ color="brown" label="" ]
+}

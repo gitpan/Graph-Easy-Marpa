@@ -1,2 +1,0 @@
-# Group (i.e. subgraph) + Node. OK.
-(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale} [Sol] 

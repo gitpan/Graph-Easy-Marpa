@@ -1,0 +1,6 @@
+# Class node, and anonymous node. OK.
+node {color: red}
+[node.1] -> {arrowhead: odot; arrowtail: ediamond; color: green; dir: both; label: A; penwidth: 1}
+-> {color: blue; label: B; penwidth: 3}
+-> {arrowhead: box; arrowtail: invdot; color: maroon; dir: both; label: C; penwidth: 5}
+[] {label: 'Some node'} -> [node.2]

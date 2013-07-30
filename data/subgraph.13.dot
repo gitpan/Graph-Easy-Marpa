@@ -1,0 +1,25 @@
+digraph Perl
+{
+graph [ rankdir="TB" ]
+node [ shape="oval" ]
+edge [ color="grey" ]
+
+subgraph "cluster_1"
+{
+graph [ bgcolor="cornflowerblue" label="Locale" rankdir="TB" ]
+node [ shape="oval" ]
+edge [ color="grey" ]
+
+"Solar system"
+"Earth"
+}
+"Australia"
+"Victoria"
+"Melbourne"
+"Murrumbeena"
+"Solar system" -> "Earth" [ arrowhead="diamond" label="" ]
+"Earth" -> "Australia" [ label="" ]
+"Australia" -> "Victoria" [ label="" ]
+"Victoria" -> "Melbourne" [ label="" ]
+"Melbourne" -> "Murrumbeena" [ label="" ]
+}

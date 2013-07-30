@@ -1,2 +1,0 @@
-# Anonymous node with attributes made to vanish. OK.
-[node.1] -> [] {color: red; label: 'Anonymous!'} -> [node.2]

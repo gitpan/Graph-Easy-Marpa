@@ -1,0 +1,2 @@
+# Anonymous node with attributes. OK.
+[node.1] -> [] {color: red; label: 'Anonymous!'} -> [node.2]

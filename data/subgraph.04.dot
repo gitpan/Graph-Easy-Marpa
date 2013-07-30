@@ -1,0 +1,17 @@
+digraph Perl
+{
+graph [ rankdir="TB" ]
+node [ shape="oval" ]
+edge [ color="grey" ]
+
+subgraph "cluster_1"
+{
+graph [ bgcolor="lightblue" label="Creatures" rankdir="TB" ]
+node [ shape="oval" ]
+edge [ color="grey" ]
+
+"Great"
+"Small"
+}
+"Great" -> "Small" [ arrowhead="odot" label="" ]
+}

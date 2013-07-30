@@ -1,0 +1,25 @@
+# Reverse-engineered from GraphViz2/scripts/joint.edges.pl. OK.
+
+[Carnegie] {color: aquamarine; style: filled}
+-> {arrowhead: none; samehead: 1}
+[one] {label:''; style: filled; fillcolor: white; fixedsize: 1; width: 0; height: 0}
+
+[Murrumbeena] {color: bisque; style: filled}
+-> {arrowhead: none; samehead: 1}
+[one]
+
+[one]
+-> {sametail: 1}
+[Oakleigh] {color: blueviolet; style: filled}
+
+[Ashburton] {color: chartreuse; style: filled}
+-> {arrowhead: none; samehead: 1}
+[two] {label:''; style: filled; fillcolor: white; fixedsize: 1; width: 0; height: 0}
+
+[Chadstone] {color: coral; style: filled}
+-> {arrowhead: none; samehead: 1}
+[two]
+
+[two]
+-> {sametail: 1}
+[Waverley] {color: crimson; style: filled}

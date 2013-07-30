@@ -1,31 +1,40 @@
 package Graph::Easy::Marpa::Utils;
 
 use strict;
+use utf8;
 use warnings;
+use warnings  qw(FATAL utf8);    # Fatalize encoding glitches.
+use open      qw(:std :utf8);    # Undeclared streams in UTF-8.
+use charnames qw(:full :short);  # Unneeded in v5.16.
 
 use Config;
 
 use Date::Simple;
 
-use File::Basename; # For basename().
 use File::Spec;
 
 use Graph::Easy::Marpa::Config;
-
-use Hash::FieldHash ':all';
+use Graph::Easy::Marpa::Filer;
 
 use HTML::Entities::Interpolate;
 
-use IO::File;
+use Moo;
 
 use Perl6::Slurp; # For slurp().
 
-use Text::CSV_XS;
+use Text::CSV::Slurp;
 use Text::Xslate 'mark_raw';
 
-fieldhash my %config => 'config';
+has config =>
+(
+	default  => sub{return Graph::Easy::Marpa::Config -> new -> config},
+	is       => 'rw',
+#	isa      => 'HashRef',
+	required => 0,
+);
 
-our $VERSION = '1.12';
+
+our $VERSION = '2.00';
 
 # ------------------------------------------------
 
@@ -54,26 +63,29 @@ sub generate_demo_index
 	my($self)          = @_;
 	my($data_dir_name) = 'data';
 	my($html_dir_name) = 'html';
-	my(%image_file)    = $self -> get_files($html_dir_name, 'svg');
+	my(%data_file)     = Graph::Easy::Marpa::Filer -> new -> get_files($data_dir_name, 'ge');
 
+	my($html_name);
 	my($line, @line);
 	my($name);
 
-	for my $key (sort keys %image_file)
+	for my $key (sort keys %data_file)
 	{
-		$name           = "$data_dir_name/$key.raw";
-		$line           = slurp $name;
-		@line           = split(/\n/, $line);
-		$image_file{$key} =
+		$name      = "$data_dir_name/$key.ge";
+		$line      = slurp $name, {utf8 => 1};
+		@line      = split(/\n/, $line);
+		$html_name = "$html_dir_name/$key.svg";
+
+		$data_file{$key} =
 		{
+			ge     => join('<br />', map{$Entitize{$_} || ''} @line),
 			input  => $name,
-			output => "$html_dir_name/$key.svg",
-			raw    => join('<br />', map{$Entitize{$_} || ''} @line),
+			output => -e $html_name ? $html_name : 'None',
 			title  => $line[0],
 		};
 	}
 
-	my(@key)       = sort grep{defined} keys %image_file;
+	my(@key)       = sort keys %data_file;
 	my($config)    = $self -> config;
 	my($templater) = Text::Xslate -> new
 	(
@@ -92,12 +104,12 @@ sub generate_demo_index
 			{
 				{
 					count  => ++$count,
+					ge     => mark_raw($data_file{$_}{ge}),
 					image  => "./$_.svg",
-					input  => mark_raw($image_file{$_}{input}),
-					output => mark_raw($image_file{$_}{output}),
-					raw    => mark_raw($image_file{$_}{raw}),
-					title  => mark_raw($image_file{$_}{title}),
-				}
+					input  => mark_raw($data_file{$_}{input}),
+					output => mark_raw($data_file{$_}{output}),
+					title  => mark_raw($data_file{$_}{title}),
+				};
 			} @key
 			],
 		environment     => $self -> generate_demo_environment,
@@ -119,140 +131,6 @@ sub generate_demo_index
 
 } # End of generate_demo_index.
 
-# ------------------------------------------------
-
-sub generate_stt_index
-{
-	my($self)          = @_;
-	my(@heading)       = qw/Start Accept State Event Next Entry Exit Regexp Interpretation/;
-	my($data_dir_name) = 'data';
-	my($stt_file_name) = File::Spec -> catfile($data_dir_name, 'default.stt.csv');
-	my($stt)           = $self -> read_csv_file($stt_file_name);
-
-	my($column, @column);
-	my(@row);
-
-	for $column (@heading)
-	{
-		push @column, {td => $column};
-	}
-
-	push @row, [@column];
-
-	for my $item (@$stt)
-	{
-		@column = ();
-
-		for $column (@heading)
-		{
-			push @column, {td => mark_raw($$item{$column} || '.')};
-		}
-
-		push @row, [@column];
-	}
-
-	@column = ();
-
-	for $column (@heading)
-	{
-		push @column, {td => $column};
-	}
-
-	push @row, [@column];
-
-	my($config)    = $self -> config;
-	my($templater) = Text::Xslate -> new
-	(
-		input_layer => '',
-		path        => $$config{template_path},
-	);
-	my($html_dir_name) = 'html';
-	my($file_name)     = File::Spec -> catfile($html_dir_name, 'stt.html');
-
-	open(OUT, '>', $file_name) || die "Can't open(> $file_name): $!";
-	print OUT $templater -> render
-	(
-	'stt.tx',
-	{
-		border          => 1,
-		default_css     => "$$config{css_url}/default.css",
-		environment     => $self -> generate_demo_environment,
-		fancy_table_css => "$$config{css_url}/fancy.table.css",
-		row             => [@row],
-		summary         => 'STT',
-		title           => 'State Transition Table for Graph::Easy::Marpa::Lexer',
-		version         => $VERSION,
-	},
-	);
-	close OUT;
-
-	print "Wrote $file_name\n";
-
-	# Return 0 for success and 1 for failure.
-
-	return 0;
-
-} # End of generate_stt_index.
-
-# ------------------------------------------------
-
-sub get_files
-{
-	my($self, $html_dir_name, $type) = @_;
-
-	opendir(INX, $html_dir_name);
-	my(@file) = sort grep{/$type$/} readdir INX;
-	closedir INX;
-
-	my(%file);
-
-	for my $file_name (@file)
-	{
-		$file{basename($file_name, ".$type")} = $file_name;
-	}
-
-	return %file;
-
-} # End of get_files.
-
-# -----------------------------------------------
-
-sub _init
-{
-	my($self, $arg) = @_;
-	$$arg{config}   = Graph::Easy::Marpa::Config -> new -> config;
-	$self           = from_hash($self, $arg);
-
-	return $self;
-
-} # End of _init.
-
-# -----------------------------------------------
-
-sub new
-{
-	my($class, %arg) = @_;
-	my($self)        = bless {}, $class;
-	$self            = $self -> _init(\%arg);
-
-	return $self;
-
-}	# End of new.
-
-# -----------------------------------------------
-
-sub read_csv_file
-{
-	my($self, $file_name) = @_;
-	my($csv) = Text::CSV_XS -> new({allow_whitespace => 1});
-	my($io)  = IO::File -> new($file_name, 'r');
-
-	$csv -> column_names($csv -> getline($io) );
-
-	return $csv -> getline_hr_all($io);
-
-} # End of read_csv_file.
-
 # -----------------------------------------------
 
 1;
@@ -261,20 +139,23 @@ sub read_csv_file
 
 =head1 NAME
 
-L<Graph::Easy::Marpa::Utils> - Some utils to generate the demo page, and to simplify testing
+L<Graph::Easy::Marpa::Utils> - Some utils to generate the demo page
 
 =head1 Synopsis
 
-See scripts/generate.index.pl and t/test.t.
+See L<Graph::Easy::Marpa/Synopsis>.
 
-Note: scripts/generate.index.pl outputs to a temporary directory. You'll need to patch it if
-you wish to save the output.
+See scripts/generate.index.pl.
+
+Note: scripts/generate.index.pl outputs to a directory called 'html' in the 'current' directory.
 
 See: L<http://savage.net.au/Perl-modules/html/graph.easy.marpa/index.html>.
 
 =head1 Description
 
-Some utils to simplify testing.
+Some utils to simplify generation of the demo page.
+
+It is not expected that end-users would ever need to use this module.
 
 =head1 Distributions
 
@@ -325,6 +206,26 @@ Key-value pairs accepted in the parameter list:
 
 =back
 
+=head1 Methods
+
+=head2 generate_demo_environment()
+
+Returns a hashref of OS, etc, values.
+
+Keys are C<left> and C<right>, to suit C<htdocs/assets/templates/graph/easy/marpa/fancy.table.tx>.
+
+C<*.tx> files are used by L<Text::Xslate>.
+
+Called by L</generate_demo_index()>.
+
+=head2 generate_demo_index()
+
+Calls L<Graph::Easy::Marpa::Filer/get_files($dir_name, $type)> and L</generate_demo_environment()>.
+
+Writes C<html/index.html>.
+
+See scripts/generate.index.pl.
+
 =head1 Thanks
 
 Many thanks are due to the people who chose to make L<Graphviz|http://www.graphviz.org/> Open Source.
@@ -337,7 +238,7 @@ Version numbers < 1.00 represent development versions. From 1.00 up, they are pr
 
 =head1 Machine-Readable Change Log
 
-The file CHANGES was converted into Changelog.ini by L<Module::Metadata::Changes>.
+The file Changes was converted into Changelog.ini by L<Module::Metadata::Changes>.
 
 =head1 Support
 

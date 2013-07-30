@@ -1,8 +1,10 @@
 #!/bin/bash
 
-pod2html.pl -i lib/Graph/Easy/Marpa.pm                    -o $DR/marpa/Marpa.html
-pod2html.pl -i lib/Graph/Easy/Marpa/Lexer.pm              -o $DR/marpa/Lexer.html
-pod2html.pl -i lib/Graph/Easy/Marpa/Parser.pm             -o $DR/marpa/Parser.html
-pod2html.pl -i lib/Graph/Easy/Marpa/Utils.pm              -o $DR/marpa/Utils.html
-pod2html.pl -i lib/Graph/Easy/Marpa/Lexer/DFA.pm          -o $DR/marpa/DFA.html
-pod2html.pl -i lib/Graph/Easy/Marpa/Renderer/GraphViz2.pm -o $DR/marpa/GraphViz2.html
+DEST=$DR/Perl-modules/html/Graph/Easy
+
+pod2html.pl -i lib/Graph/Easy/Marpa.pm                    -o $DEST/Marpa.html
+pod2html.pl -i lib/Graph/Easy/Marpa/Actions.pm            -o $DEST/Marpa/Actions.html
+pod2html.pl -i lib/Graph/Easy/Marpa/Config.pm             -o $DEST/Marpa/Config.html
+pod2html.pl -i lib/Graph/Easy/Marpa/Parser.pm             -o $DEST/Marpa/Parser.html
+pod2html.pl -i lib/Graph/Easy/Marpa/Utils.pm              -o $DEST/Marpa/Utils.html
+pod2html.pl -i lib/Graph/Easy/Marpa/Renderer/GraphViz2.pm -o $DEST/Marpa/Renderer/GraphViz2.html

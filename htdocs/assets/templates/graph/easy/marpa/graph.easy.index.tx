@@ -17,14 +17,14 @@
 	<p>Some sample data is deliberately faulty, and so does not show up here. Some sample data contains fake attributes, just
 	  to test the code. These will make 'dot' die, but are included here.</p>
 
-	<p>The output for input file data/graph.15.raw corresponds to the output for scripts/jointed.edges.pl in
+	<p>The output for input file data/graph.04.ge corresponds to the output for scripts/jointed.edges.pl in
 	  <a href="http://savage.net.au/Perl-modules/html/graphviz2/index.html">the GraphViz2 demo.</a></p>
 
 <table border = "1">
 :for $data -> $row {
 <tr>
-  <td>Input file # <: $row.count :> - <: $row.input :>:<br /><: $row.raw :></td>
-  <td><object data = "<: $row.image :>"><: $row.title :></object><br /><br />Output file # <: $row.count :> - <: $row.output :><br /><: $row.title :></td>
+  <td>Input file # <: $row.count :> - <: $row.input :>:<br /><: $row.ge :></td>
+  <td><: $row.title :><br /><object data = "<: $row.image :>"></object><br />Output file # <: $row.count :> - <: $row.output :></td>
 </tr>
 :}
 </table>
@@ -34,8 +34,6 @@
 <h3 class="global_toc_text">Links</h3>
 
 <h2 align="center">Index page for <a href="http://savage.net.au/Graph-module-demos.html">all graph module demos</a></h2>
-
-<h2 align="center">Demo page for <a href="http://savage.net.au/Perl-modules/html/graph.easy.marpa/stt.html">State Transition Table</a></h2>
 
 <hr />
 

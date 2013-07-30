@@ -1,3 +1,0 @@
-# Node + Edge + Node + Edge + Group (i.e. subgraph). OK.
-[Andromeda] -> [Milky Way] ->
-(cluster_1:[Solar system]->{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}

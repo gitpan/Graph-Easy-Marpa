@@ -1,7 +1,0 @@
-"key","value"
-push_subgraph           , 'cluster_1'
-left_bracket            , [
-node_id                 , 'Small'
-right_bracket           , ]
-edge_id                 , '->'
-pop_subgraph            , 'cluster_1'

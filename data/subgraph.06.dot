@@ -1,0 +1,18 @@
+digraph Perl
+{
+graph [ rankdir="TB" ]
+node [ shape="oval" ]
+edge [ color="grey" ]
+"Sol"
+
+subgraph "cluster_1"
+{
+graph [ bgcolor="cornflowerblue" label="Locale" rankdir="TB" ]
+node [ shape="oval" ]
+edge [ color="grey" ]
+
+"Solar system"
+"Earth"
+}
+"Solar system" -> "Earth" [ arrowhead="diamond" label="" ]
+}

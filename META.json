@@ -4,9 +4,9 @@
       "Ron Savage <ron@savage.net.au>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120630",
+   "generated_by" : "Module::Build version 0.4005, CPAN::Meta::Converter version 2.131560",
    "license" : [
-      "artistic_1"
+      "artistic_2"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -16,8 +16,7 @@
    "prereqs" : {
       "build" : {
          "requires" : {
-            "Test::More" : "0.94",
-            "Test::Pod" : "1.44"
+            "Test::More" : "0.94"
          }
       },
       "configure" : {
@@ -30,7 +29,6 @@
             "Capture::Tiny" : "0.11",
             "Config" : "0",
             "Config::Tiny" : "2.14",
-            "Data::Section::Simple" : "0.02",
             "Date::Simple" : "3.03",
             "File::Basename" : "2.78",
             "File::Copy" : "2.21",
@@ -40,22 +38,22 @@
             "Getopt::Long" : "2.38",
             "GraphViz2" : "1.09",
             "HTML::Entities::Interpolate" : "1.04",
-            "Hash::FieldHash" : "0.1",
-            "IO::File" : "1.14",
-            "List::Compare" : "0.37",
             "Log::Handler" : "0.71",
-            "Marpa::R2" : "2.022",
-            "Module::Load" : "0.18",
-            "Path::Class" : "0.24",
+            "Marpa::R2" : "2.064",
+            "Moo" : "1.002",
+            "Path::Tiny" : "0.025",
             "Perl6::Slurp" : "0.03",
             "Pod::Usage" : "1.36",
             "Set::Array" : "0.23",
-            "Set::FA::Element" : "1.08",
             "Sort::Naturally" : "1.02",
-            "Text::CSV_XS" : "0.8",
+            "Text::CSV" : "1.32",
+            "Text::CSV::Slurp" : "1.01",
             "Text::Xslate" : "1.4001",
             "Try::Tiny" : "0.09",
+            "charnames" : "0",
+            "open" : "0",
             "strict" : "0",
+            "utf8" : "0",
             "warnings" : "0"
          }
       }
@@ -63,38 +61,38 @@
    "provides" : {
       "Graph::Easy::Marpa" : {
          "file" : "lib/Graph/Easy/Marpa.pm",
-         "version" : "1.12"
+         "version" : "2.00"
+      },
+      "Graph::Easy::Marpa::Actions" : {
+         "file" : "lib/Graph/Easy/Marpa/Actions.pm",
+         "version" : "2.00"
       },
       "Graph::Easy::Marpa::Config" : {
          "file" : "lib/Graph/Easy/Marpa/Config.pm",
-         "version" : "1.12"
+         "version" : "2.00"
       },
-      "Graph::Easy::Marpa::Lexer" : {
-         "file" : "lib/Graph/Easy/Marpa/Lexer.pm",
-         "version" : "1.12"
-      },
-      "Graph::Easy::Marpa::Lexer::DFA" : {
-         "file" : "lib/Graph/Easy/Marpa/Lexer/DFA.pm",
-         "version" : "1.12"
+      "Graph::Easy::Marpa::Filer" : {
+         "file" : "lib/Graph/Easy/Marpa/Filer.pm",
+         "version" : "2.00"
       },
       "Graph::Easy::Marpa::Parser" : {
          "file" : "lib/Graph/Easy/Marpa/Parser.pm",
-         "version" : "1.12"
+         "version" : "2.00"
       },
       "Graph::Easy::Marpa::Renderer::GraphViz2" : {
          "file" : "lib/Graph/Easy/Marpa/Renderer/GraphViz2.pm",
-         "version" : "1.12"
+         "version" : "2.00"
       },
       "Graph::Easy::Marpa::Utils" : {
          "file" : "lib/Graph/Easy/Marpa/Utils.pm",
-         "version" : "1.12"
+         "version" : "2.00"
       }
    },
    "release_status" : "stable",
    "resources" : {
       "license" : [
-         "http://www.perlfoundation.org/artistic_license_1_0"
+         "http://www.perlfoundation.org/artistic_license_2_0"
       ]
    },
-   "version" : "1.12"
+   "version" : "2.00"
 }

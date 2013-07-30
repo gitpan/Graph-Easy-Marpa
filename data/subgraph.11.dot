@@ -1,0 +1,21 @@
+digraph Perl
+{
+graph [ rankdir="TB" ]
+node [ shape="oval" ]
+edge [ color="grey" ]
+"Andromeda"
+"Milky\sWay"
+
+subgraph "cluster_1"
+{
+graph [ bgcolor="cornflowerblue" label="Locale" rankdir="TB" ]
+node [ shape="oval" ]
+edge [ color="grey" ]
+
+"Solar system"
+"Earth"
+}
+"Andromeda" -> "Milky\sWay" [ label="" ]
+"Milky\sWay" -> "Solar system" [ label="" ]
+"Solar system" -> "Earth" [ arrowhead="diamond" label="" ]
+}

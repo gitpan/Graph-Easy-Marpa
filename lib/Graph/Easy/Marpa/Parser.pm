@@ -1,513 +1,614 @@
 package Graph::Easy::Marpa::Parser;
 
 use strict;
+use utf8;
 use warnings;
+use warnings  qw(FATAL utf8);    # Fatalize encoding glitches.
+use open      qw(:std :utf8);    # Undeclared streams in UTF-8.
+use charnames qw(:full :short);  # Unneeded in v5.16.
 
-use Graph::Easy::Marpa::Renderer::GraphViz2;
+# The next line is mandatory, else
+# the action names cannot be resolved.
 
-use Hash::FieldHash ':all';
-
-use IO::File;
+use Graph::Easy::Marpa::Actions;
 
 use Log::Handler;
 
 use Marpa::R2;
 
+use Moo;
+
 use Set::Array;
 
-use Text::CSV_XS;
+use Text::CSV;
 
 use Try::Tiny;
 
-fieldhash my %attrs              => 'attrs';
-fieldhash my %attribute_name     => 'attribute_name';
-fieldhash my %counter            => 'counter';
-fieldhash my %dot_input_file     => 'dot_input_file';
-fieldhash my %format             => 'format';
-fieldhash my %group_name         => 'group_name';
-fieldhash my %input_file         => 'input_file';
-fieldhash my %items              => 'items';
-fieldhash my %logger             => 'logger';
-fieldhash my %maxlevel           => 'maxlevel';
-fieldhash my %minlevel           => 'minlevel';
-fieldhash my %node_name          => 'node_name';
-fieldhash my %output_file        => 'output_file';
-fieldhash my %rankdir            => 'rankdir';
-fieldhash my %renderer           => 'renderer';
-fieldhash my %report_items       => 'report_items';
-fieldhash my %parsed_tokens_file => 'parsed_tokens_file';
-fieldhash my %tokens             => 'tokens';
+has description =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
 
-# $myself is a copy of $self for use by functions called by Marpa.
+has grammar =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+#	isa      => 'Marpa::R2::Scanless::G',
+	required => 0,
+);
 
-our $myself;
-our $VERSION = '1.12';
+has graph_text =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
 
-# --------------------------------------------------
-# This is a function, not a method.
+has input_file =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
 
-sub attribute_name_id
+has items =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+#	isa      => 'Set::Array',
+	required => 0,
+);
+
+has logger =>
+(
+	default  => sub{return undef},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
+
+has maxlevel =>
+(
+	default  => sub{return 'info'},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
+
+has minlevel =>
+(
+	default  => sub{return 'error'},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
+
+has recce =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+#	isa      => 'Marpa::R2::Scanless::R',
+	required => 0,
+);
+
+has report_tokens =>
+(
+	default  => sub{return 0},
+	is       => 'rw',
+#	isa      => 'Int',
+	required => 0,
+);
+
+has subgraph_name =>
+(
+	default  => sub{return {} },
+	is       => 'rw',
+#	isa      => 'String',
+	required => 0,
+);
+
+has token_file =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
+
+our $VERSION = '2.00';
+
+# ------------------------------------------------
+
+sub attribute_list
 {
-	my($stash, $t1, undef, $t2)  = @_;
+	my($self, $attribute_list) = @_;
+	my(@char)          = split(//, $attribute_list);
+	my($inside_name)   = 1;
+	my($inside_value)  = 0;
+	my($quote)         = '';
+	my($name)          = '';
+	my($previous_char) = '';
 
-	$myself -> attribute_name($t1);
+	my($char);
+	my(%attribute);
+	my($key);
+	my($value);
 
-	return $t1;
+	for my $i (0 .. $#char)
+	{
+		$char = $char[$i];
 
-} # End of attribute_name_id.
+		# Name matches /^[a-zA-Z_]+$/.
+
+		if ($inside_name)
+		{
+			next if ($char =~ /\s/);
+
+			if ($char eq ':')
+			{
+				$self -> log(debug => "Attribute name: $name");
+
+				$inside_name = 0;
+				$key         = $name;
+				$name        = '';
+			}
+			elsif ($char =~ /[a-zA-Z_]/)
+			{
+				$name .= $char;
+			}
+			else
+			{
+				die "The char '$char' is not allowed in the names of attributes\n";
+			}
+		}
+		elsif ($inside_value)
+		{
+			if ($char eq $quote)
+			{
+				# Get out of quotes if matching one found.
+				# But, ignore an escaped quote.
+				# The first 2 backslashes are just to fix syntax highlighting in UltraEdit.
+
+				if ($char =~ /[\"\']/)
+				{
+					if ($previous_char ne '\\')
+					{
+						$quote = '';
+					}
+				}
+				else
+				{
+					if ( (substr($value, 0, 2) eq '<<') && ($i > 0) && ($char[$i - 1]) eq '>')
+					{
+						$quote = '';
+					}
+					elsif ( (substr($value, 0, 1) eq '<') && (substr($value, 1, 1) ne '<') && ($previous_char ne '\\') )
+					{
+						$quote = '';
+					}
+				}
+
+				$value .= $char;
+			}
+			elsif ( ($char eq ';') && ($quote eq '') )
+			{
+				if ($previous_char eq '\\')
+				{
+					$value .= $char;
+				}
+				else
+				{
+					$attribute{$key} = $value;
+
+					$self -> log(debug => "Attribute value: $value");
+
+					$inside_name  = 1;
+					$inside_value = 0;
+					$quote        = '';
+					$key          = '';
+					$value        = '';
+				}
+			}
+			else
+			{
+				$value .= $char;
+			}
+		}
+		else # After name and ':' but before label.
+		{
+			next if ($char =~ /\s/);
+
+			$inside_value = 1;
+			$value        = $char;
+
+			# Look out for quotes, amd make '<' match '>'.
+			# The backslashes are just to fix syntax highlighting in UltraEdit.
+			# Also, this being the 1st char in the value, there can't be a '\' before it.
+
+			if ($char =~ /[\"\'<]/)
+			{
+				$quote = $char eq '<' ? '>' : $char;
+			}
+		}
+
+		$previous_char = $char;
+	}
+
+	# Beware {a:b;}. In this case, the ';' leaves $key eq ''.
+
+	if (length $key)
+	{
+		$attribute{$key} = $value;
+
+		$self -> log(debug => "Attribute value: $value");
+	}
+
+	for $key(sort keys %attribute)
+	{
+		$value = $attribute{$key};
+		$value =~ s/\s+$//;
+
+		# The first 2 backslashes are just to fix syntax highlighting in UltraEdit.
+
+		$value =~ s/^([\"\'])(.*)\1$/$2/;
+
+		$self -> log(debug => "Attribute: $key => $value");
+
+		$self -> items -> push
+		({
+			name  => $key,
+			type  => 'attribute',
+			value => $value,
+		});
+	}
+
+} # End of attribute_list.
 
 # --------------------------------------------------
-# This is a function, not a method.
+# References from an email from Jeffrey to the Marpa Google Groups list:
+# Check out the SLIF grammar:
+# <https://github.com/jeffreykegler/Marpa--R2/blob/master/cpan/lib/Marpa/R2/meta/metag.bnf>.
+# It's full of stuff you can steal, including rules for quoted strings.
+# The basic idea is that strings must be G0 lexemes, not assembled in G1 as your (Paul Bennett) gist has it.
+# Jean-Damien's C language BNF:
+# <https://github.com/jddurand/MarpaX-Languages-C-AST/blob/master/lib/MarpaX/Languages/C/AST/Grammar/ISO_ANSI_C_2011.pm>
+# is also full of stuff to do all the C syntax, including strings and C-style comments. -- jeffrey
 
-sub attribute_value_id
-{
-	my($stash, $t1, undef, $t2)  = @_;
-
-	$myself -> attrs -> push
-	({
-		count => $myself -> _count,
-		name  => $myself -> attribute_name,
-		type  => 'attribute',
-		value => $t1,
-	});
-
-	return $t1;
-
-} # End of attribute_value_id.
-
-# --------------------------------------------------
-# This is a function, not a method.
-
-sub class_name
-{
-	my($stash, $t1, undef, $t2)  = @_;
-
-	$myself -> items -> push
-	({
-		count => $myself -> _count,
-		name  => $t1,
-		type  => 'class_name',
-		value => '',
-	});
-
-	return $t1;
-
-} # End of class_name.
-
-# --------------------------------------------------
-
-sub _count
+sub BUILD
 {
 	my($self) = @_;
 
-	# Warning! Don't use:
-	# return $self -> counter($self -> counter + 1);
-	# It returns $self.
-
-	$self -> counter($self -> counter + 1);
-
-	return $self -> counter;
-
-} # End of _count.
-
-# --------------------------------------------------
-# This is a function, not a method.
-
-sub edge_id
-{
-	my($stash, $t1, undef, $t2)  = @_;
-
-	# This regexp defines what is and isn't allowed for edge names.
-
-	if ($t1 !~ /^<?(-|=|\.|~|- |= |\.-|\.\.-){1,}>?$/)
+	if (! defined $self -> logger)
 	{
-		die "Unexpected edge syntax: '$t1'";
+		$self -> logger(Log::Handler -> new);
+		$self -> logger -> add
+		(
+			screen =>
+			{
+				maxlevel       => $self -> maxlevel,
+				message_layout => '%m',
+				minlevel       => $self -> minlevel,
+			}
+		);
 	}
 
-	$myself -> items -> push
+	$self -> items(Set::Array -> new);
+
+	$self -> grammar
+	(
+		Marpa::R2::Scanless::G -> new
+		({
+action_object			=> 'Graph::Easy::Marpa::Actions',
+source					=> \(<<'END_OF_SOURCE'),
+
+:default				::= action => [values]
+
+# Overall stuff.
+
+:start 					::= graph_grammar
+
+graph_grammar			::= class_and_graph		action => graph
+
+class_and_graph			::= class_definition graph_definition
+
+# Class stuff.
+
+class_definition		::= class_statement*
+
+# This uses attribute_statement and not attribute_definition
+# because attributes are mandatory after class names.
+
+class_statement			::= class_lexeme attribute_statement
+
+:lexeme					~ class_lexeme		pause => before		event => class
+class_lexeme			~ [a-z.]+
+
+# Graph stuff.
+
+graph_definition		::= node_definition
+							| edge_definition
+							| subgraph_definition
+# Node stuff
+
+node_definition			::= node_statement
+							| node_statement graph_definition
+
+node_statement			::= node_name
+							| node_name attribute_definition
+							| node_statement (',') node_statement
+
+node_name				::= start_node end_node
+
+:lexeme					~ start_node		pause => before		event => start_node
+start_node				~ '['
+
+:lexeme					~ end_node
+end_node				~ ']'
+
+# Edge stuff
+
+edge_definition			::= edge_statement
+							| edge_statement graph_definition
+
+edge_statement			::= edge_name
+							| edge_name attribute_definition
+							| edge_statement (',') edge_statement
+
+edge_name				::= directed_edge
+							| undirected_edge
+
+:lexeme					~ directed_edge		pause => before		event => directed_edge
+directed_edge			~ '->'
+
+:lexeme					~ undirected_edge	pause => before		event => undirected_edge
+undirected_edge			~ '--'
+
+# Attribute stuff.
+
+attribute_definition	::= attribute_statement*
+
+attribute_statement		::= start_attributes end_attributes
+
+:lexeme					~ start_attributes	pause => before		event => start_attributes
+start_attributes		~ '{'
+
+:lexeme					~ end_attributes
+end_attributes			~ '}'
+
+# subgraph stuff.
+
+subgraph_definition		::= subgraph_sequence
+							| subgraph_sequence graph_definition
+
+subgraph_sequence		::= subgraph_statement
+							| subgraph_statement attribute_definition
+
+subgraph_statement		::= subgraph_prefix subgraph_name (':') graph_definition subgraph_suffix
+
+subgraph_prefix			::= '('
+subgraph_name			::= subgraph_name_lexeme
+subgraph_suffix			::= subgraph_suffix_lexeme
+
+:lexeme					~ subgraph_name_lexeme		pause => before		event => push_subgraph
+subgraph_name_lexeme	~ [a-zA-Z_.0-9]+
+
+:lexeme					~ subgraph_suffix_lexeme	pause => before		event => pop_subgraph
+subgraph_suffix_lexeme	~ ')'
+
+# Boilerplate.
+
+:discard				~ whitespace
+whitespace				~ [\s]+
+
+END_OF_SOURCE
+		})
+	);
+
+	$self -> recce
+	(
+		Marpa::R2::Scanless::R -> new
+		({
+			grammar => $self -> grammar
+		})
+	);
+
+} # End of BUILD.
+
+# ------------------------------------------------
+
+sub class
+{
+	my($self, $class_name) = @_;
+
+	$self -> log(debug => "Class: $class_name");
+
+	my($reserved_class_name) = 'edge|global|graph|group|node';
+
+	if ($class_name !~ /^(?:$reserved_class_name)(?:\.[a-zA-Z_]+)?$/)
+	{
+		die "Class name '$class_name' must be one of '$reserved_class_name'\n";
+	}
+
+	$self -> items -> push
 	({
-		count => $myself -> _count,
-		name  => $t1,
+		name  => $class_name,
+		type  => 'class',
+		value => '',
+	});
+
+} # End of class.
+
+# ------------------------------------------------
+
+sub edge
+{
+	my($self, $edge_name) = @_;
+
+	$self -> log(debug => "Edge: $edge_name");
+
+	$self -> items -> push
+	({
+		name  => $edge_name,
 		type  => 'edge',
 		value => '',
 	});
 
-	return $t1;
+} # End of edge.
 
-} # End of edge_id.
+# -----------------------------------------------
+# $target is either qr/]/ or qr/}/, and allows us to handle
+# both node names and either edge or node attributes.
+# The special case is <<...>>, as used in attributes.
 
-# --------------------------------------------------
-# This is a function, not a method.
-
-sub end_attribute
+sub find_terminator
 {
-	my($stash, $t1, undef, $t2)  = @_;
+	my($self, $string, $target, $start) = @_;
+	my(@char)   = split(//, substr($$string, $start) );
+	my($offset) = 0;
+	my($quote)  = '';
+	my($angle)  = 0; # Set to 1 if inside <<...>>.
 
-	# $t1 will be '}'.
-	# Add all attributes to the item list.
-	# They belong to the preceeding node or edge.
+	my($char);
 
-	$myself -> items -> push($myself -> attrs -> print);
-	$myself -> attrs -> clear;
-
-	return $t1;
-
-} # End of end_attribute.
-
-# --------------------------------------------------
-# This is a function, not a method.
-
-sub end_node
-{
-	my($stash, $t1, undef, $t2)  = @_;
-
-	# $t1 will be ']'.
-
-	$myself -> items -> push
-	({
-		count => $myself -> _count,
-		name  => $myself -> node_name,
-		type  => 'node',
-		value => '',
-	});
-
-	return $t1;
-
-} # End of end_node.
-
-# --------------------------------------------------
-
-sub _generate_item_file
-{
-	my($self, $file_name) = @_;
-	my(@item) = $self -> items -> print;
-
-	open(OUT, '>', $file_name) || die "Can't open(> $file_name): $!";
-
-	my($item);
-	my($s);
-
-	for my $i (0 .. $#item)
+	for my $i (0 .. $#char)
 	{
-		$item = $item[$i];
-		$s    = join('', map{"$_: $$item{$_}. "} sort keys %$item);
+		$char   = $char[$i];
+		$offset = $i;
 
-		if ($$item{type} =~ /(?:edge|node|(?:push|pop)_subgraph)/)
+		if ($quote)
 		{
-			print OUT "$s\n";
+			# Ignore an escaped quote.
+			# The first 2 backslashes are just to fix syntax highlighting in UltraEdit.
+
+			next if ( ($char =~ /[\]\"\'>]/) && ($i > 0) && ($char[$i - 1] eq '\\') );
+
+			# Get out of quotes if matching one found.
+
+			if ($char eq $quote)
+			{
+				if ($quote eq '>')
+				{
+					$quote = '' if (! $angle || ($char[$i - 1] eq '>') );
+
+					next;
+				}
+
+				$quote = '';
+
+				next;
+			}
 		}
 		else
 		{
-			print OUT"\t$s\n";
+			# Look for quotes.
+			# 1: Skip escaped chars.
+
+			next if ( ($i > 0) && ($char[$i - 1] eq '\\') );
+
+			# 2: " and '.
+			# The backslashes are just to fix syntax highlighting in UltraEdit.
+
+			if ($char =~ /[\"\']/)
+			{
+				$quote = $char;
+
+				next;
+			}
+
+			# 3: <.
+			# In the case of attributes ($target eq '}') but not nodes names,
+			# quotes can be <...> or <<...>>.
+
+			if ( ($target =~ '}') && ($char =~ '<') )
+			{
+				$quote = '>';
+				$angle = 1 if ( ($i < $#char) && ($char[$i + 1] eq '<') );
+
+				next;
+			}
+
+			last if ($char =~ $target);
 		}
+	}
+
+	return $start + $offset;
+
+} # End of find_terminator.
+
+# -----------------------------------------------
+
+sub format_token
+{
+	my($self, $item) = @_;
+	my($format) = '%4s  %-13s  %-s';
+	my($value)  = $$item{name};
+	$value      = "$value => $$item{value}" if (length($$item{value}) > 0);
+
+	return sprintf($format, $$item{count}, $$item{type}, $value);
+
+} # End of format_token.
+
+# --------------------------------------------------
+
+sub generate_token_file
+{
+	my($self, $file_name) = @_;
+	my($csv) = Text::CSV -> new
+	({
+		always_quote => 1,
+		binary       => 1,
+	});
+
+	open(OUT, '>', $file_name) || die "Can't open(> $file_name): $!";
+
+	# Don't call binmode here, because we're already using it.
+
+	$csv -> print(\*OUT, ['key', 'name', 'value']);
+	print OUT "\n";
+
+	for my $item ($self -> items -> print)
+	{
+		$csv -> print(\*OUT, [$$item{type}, $$item{name}, $$item{value}]);
+		print OUT "\n";
 	}
 
 	close OUT;
 
-} # End of _generate_item_file.
+} # End of generate_token_file.
 
 # --------------------------------------------------
 
-sub grammar
+sub get_graph_from_command_line
 {
-	my($self)    = @_;
-	my($grammar) = Marpa::R2::Grammar -> new
-	({
-		actions => __PACKAGE__,
-		start   => 'graph_grammar',
-		rules   =>
-		[
-		{   # Global stuff.
-			lhs    => 'graph_grammar',
-			rhs    => [qw/class_and_graph/],
-			action => 'parse_result',
-		},
-		{
-			lhs => 'class_and_graph',
-			rhs => [qw/class_definition graph_definition/],
-		},
-		{   # Class stuff.
-			lhs => 'class_definition',
-			rhs => [qw/class_sequence/],
-			min => 0,
-		},
-		{
-			lhs => 'class_sequence', # 1 of 2.
-			rhs => [qw/class_statement/],
-		},
-		{
-			lhs => 'class_sequence', # 2 of 2.
-			rhs => [qw/class_statement daisy_chain_class/],
-		},
-		{
-			lhs => 'class_statement',
-			rhs => [qw/class_name class_attribute_definition/],
-		},
-		{
-			lhs    => 'class_name',
-			rhs    => [qw/class/],
-			action => 'class_name',
-		},
-		{   # Graph stuff.
-			lhs => 'graph_definition',
-			rhs => [qw/graph_statement/],
-		},
-		{
-			lhs => 'graph_statement', # 1 of 3.
-			rhs => [qw/group_definition/],
-		},
-		{
-			lhs => 'graph_statement', # 2 of 3.
-			rhs => [qw/node_definition/],
-		},
-		{
-			lhs => 'graph_statement', # 3 of 3.
-			rhs => [qw/edge_definition/],
-		},
-		{   # Class attribute stuff. Some components are defined under 'Attribute stuff', below.
-			lhs => 'class_attribute_definition',
-			rhs => [qw/class_attribute_statement/],
-			min => 0,
-		},
-		{
-			lhs => 'class_attribute_statement',
-			rhs => [qw/start_attribute class_attribute_sequence end_attribute/],
-		},
-		{
-			lhs => 'class_attribute_sequence',
-			rhs => [qw/class_attribute_declaration/],
-			min => 1,
-		},
-		{
-			lhs => 'class_attribute_declaration',
-			rhs => [qw/class_attribute_name colon attribute_value attribute_terminator/],
-		},
-		{
-			lhs    => 'class_attribute_name',
-			rhs    => [qw/class_attribute_name_id/],
-			min    => 1,
-			action => 'attribute_name_id',
-		},
-		{   # Group stuff.
-			lhs => 'group_definition',
-			rhs => [qw/group_sequence/],
-			min => 0,
-		},
-		{
-			lhs => 'group_sequence', # 1 of 4.
-			rhs => [qw/group_statement/],
-		},
-		{
-			lhs => 'group_sequence', # 2 of 4.
-			rhs => [qw/group_statement daisy_chain_group/],
-		},
-		{
-			lhs => 'group_sequence', # 3 of 4.
-			rhs => [qw/group_statement node_definition/],
-		},
-		{
-			lhs => 'group_sequence', # 4 of 4.
-			rhs => [qw/group_statement edge_definition/],
-		},
-		{
-			lhs => 'group_statement',
-			rhs => [qw/group_name graph_statement exit_group attribute_definition/],
-		},
-		{
-			lhs    => 'group_name',
-			rhs    => [qw/push_subgraph/],
-			min    => 0,
-			action => 'start_subgraph',
-		},
-		{
-			lhs    => 'exit_group',
-			rhs    => [qw/pop_subgraph/],
-			action => 'pop_subgraph',
-		},
-		{   # Node stuff.
-			lhs => 'node_definition',
-			rhs => [qw/node_sequence/],
-			min => 0,
-		},
-		{
-			lhs => 'node_sequence', # 1 of 4.
-			rhs => [qw/node_statement/],
-		},
-		{
-			lhs => 'node_sequence', # 2 of 4.
-			rhs => [qw/node_statement daisy_chain_node/],
-		},
-		{
-			lhs => 'node_sequence', # 3 of 4.
-			rhs => [qw/node_statement edge_definition/],
-		},
-		{
-			lhs => 'node_sequence', # 4 of 4.
-			rhs => [qw/node_statement group_definition/],
-		},
-		{
-			lhs => 'node_statement',
-			rhs => [qw/start_node node_name end_node attribute_definition/],
-		},
-		{
-			lhs    => 'start_node',
-			rhs    => [qw/left_bracket/],
-			action => 'start_node',
-		},
-		{
-			lhs    => 'node_name',
-			rhs    => [qw/node_id/],
-			min    => 0,
-			action => 'node_id',
-		},
-		{
-			lhs    => 'end_node',
-			rhs    => [qw/right_bracket/],
-			action => 'end_node',
-		},
-		{   # Edge stuff.
-			lhs => 'edge_definition',
-			rhs => [qw/edge_sequence/],
-			min => 0,
-		},
-		{
-			lhs => 'edge_sequence', # 1 of 4.
-			rhs => [qw/edge_statement/],
-		},
-		{
-			lhs => 'edge_sequence', # 2 of 4.
-			rhs => [qw/edge_statement daisy_chain_edge/],
-		},
-		{
-			lhs => 'edge_sequence', # 3 of 4.
-			rhs => [qw/edge_statement node_definition/],
-		},
-		{
-			lhs => 'edge_sequence', # 4 of 4.
-			rhs => [qw/edge_statement group_definition/],
-		},
-		{
-			lhs => 'edge_statement',
-			rhs => [qw/edge_name attribute_definition/],
-		},
-		{
-			lhs    => 'edge_name',
-			rhs    => [qw/edge_id/],
-			action => 'edge_id',
-		},
-		{   # Attribute stuff.
-			lhs => 'attribute_definition',
-			rhs => [qw/attribute_statement/],
-			min => 0,
-		},
-		{
-			lhs => 'attribute_statement',
-			rhs => [qw/start_attribute attribute_sequence end_attribute/],
-		},
-		{
-			lhs    => 'start_attribute',
-			rhs    => [qw/left_brace/],
-			action => 'start_attribute',
-		},
-		{
-			lhs => 'attribute_sequence',
-			rhs => [qw/attribute_declaration/],
-			min => 1,
-		},
-		{
-			lhs => 'attribute_declaration',
-			rhs => [qw/attribute_name colon attribute_value attribute_terminator/],
-		},
-		{
-			lhs    => 'attribute_name',
-			rhs    => [qw/attribute_name_id/],
-			min    => 1,
-			action => 'attribute_name_id',
-		},
-		{
-			lhs    => 'attribute_value',
-			rhs    => [qw/attribute_value_id/],
-			min    => 1,
-			action => 'attribute_value_id',
-		},
-		{
-			lhs => 'attribute_terminator',
-			rhs => [qw/semi_colon/],
-			min => 1,
-		},
-		{
-			lhs    => 'end_attribute',
-			rhs    => [qw/right_brace/],
-			action => 'end_attribute',
-		},
-		],
-	});
+	my($self) = @_;
 
-	$grammar -> precompute;
+	$self -> graph_text($self -> description);
 
-	return $grammar;
-
-} # End of grammar;
+} # End of get_graph_from_command_line.
 
 # --------------------------------------------------
 
-sub _init
+sub get_graph_from_file
 {
-	my($self, $arg)           = @_;
-	$$arg{attrs}              = Set::Array -> new;
-	$$arg{attribute_name}     = '';
-	$$arg{counter}            = 0;
-	$$arg{dot_input_file}     ||= ''; # Caller can set.
-	$$arg{format}             ||= 'svg';
-	$$arg{input_file}         ||= ''; # Caller can set.
-	$$arg{items}              = Set::Array -> new;
-	my($user_logger)          = defined $$arg{logger}; # Caller can set (e.g. to '').
-	$$arg{logger}             = $user_logger ? $$arg{logger} : Log::Handler -> new;
-	$$arg{maxlevel}           ||= 'debug'; # Caller can set.
-	$$arg{minlevel}           ||= 'error'; # Caller can set.
-	$$arg{node_name}          = '';
-	$$arg{output_file}        ||= '';   # Caller can set.
-	$$arg{parsed_tokens_file} ||= '';   # Caller can set.
-	$$arg{rankdir}            ||= 'TB'; # Caller can set.
-	my($user_renderer)        = defined $$arg{renderer}; # Caller can set.
-	#$$arg{renderer}          = ...   # Do not execute. Check it below.
-	$$arg{report_items}       ||= 0;  # Caller can set.
-	$$arg{tokens}             ||= []; # Caller can set.
-	$self                     = from_hash($self, $arg);
-	$myself                   = $self;
+	my($self) = @_;
 
-	if (! $user_logger)
-	{
-		$self -> logger -> add
-			(
-			 screen =>
-			 {
-				 maxlevel       => $self -> maxlevel,
-				 message_layout => '%m',
-				 minlevel       => $self -> minlevel,
-			 }
-			);
-	}
+	# This code accepts utf8 data, due to the standard preamble above.
 
-	if (! $user_renderer)
-	{
-		# We have to pass in the logger here, or GraphViz2 will instantiate one itself.
-		# Don't forget! The caller may have set logger to '' (not undef), to stop logging.
+	open(INX, $self -> input_file) || die "Can't open input file(" . $self -> input_file . "): $!\n";
+	my(@line) = <INX>;
+	close INX;
+	chomp @line;
 
-		$self -> renderer
-			(
-			 Graph::Easy::Marpa::Renderer::GraphViz2 -> new
-			 (
-			  dot_input_file => $self -> dot_input_file,
-			  logger         => $self -> logger,
-			  rankdir        => $self -> rankdir,
-			 )
-			);
-	}
+	shift(@line) while ( ($#line >= 0) && ($line[0] =~ /^\s*#/) );
 
-	return $self;
+	$self -> graph_text(join(' ', @line) );
 
-} # End of _init.
+} # End of get_graph_from_file.
 
 # --------------------------------------------------
 
@@ -519,102 +620,225 @@ sub log
 
 } # End of log.
 
-# --------------------------------------------------
+# ------------------------------------------------
 
-sub new
+sub node
 {
-	my($class, %arg) = @_;
-	my($self)        = bless {}, $class;
-	$self            = $self -> _init(\%arg);
+	my($self, $node_name) = @_;
+	$node_name =~ s/^\s+//;
+	$node_name =~ s/\s+$//;
 
-	return $self;
+	# The first 2 backslashes are just to fix syntax highlighting in UltraEdit.
 
-}	# End of new.
+	$node_name =~ s/^([\"\'])(.*)\1$/$2/;
+
+	$self -> log(debug => "Node: $node_name");
+
+	$self -> items -> push
+	({
+		name  => $node_name,
+		type  => 'node',
+		value => '',
+	});
+
+	if ($node_name eq '')
+	{
+		$self -> items -> push
+		({
+			name  => 'color',
+			type  => 'attribute',
+			value => 'invis',
+		});
+	}
+
+} # End of node.
 
 # --------------------------------------------------
-# This is a function, not a method.
 
-sub node_id
+sub process
 {
-	my($stash, $t1, undef, $t2)  = @_;
+	my($self)   = @_;
+	my($string) = $self -> graph_text;
+	my($length) = length $string;
 
-	$myself -> node_name($t1);
+	# We use read()/lexeme_read()/resume() because we pause at each lexeme.
 
-	return $t1;
+	my($attribute_list);
+	my($do_lexeme_read);
+	my(@event, $event_name);
+	my($lexeme_name, $lexeme);
+	my($node_name);
+	my($span, $start);
 
-} # End of node_id.
+	for
+	(
+		my $pos = $self -> recce -> read(\$string);
+		$pos < $length;
+		$pos = $self -> recce -> resume($pos)
+	)
+	{
+		$self -> log(debug => "read() => pos: $pos");
 
-# --------------------------------------------------
-# This is a function, not a method.
+		$do_lexeme_read = 1;
+		@event          = @{$self -> recce -> events};
+		$event_name     = ${$event[0]}[0];
+		($start, $span) = $self -> recce -> pause_span;
+		$lexeme_name    = $self -> recce -> pause_lexeme;
+		$lexeme         = $self -> recce -> literal($start, $span);
 
-sub parse_result
-{
-	my($stash, $t1, undef, $t2)  = @_;
+		$self -> log(debug => "pause_span($lexeme_name) => start: $start. " .
+			"span: $span. lexeme: $lexeme. event: $event_name");
 
-	# Return 0 for success and 1 for failure.
+		if ($event_name eq 'start_attributes')
+		{
+			# Read the attribute_start lexeme, but don't do lexeme_read()
+			# at the bottom of the for loop, because we're just about
+			# to fiddle $pos to skip the attributes.
 
-	return 0;
+			$pos            = $self -> recce -> lexeme_read($lexeme_name);
+			$pos            = $self -> find_terminator(\$string, qr/}/, $start);
+			$attribute_list = substr($string, $start + 1, $pos - $start - 1);
+			$do_lexeme_read = 0;
 
-} # End of parse_result.
+			$self -> log(debug => "index() => attribute list: $attribute_list");
 
-# --------------------------------------------------
-# This is a function, not a method.
+			$self -> attribute_list($attribute_list);
+		}
+		elsif ($event_name eq 'start_node')
+		{
+			# Read the node_start lexeme, but don't do lexeme_read()
+			# at the bottom of the for loop, because we're just about
+			# to fiddle $pos to skip the node's name.
+
+			$pos            = $self -> recce -> lexeme_read($lexeme_name);
+			$pos            = $self -> find_terminator(\$string, qr/]/, $start);
+			$node_name      = substr($string, $start + 1, $pos - $start - 1);
+			$do_lexeme_read = 0;
+
+			$self -> log(debug => "index() => node name: $node_name");
+
+			$self -> node($node_name);
+		}
+		elsif ($event_name eq 'directed_edge')
+		{
+			$self -> edge($lexeme);
+		}
+		elsif ($event_name eq 'undirected_edge')
+		{
+			$self -> edge($lexeme);
+		}
+		elsif ($event_name eq 'class_lexeme')
+		{
+			$self -> class($lexeme);
+		}
+		elsif ($event_name eq 'push_subgraph')
+		{
+			$self -> push_subgraph($lexeme);
+		}
+		elsif ($event_name eq 'pop_subgraph')
+		{
+			$self -> pop_subgraph($lexeme);
+		}
+		else
+		{
+			die "Unexpected lexeme '$lexeme_name' with a pause\n";
+		}
+
+		$pos = $self -> recce -> lexeme_read($lexeme_name) if ($do_lexeme_read);
+
+		$self -> log(debug => "lexeme_read($lexeme_name) => $pos");
+    }
+
+	# Return a defined value for success and undef for failure.
+
+	return $self -> recce -> value;
+
+} # End of process.
+
+# ------------------------------------------------
 
 sub pop_subgraph
 {
-	my($stash, $t1, undef, $t2)  = @_;
+	my($self, $subgraph_suffix) = @_;
+	my($subgraph_name) = $self -> subgraph_name;
 
-	# $t1 will be ')'.
+	$self -> log(debug => "Pop subgraph: $subgraph_name");
 
-	$myself -> items -> push
+	$self -> items -> push
 	({
-		count => $myself -> _count,
-		name  => $myself -> group_name,
+		name  => $subgraph_name,
 		type  => 'pop_subgraph',
 		value => '',
 	});
 
-	return $t1;
+	$self -> subgraph_name('');
 
 } # End of pop_subgraph.
 
+# ------------------------------------------------
+
+sub push_subgraph
+{
+	my($self, $subgraph_name) = @_;
+
+	$self -> log(debug => "Push subgraph: $subgraph_name");
+
+	my($subgraph_name_regexp) = '^(?:[a-zA-Z_.][a-zA-Z_.0-9]*)$';
+
+	if ($subgraph_name !~ /^$subgraph_name_regexp/)
+	{
+		die "Subgraph name '$subgraph_name' must match '$subgraph_name_regexp'\n";
+	}
+
+	$self -> items -> push
+	({
+		name  => $subgraph_name,
+		type  => 'push_subgraph',
+		value => '',
+	});
+
+	$self -> subgraph_name($subgraph_name);
+
+} # End of push_subgraph.
+
 # -----------------------------------------------
 
-sub read_csv_file
+sub renumber_items
 {
-	my($self, $file_name) = @_;
-	my($csv) = Text::CSV_XS -> new({allow_whitespace => 1});
-	my($io)  = IO::File -> new($file_name, 'r');
+	my($self)  = @_;
+	my(@item)  = @{$self -> items};
+	my($count) = 0;
 
-	$csv -> column_names($csv -> getline($io) );
+	my(@new);
 
-	return $csv -> getline_hr_all($io);
+	for my $item (@item)
+	{
+		$$item{count} = ++$count;
 
-} # End of read_csv_file.
+		push @new, $item;
+	}
 
-# --------------------------------------------------
+	$self -> items(Set::Array -> new(@new) );
+
+} # End of renumber_items.
+
+# -----------------------------------------------
 
 sub report
 {
 	my($self) = @_;
-	my(@item) = $self -> items -> print;
 
-	my($item);
-	my($s);
+	$self -> log(info => $self -> format_token
+	({
+		count => 'Item',
+		name  => 'Name',
+		type  => 'Type',
+		value => '',
+	}) );
 
-	for my $i (0 .. $#item)
+	for my $item ($self -> items -> print)
 	{
-		$item = $item[$i];
-		$s    = join('', map{"$_: $$item{$_}. "} sort keys %$item);
-
-		if ($$item{type} =~ /(?:edge|node)/)
-		{
-			$self -> log(info => $s);
-		}
-		else
-		{
-			$self -> log(info => "\t$s");
-		}
+		$self -> log(info => $self -> format_token($item) );
 	}
 
 } # End of report.
@@ -623,114 +847,57 @@ sub report
 
 sub run
 {
-	my($self)       = @_;
-	my($recognizer) = Marpa::R2::Recognizer -> new({grammar => $self -> grammar});
+	my($self) = @_;
 
-	if ($#{$self -> tokens} < 0)
+	if ($self -> description)
 	{
-		for my $record (@{$self -> read_csv_file($self -> input_file)})
-		{
-			# Remove '...' surrounding edge, etc names.
-			# Use .* not .+ to allow for anonymous nodes.
-
-			$$record{value} =~ s/^'(.*)'$/$1/;
-
-			$recognizer -> read($$record{key}, $$record{value});
-		}
+		$self -> get_graph_from_command_line;
+	}
+	elsif ($self -> input_file)
+	{
+		$self -> get_graph_from_file;
 	}
 	else
 	{
-		for my $item (@{$self -> tokens})
-		{
-			$$item[1] =~ s/^'(.*)'$/$1/;
-
-			$recognizer -> read($$item[0], $$item[1]);
-		}
-	}
-
-	my($result) = $recognizer -> value;
-	$result     = defined $result ? ref $result ? ${$result} : $result : 'Parse failed';
-
-	die $result if ($result);
-
-	$self -> report if ($self -> report_items);
-
-	my($file_name) = $self -> parsed_tokens_file;
-
-	if ($file_name)
-	{
-		$self -> _generate_item_file($file_name);
-	}
-
-	$file_name = $self -> output_file;
-
-	if ($file_name && $self -> renderer)
-	{
-		$self -> renderer -> run
-			(
-			 dot_input_file => $self -> dot_input_file,
-			 'format'       => $self -> format,
-			 items          => [$self -> items -> print],
-			 logger         => $self -> logger,
-			 output_file    => $file_name,
-			);
+		die "Error: You must provide a graph using one of -input_file or -description\n";
 	}
 
 	# Return 0 for success and 1 for failure.
 
-	return 0;
+	my($result) = 0;
+
+	try
+	{
+		if (defined $self -> process)
+		{
+			$self -> renumber_items;
+			$self -> report if ($self -> report_tokens);
+
+			my($file_name) = $self -> token_file;
+
+			$self -> generate_token_file($file_name) if ($file_name);
+		}
+		else
+		{
+			$result = 1;
+
+			$self -> log(error => 'Parse failed');
+		}
+	}
+	catch
+	{
+		$result = 1;
+
+		$self -> log(error => "Parse failed: $_");
+	};
+
+	# Return 0 for success and 1 for failure.
+
+	$self -> log(info => "Parse result: $result (0 is success)");
+
+	return $result;
 
 } # End of run.
-
-# --------------------------------------------------
-# This is a function, not a method.
-
-sub start_attribute
-{
-	my($stash, $t1, undef, $t2)  = @_;
-
-	# $t1 will be '{'.
-
-	$myself -> attribute_name('');
-
-	return $t1;
-
-} # End of start_attribute.
-
-# --------------------------------------------------
-# This is a function, not a method.
-
-sub start_node
-{
-	my($stash, $t1, undef, $t2)  = @_;
-
-	# $t1 will be '['.
-
-	$myself -> node_name('');
-
-	return $t1;
-
-} # End of start_node.
-
-# --------------------------------------------------
-# This is a function, not a method.
-
-sub start_subgraph
-{
-	my($stash, $t1, undef, $t2)  = @_;
-
-	$myself -> group_name($t1);
-	$myself -> items -> push
-	({
-		count => $myself -> _count,
-		name  => $t1,
-		type  => 'push_subgraph',
-		value => '',
-	});
-
-	return $t1;
-
-} # End of start_subgraph.
 
 # --------------------------------------------------
 
@@ -740,15 +907,15 @@ sub start_subgraph
 
 =head1 NAME
 
-L<Graph::Easy::Marpa::Parser> - A Marpa-based parser for Graph::Easy
+C<Graph::Easy::Marpa::Parser> - A Marpa-based parser for Graph::Easy::Marpa files
 
 =head1 Synopsis
 
-See L<Graph::Easy::Marpa/Data and Script Interaction>.
+See L<Graph::Easy::Marpa/Synopsis>.
 
 =head1 Description
 
-L<Graph::Easy::Marpa::Parser> provides a L<Marpa>-based parser for L<Graph::Easy>-style graph definitions.
+C<Graph::Easy::Marpa::Parser> provides a Marpa-based parser for L<Graph::Easy::Marpa>-style graph definitions.
 
 =head1 Installation
 
@@ -783,28 +950,31 @@ C<new()> is called as C<< my($parser) = Graph::Easy::Marpa::Parser -> new(k1 => 
 It returns a new object of type C<Graph::Easy::Marpa::Parser>.
 
 Key-value pairs accepted in the parameter list (see corresponding methods for details
-[e.g. maxlevel()]):
+[e.g. graph()]):
 
 =over 4
 
-=item o dot_input_file => $file_name
+=item o description => '[node.1]<->[node.2]'
 
-Specify the name of a file that the rendering engine can write to, which will contain the input
-to dot (or whatever). This is good for debugging.
+Specify a string for the graph definition.
 
-Default: ''.
+You are strongly encouraged to surround this string with '...' to protect it from your shell.
 
-If '', the file will not be created.
+See also the 'input_file' key to read the graph from a file.
 
-=item o format => $format_name
+The 'description' key takes precedence over the 'input_file' key.
 
-This is the format of the output file, to be created by the renderer.
+=item o input_file => $graph_file_name
 
-Default is 'svg'.
+Read the graph definition from this file.
 
-=item o input_file => $csv_file_name
+See also the 'graph' key to read the graph from the command line.
 
-This is the name of the file to read containing the tokens (items) output from L<Graph::Easy::Marpa::Lexer>.
+The whole file is slurped in as 1 graph.
+
+The first lines of the input file can start with /^\s*#/, and will be discarded as comments.
+
+The 'description' key takes precedence over the 'input_file' key.
 
 =item o logger => $logger_object
 
@@ -814,119 +984,87 @@ To disable logging, just set logger to the empty string.
 
 The default value is an object of type L<Log::Handler>.
 
-This logger is passed to L<Graph::Easy::Marpa::Renderer::GraphViz2>.
-
 =item o maxlevel => $level
 
-This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
-create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
+This option is only used if an object of type L<Log::Handler> is created. See I<logger> above.
 
-The default 'maxlevel' is 'info'. A typical value is 'debug'.
+See also L<Log::Handler::Levels>.
+
+Default: 'info'. A typical value is 'debug'.
 
 =item o minlevel => $level
 
-This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
-create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
+This option is only used if an object of type L<Log::Handler> is created. See I<logger> above.
 
-The default 'minlevel' is 'error'.
+See also L<Log::Handler::Levels>.
+
+Default: 'error'.
 
 No lower levels are used.
 
-=item o output_file => $output_file_name
-
-If an output file name is supplied, and a rendering object is also supplied, then this call is made:
-
-	$self -> renderer -> run
-	(
-	format      => $self -> format,
-	items       => [$self -> items -> print],
-	logger      => $self -> logger,
-	output_file => $file_name,
-	);
-
-This is how the plotted graph is actually created.
-
-=item o parsed_tokens_file => $token_file_name
-
-This is the name of the file to write containing the tokens (items) output from L<Graph::Easy::Marpa::Parser>.
-
-The default value is '', meaning the file is not written.
-
-See also the input_file, above.
-
-=item o rankdir => $direction
-
-$direction must be one of: LR or RL or TB or BT.
-
-Specify the rankdir of the graph as a whole.
-
-The default value is: 'TB' (top to bottom).
-
-=item o renderer => $renderer_object
-
-This is the object whose run() method will be called to render the result of parsing
-the cooked file received from L<Graph::Easy::Marpa::Lexer>.
-
-The format of the parameters passed to the renderer are documented in L<Graph::Easy::Marpa::Renderer::GraphViz2/run(%arg)>,
-which is the default value for this object.
-
 =item o report_items => $Boolean
 
-Calls L</report()> to report, via the log, the items recognized in the cooked file.
-
-=item o tokens => $arrayref
-
-This is an arrayref of tokens normally output by L<Graph::Easy::Marpa::Lexer>.
-
-In some test files, this arrayref is constructed manually, and the 'input_file' is not used.
-
-See L<Graph::Easy::Marpa::Lexer/tokens()> for a detailed explanation.
+Calls L</report()> to report, via the log, the items recognized by the state machine.
 
 =back
 
+See L<Graph::Easy::Marpa/Data and Script Interaction>.
+
 =head1 Methods
 
-=head2 dot_input_file([$file_name])
-
-Here, the [] indicate an optional parameter.
-
-Get or set the name of the file into which the rendering engine will write to input to dot (or whatever).
-
-=head2 format([$format])
-
-Here, the [] indicate an optional parameter.
-
-Get or set the format of the output file.
-
-=head2 grammar()
-
-Initializes and returns a data structure of type L<Marpa::Grammar>. This defines the acceptable syntax
-of the precise subset of L<Graph::Easy> definitions which this module is able to parse.
-
-Note that the method grammar() calls (via L<Marpa>) various helper functions (i.e. not methods),
-including edge_id(). The latter applies a restriction to the definition of edges in the grammar.
-
-Specifically, edges must currently match this regexp: /^<?(-|=|\.|~|- |= |\.-|\.\.-){1,}>?$/, which I've gleaned
-from the L<Graph::Easy> docs at L<Edges|http://bloodgate.com/perl/graph/manual/syntax.html#edges>.
-
-Later, the allowable syntax will be exanded to accept special arrow heads, etc.
-
-Also, since edges can have attributes, such attributes are another method of describing the desired edge's
-characteristics. That is, besides using a string matching that regexp to specify what the edge looks like when plotted.
-
-=head2 input_file([$cooked_file_name])
+=head2 file([$file_name])
 
 The [] indicate an optional parameter.
 
-Get or set the name of the cooked file to read containing the tokens which has been output by L<Graph::Easy::Marpa::Lexer>.
+Get or set the name of the file the graph will be read from.
+
+See L</get_graph_from_file()>.
+
+=head2 generate_token_file($file_name)
+
+Returns nothing.
+
+Writes a CSV file of tokens output by the parse if new() was called with the C<token_file> option.
+
+=head2 get_graph_from_command_line()
+
+If the caller has requested a graph be parsed from the command line, with the graph option to new(), get it now.
+
+Called as appropriate by run().
+
+=head2 get_graph_from_file()
+
+If the caller has requested a graph be parsed from a file, with the file option to new(), get it now.
+
+Called as appropriate by run().
+
+=head2 grammar()
+
+Returns an object of type L<Marpa::R2::Scanless::G>.
+
+=head2 input_file([$graph_file_name])
+
+Here, the [] indicate an optional parameter.
+
+Get or set the name of the file to read the graph definition from.
+
+See also the description() method.
+
+The whole file is slurped in as 1 graph.
+
+The first lines of the input file can start with /^\s*#/, and will be discarded as comments.
+
+The value supplied to the description() method takes precedence over the value read from the input file.
 
 =head2 items()
 
-Returns a object of type L<Set::Array>, which is an arrayref of items output by the parser.
+Returns a object of type L<Set::Array>, which is an arrayref of items output by the state machine.
 
 See the L</FAQ> for details.
 
-See also run(), below.
+=head2 log($level, $s)
+
+Calls $self -> logger -> $level($s).
 
 =head2 logger([$logger_object])
 
@@ -936,16 +1074,13 @@ Get or set the logger object.
 
 To disable logging, just set logger to the empty string.
 
-This logger is passed to L<Graph::Easy::Marpa::Renderer::GraphViz2>.
-
 =head2 maxlevel([$string])
 
 Here, the [] indicate an optional parameter.
 
 Get or set the value used by the logger object.
 
-This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
-create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
+This option is only used if an object of type L<Log::Handler> is created. See L<Log::Handler::Levels>.
 
 =head2 minlevel([$string])
 
@@ -953,93 +1088,578 @@ Here, the [] indicate an optional parameter.
 
 Get or set the value used by the logger object.
 
-This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
-create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
+This option is only used if an object of type L<Log::Handler> is created. See L<Log::Handler::Levels>.
 
-=head2 output_file([$output_file_name])
+=head2 recce()
 
-Here, the [] indicate an optional parameter.
+Returns an object of type L<Marpa::R2::Scanless::R>.
 
-Get or set the name of the file to which the renderer will write to resultant graph.
+=head2 renumber_items()
 
-This is how the plotted graph is actually created.
-
-If no renderer is supplied, or no output file is supplied, nothing is written.
-
-=head2 parsed_tokens_file([$token_file_name])
-
-Here, the [] indicate an optional parameter.
-
-Get or set the name of the file to write containing the tokens (items) output from L<Graph::Easy::Marpa::Parser>.
-
-=head2 rankdir([$direction])
-
-Here, the [] indicate an optional parameter.
-
-Get or set the rankdir of the graph as a whole.
-
-=head2 read_csv_file($file_name)
-
-Read the named CSV file into ann arrayref of hashrefs.
-
-=head2 renderer([$renderer_object])
-
-Here, the [] indicate an optional parameter.
-
-Get or set the value of the object which will do the rendering.
-
-If an output file name is supplied, and a rendering object is also supplied, then this call is made:
-
-	$self -> renderer -> run
-	(
-	format      => $self -> format,
-	items       => [$self -> items -> print],
-	logger      => $self -> logger,
-	output_file => $file_name,
-	);
-
-This is how the plotted graph is actually created.
+Ensures each item in the stack as a sequential number 1 .. N.
 
 =head2 report()
 
-Report, via the log, the list of items recognized in the cooked file.
+Report, via the log, the list of items recognized by the state machine.
 
-=head2 report_items([$Boolean])
+=head2 report_items([0 or 1])
 
-Here, the [] indicate an optional parameter.
+The [] indicate an optional parameter.
 
-Get or set the value which determines whether or not L</report()> is called.
+Get or set the value which determines whether or not to report the items recognised by the state machine.
 
 =head2 run()
 
-Runs the Marpa-based parser on the input_file.
+This is the only method the caller needs to call. All parameters are supplied to new().
 
-Returns 0 for success and 1 for failure, or dies with an error message.
+Returns 0 for success and 1 for failure.
 
-See t/attr.t, scripts/parse.pl and scripts/parse.sh.
+=item o token_file => $csv_file_name
 
-The end result is an arrayref, accessible with the items() method, of hashrefs representing items
-in the input stream.
+Get or set the name of the file to write containing the tokens (items) output from the parser.
 
-The structure of this arrayref of hashrefs is discussed in the L</FAQ>.
+=head2 tokens()
 
-=head2 tokens([$arrayref])
+Returns an arrayref of tokens. Each element of this arrayref is an arrayref of 2 elements:
 
-Here, the [] indicate an optional parameter.
+=over 4
 
-Get or set an arrayref of tokens normally output by L<Graph::Easy::Marpa::Lexer>.
+=item o The type of the token
 
-In some test files, this arrayref is constructed manually, and the 'input_file' is not used.
+=item o The value of the token
+
+=back
+
+If you look at the source code for the run() method in L<Graph::Easy::Marpa>, you'll see this arrayref can be
+passed directly as the value of the items key in the call to L<Graph::Easy::Marpa::Renderer::GraphViz2>'s run()
+method.
 
 =head1 FAQ
 
+=head2 What is the Graph::Easy::Marpa language?
+
+Basically, it is derived from, and very similar to, the L<Graph::Easy> language, with a few irregularities
+cleaned up. It exists to server as a wrapper around L<the DOT language|http://www.graphviz.org/content/dot-language>.
+
+The re-write took place because, instead of L<Graph::Easy>'s home-grown parser, Graph::Easy::Marpa::Parser uses
+L<Marpa::R2>, which requires a formally-spelled-out grammar for the language being parsed.
+
+That grammar is in the source code of Graph::Easy::Marpa::Parser, in C<sub BUILD()>, and is explained next.
+
+Firstly, a summary:
+
+	Element        Syntax
+	---------------------
+	Edge names     Either '->' or '--'
+	---------------------
+	Node names     1: Delimited by '[' and ']'.
+	               2: May be quoted with " or '.
+	               3: Escaped characters, using '\', are allowed.
+	               4: Internal spaces in node names are preserved even if not quoted.
+	---------------------
+	Attributes     1: Delimited by '{' and '}'.
+	               2: Within that, any number of "key : value" pairs separated by ';'.
+	               3: Values may be quoted with " or ' or '<...>' or '<<table>...</table>>'.
+	               4: Escaped characters, using '\', are allowed.
+	               5: Internal spaces in attribute values are preserved even if not quoted.
+	---------------------
+
+Note: Both edges and nodes can have attributes.
+
+Note: HTML-like labels trigger special-case processing in Graphviz.
+See L</Why doesn't the parser handle my HTML-style labels?> below.
+
+Demo pages:
+
+	L<Graph::Easy::Marpa|http://savage.net.au/Perl-modules/html/graph.easy.marpa/>
+	L<MarpaX::Demo::StringParser|http://savage.net.au/Perl-modules/html/marpax.demo.stringparser/>
+
+The latter page utilizes a cut-down version of the Graph::Easy::Marpa language, as documented in
+L<MarpaX::Demo::StringParser/What is the grammar you parse?>.
+
+And now the details:
+
+=over 4
+
+=item o Attributes
+
+Both nodes and edges can have any number of attributes.
+
+Attributes are delimited by '{' and '}'.
+
+These attributes are listed immdiately after their owing node or edge.
+
+Each attribute consists of a key:value pair, where ':' must appear literally.
+
+These key:value pairs must be separated by the ';' character. A trailing ';' is optional.
+
+The values for 'key' are reserved words used by Graphviz's L<attributes|http://graphviz.org/content/attrs>.
+These keys match the regexp /^[a-zA-Z_]+$/.
+
+For the 'value', any printable character can be used.
+
+Some escape sequences are a special meaning within L<Graphviz|http://www.graphviz.org/content/attrs>.
+
+E.g. if you use [node name] {label: \N}, then if that graph is input to Graphviz's I<dot>, \N will be replaced
+by the name of the node.
+
+Some literals - ';', '}', '<', '>', '"', "'" - can be used in the attribute's value, but they must satisfy one
+of these conditions. They must be:
+
+=over 4
+
+=item o Escaped using '\'.
+
+Eg: \;, \}, etc.
+
+=item o Placed inside " ... "
+
+=item o Placed inside ' ... '
+
+=item o Placed inside <...>
+
+This does I<not> mean you can use <<Some text>>. See the next point.
+
+=item o Placed inside <<table> ... </table>>
+
+Using this construct allows you to use HTML entities such as &amp;, &lt;, &gt; and &quot;.
+
+=back
+
+Internal spaces are preserved within an attribute's value, but leading and trailing spaces are not (unless quoted).
+
+Samples:
+
+	[node.1] {color: red; label: Green node}
+	-> {penwidth: 5; label: From Here to There}
+	[node.2]
+	-> {label: "A literal semicolon '\;' in a label"}
+
+Note: That '\;' does not actually need those single-quote characters, since it is within a set of double-quotes.
+
+Note: Attribute values quoted with a balanced pair or single- or double-quotes will have those quotes stripped.
+
+=item o Classes
+
+Class and subclass names must match /^(edge|global|graph|group|node)(\.[a-z]+)?$/.
+
+The name before the '.' is the class name.
+
+'global' is used to specify whether you want a directed or undirected graph. The default is directed.
+
+	global {directed: 1} [node.1] -> [node.2]
+
+'graph' is used to specify the direction of the graph as a whole, and must be one of: LR or RL or TB or BT.
+The default is TB.
+
+	graph {rankdir: LR} [node.1] -> [node.2]
+
+The name after the '.' is the subclass name. And if '.' is present, the subclass name must be present.
+This means things like 'edge.' etc are syntax errors.
+
+	node {shape: rect} node.forest {color: green}
+	[node.1] -> [node.2] {class: forest} -> [node.3] {shape: circle; color: blue}
+
+Here, node.1 gets the default shape, rect, and node.2 gets both shape rect and color green. node.3
+gets shape circle and color blue.
+
+As always, specific attributes override class attributes.
+
+You use the subclass name in the attributes of an edge, a group or a node, whereas 'global' and 'graph'
+appear only once, at the start of the input stream. That is, tt does not make sense for a class of I<global>
+or I<graph> to have any subclasses.
+
+=item o Comments
+
+The first few lines of the input file can start with /^\s*#/, and will be discarded as comments.
+
+=item o Daisy-chains
+
+See L<Wikipedia|https://en.wikipedia.org/wiki/Daisy_chain> for the origin of this term.
+
+=over 4
+
+=item o Edges
+
+Edges can be daisy-chained by juxtaposition, or by using a comma (','), newline, space, or attributes ('{...}')
+to separate them.
+
+Hence both of these are valid: '->,->{color:green}' and '->{color:red}->{color:green}'.
+
+See data/edge.03.ge and data/edge.09.ge.
+
+=item o Groups
+
+Groups can be daisy chained by juxtaposition, or by using a newline or space to separate them.
+
+=item o Nodes
+
+Nodes can be daisy-chained by juxtaposition, or by using a comma (','), newline, space, or attributes ('{...}')
+to separate them.
+
+Hence all of these are valid: '[node.1][node.2]' and '[node.1],[node.2]' and '[node.1]{color:red}[node.2]'.
+
+=back
+
+=item o Edges
+
+Edge names are either '->' or '--'.
+
+No other edge names are accepted.
+
+Note: The syntax for edges is just a visual clue for the user. The I<directed> 'v' I<undirected> nature of the
+graph depends on the value of the 'directed' attribute present (explicitly or implicitly) in the input stream.
+Nevertheless, usage of '->' or '--' must match the nature of the graph, or Graphviz will issue a syntax error.
+
+The default is {directed: 1}. See data/class.global.01.ge for a case where we use {directed: 0} attached to
+class 'global'.
+
+Edges can have attributes such as arrowhead, arrowtail, etc. See L<Graphviz|http://www.graphviz.org/content/attrs>
+
+Samples:
+
+	->
+	-- {penwidth: 9}
+
+=item o Graphs
+
+Graphs are sequences of nodes and edges, in any order.
+
+The sample given just above for attributes is in fact a single graph.
+
+A sample:
+
+	[node]
+	[node] ->
+	-> {label: Start} -> {color: red} [node.1] {color: green] -> [node.2]
+	[node.1] [node.2] [node.3]
+
+=back
+
+For more samples, see the data/*.ge files shipped with the distro.
+
+=item o Line-breaks
+
+These are converted into a single space.
+
+=item o Nodes
+
+Nodes are delimited by '[' and ']'.
+
+Within those, any printable character can be used for a node's name.
+
+Some literals - ']', '"', "'" - can be used in the node's value, but they must satisfy one of these
+conditions. They must be:
+
+=over 4
+
+=item o Escaped using '\'
+
+Eg: \].
+
+=item o Placed inside " ... "
+
+=item o Placed inside ' ... '
+
+=back
+
+Internal spaces are preserved within a node's name, but leading and trailing spaces are not (unless quoted).
+
+Lastly, the node's name can be empty. I.e.: You use '[]' in the input stream to create an anonymous node.
+
+Samples:
+
+	[]
+	[node.1]
+	[node 1]
+	[[node\]]
+	["[node]"]
+	[     From here     ] -> [     To there     ]
+
+Note: Node names quoted with a balanced pair or single- or double-quotes will have those quotes stripped.
+
+=item o Subgraphs aka Groups
+
+Subgraph names must match /^[a-zA-Z_.][a-zA-Z_0-9. ]*$/.
+
+Subgraph names beginning with 'cluster' trigger special-case processing within Graphviz.
+
+See 'Subgraphs and Clusters' on L<this page|http://www.graphviz.org/content/dot-language>.
+
+Samples:
+
+	Here, the subgraph name is 'cluster.1':
+	(cluster.1: [node.1] -> [node.2])
+	group {bgcolor: red} (cluster.1: [node.1] -> [node.2]) {class: group}
+
+=head2 Does this module handle utf8?
+
+Yes. See the last sample on L<the demo page|http://savage.net.au/Perl-modules/html/graph.easy.marpa/>.
+
 =head2 How is the parsed graph stored in RAM?
 
-See L<Graph::Easy::Marpa::Lexer/FAQ>.
+Items are stored in an arrayref. This arrayref is available via the L</items()> method.
+
+Each element in the array is a hashref, listed here in alphabetical order by type.
+
+Note: Items are numbered from 1 up.
+
+=over 4
+
+=item o Attributes
+
+An attribute can belong to a graph, node or an edge. An attribute definition of
+'{color: red;}' would produce a hashref of:
+
+	{
+	count => $n,
+	name  => 'color',
+	type  => 'attribute',
+	value => 'red',
+	}
+
+An attribute definition of '{color: red; shape: circle;}' will produce 2 hashrefs,
+i.e. 2 sequential elements in the arrayref:
+
+	{
+	count => $n,
+	name  => 'color',
+	type  => 'attribute',
+	value => 'red',
+	}
+
+	{
+	count => $n + 1,
+	name  => 'shape',
+	type  => 'attribute',
+	value => 'circle',
+	}
+
+Attribute hashrefs appear in the arrayref immediately after the item (edge, group, node) to which they belong.
+For subgraphs, this means they appear straight after the hashref whose type is 'pop_subgraph'.
+
+The following has been extracted manually from the Graphviz documentation, and is listed here in case I need it.
+Classes are written as [x] rather than [x]+, etc, so it uses various abbreviations.
+
+	Attribute	Regexp+			Interpretation
+	---------	------			--------------
+	addDouble	+?[0-9.]		A double preceeded by an optional '+'
+	arrowType	[a-z]			A word
+	aspectType	[0-9.,]			A double or a double + ',' + an integer
+	bool		[a-zA-Z0-0]		Case-insensitive 'true', 'false', 0 or N (true)
+	color		[#0-9a-f]		'#' followed by 3 or 4 hex numbers
+				[0-9. ]			3 numbers 0 .. 1 separated by '.' or \s
+				[/a-z]			A word or /word or /word1/word2
+	clusterMode	[a-z]			A word
+	colorList	color(;[0-9.])?	N tokens separated by ':'.
+	dirType		[a-z]			A word
+	doubleList	[0-9.:]			Various doubles separated by ':'
+	escString	\[NGETHLnlr]	A list of escaped letters
+	HTML label	<<[.]>>			A quoted list of stuff
+	layerRange
+	lblString	escString or HTML label
+	outputMode	[a-z]			A word
+	pagedir		[A-Z]			A word of 2 caps (TB etc)
+	point		[0-9.,]!?		2 doubles followed by an optional '!'
+	pointList	[0-9., ]!?		A list of points separated by spaces
+	quadType	[a-z]			A word
+	rankdir		[A-Z]			A word of 2 caps (TB etc)
+	rankType	[a-z]			A word
+	rect		[0-9.,]			Four doubles seperated by ','s
+	shape		[a-z]			A word, or
+				[<>{}]			Bracketed strings, or
+				?				User-defined
+	smoothType	[a-z]			A word
+	splineType	[0-9.,;es]		Various doubles, with ',' and ';', and optional 'e', 's'
+	startType	[a-z][0-9]		A word optionally followed by a number
+	style		[a-z(),]		A list of words separated by ',' each with optional '(...)'
+	viewPort	[0-9.,]			A list of 5 doubles or
+				[0-9.,]			A list of 4 doubles followed by a node name
+
+=item o Classes and class attributes
+
+These notes apply to all classes and subclasses.
+
+A class definition of 'edge {color: white}' would produce 2 hashrefs:
+
+	{
+	count => $n,
+	name  => 'edge',
+	type  => 'class_name',
+	value => '',
+	}
+
+	{
+	count => $n + 1,
+	name  => 'color',
+	type  => 'attribute',
+	value => 'white',
+	}
+
+A class definition of 'node.green {color: green; shape: rect}' would produce 3 hashrefs:
+
+	{
+	count => $n,
+	name  => 'node.green',
+	type  => 'class_name',
+	value => '',
+	}
+
+	{
+	count => $n + 1,
+	name  => 'color',
+	type  => 'attribute',
+	value => 'green',
+	}
+
+	{
+	count => $n + 2,
+	name  => 'shape',
+	type  => 'attribute',
+	value => 'rect',
+	}
+
+Class and class attribute hashrefs always appear at the start of the arrayref of items.
+
+=item o Edges
+
+An edge definition of '->' would produce a hashref of:
+
+	{
+	count => $n,
+	name  => '->',
+	type  => 'edge',
+	value => '',
+	}
+
+=item o Nodes
+
+A node definition of '[Name]' would produce a hashref of:
+
+	{
+	count => $n,
+	name  => 'Name',
+	type  => 'node',
+	value => '',
+	}
+
+A node can have a definition of '[]', which means it has no name. Such nodes are called anonymous (or
+invisible) because while they take up space in the output stream, they have no printable or visible
+characters in the output stream.
+
+Each anonymous node will have at least these 2 attributes:
+
+	{
+		count => $n,
+		name  => '',
+		type  => 'node',
+		value => '',
+	}
+
+	{
+		count => $n + 1,
+		name  => 'color',
+		type  => 'attribute',
+		value => 'invis',
+	}
+
+You can of course give your anonymous nodes any attributes, but they will be forced to have
+these attributes.
+
+E.g. If you give it a color, that would become element $n + 2 in the arrayref, and hence that color would override
+the default color 'invis'. See the output for data/node.04.ge on
+L<the demo page|http://savage.net.au/Perl-modules/html/graph.easy.marpa/>.
+
+Node names are case-sensitive in C<dot>.
+
+=item o Subgraphs
+
+Subgraph names must match /^(?:[a-zA-Z_.][a-zA-Z_.0-9]*)^/.
+
+A subgraph produces 2 hashrefs, one at the start of the subgraph, and one at the end.
+
+A group defnition of '(Solar system: [Mercury] -> [Neptune])' would produce a hashref like this at the start,
+i.e. when the '(' - just before 'Solar' - is detected in the input stream:
+
+	{
+	count => $n,
+	name  => 'Solar system',
+	type  => 'push_subgraph',
+	value => '',
+	}
+
+and a hashref like this at the end, i.e. when the ')' - just after '[Neptune]' - is detected:
+
+	{
+	count => $n + N,
+	name  => 'Solar system',
+	type  => 'pop_subgraph',
+	value => '',
+	}
+
+=back
+
+=head2 Why doesn't the parser handle my HTML-style labels?
+
+Traps for young players:
+
+=over 4
+
+=item o The <br /> component must include the '/'
+
+=item o If any tag's attributes use double-quotes, they will be doubled in the CSV output file
+
+That is, just like double-quotes everywhere else.
+
+=back
+
+See L<http://www.graphviz.org/content/dot-language> for details of Graphviz's HTML-like syntax.
+
+See data/node.16.ge and data/node.17.ge for a couple of examples.
+
+=head2 Why do I get error messages like the following?
+
+	Error: <stdin>:1: syntax error near line 1
+	context: digraph >>>  Graph <<<  {
+
+Graphviz reserves some words as keywords, meaning they can't be used as an ID, e.g. for the name of the graph.
+So, don't do this:
+
+	strict graph graph{...}
+	strict graph Graph{...}
+	strict graph strict{...}
+	etc...
+
+Likewise for non-strict graphs, and digraphs. You can however add double-quotes around such reserved words:
+
+	strict graph "graph"{...}
+
+Even better, use a more meaningful name for your graph...
+
+The keywords are: node, edge, graph, digraph, subgraph and strict. Compass points are not keywords.
+
+See L<keywords|http://www.graphviz.org/content/dot-language> in the discussion of the syntax of DOT
+for details.
+
+=head2 Where are the action subs named in the grammar?
+
+In L<Graph::Easy::Marpa::Actions>.
+
+=head2 Has any graph syntax changed moving from V 1.* to V 2.*?
+
+Yes. Under V 1.*, to specify an empty label, this was possible:
+
+	[node] { label: ;}
+
+Any attribute, here C<label>, without a value, is unacceptable under V 2.*. Just use:
+
+	[node] { label: ''; }
+
+Of cource, the same applies to attributes for edges.
 
 =head1 Machine-Readable Change Log
 
-The file CHANGES was converted into Changelog.ini by L<Module::Metadata::Changes>.
+The file Changes was converted into Changelog.ini by L<Module::Metadata::Changes>.
 
 =head1 Version Numbers
 
@@ -1055,7 +1675,7 @@ L<https://rt.cpan.org/Public/Dist/Display.html?Name=Graph::Easy::Marpa>.
 
 L<Graph::Easy::Marpa> was written by Ron Savage I<E<lt>ron@savage.net.auE<gt>> in 2011.
 
-Home page: L<http://savage.net.au/index.html>.
+Home page: L<http://savage.net.au/>.
 
 =head1 Copyright
 

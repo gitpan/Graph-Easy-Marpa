@@ -1,23 +1,119 @@
 package Graph::Easy::Marpa::Renderer::GraphViz2;
 
 use strict;
+use utf8;
 use warnings;
+use warnings  qw(FATAL utf8);    # Fatalize encoding glitches.
+use open      qw(:std :utf8);    # Undeclared streams in UTF-8.
+use charnames qw(:full :short);  # Unneeded in v5.16.
 
 use GraphViz2;
 
-use Hash::FieldHash ':all';
+use Moo;
 
-fieldhash my %class          => 'class';
-fieldhash my %dot_input_file => 'dot_input_file';
-fieldhash my %format         => 'format';
-fieldhash my %graph          => 'graph';
-fieldhash my %logger         => 'logger';
-fieldhash my %maxlevel       => 'maxlevel';
-fieldhash my %minlevel       => 'minlevel';
-fieldhash my %output_file    => 'output_file';
-fieldhash my %rankdir        => 'rankdir';
+has class =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
 
-our $VERSION = '1.12';
+has dot_input_file =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
+
+has format =>
+(
+	default  => sub{return 'svg'},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
+
+has graph =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
+
+has items =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+#	isa      => 'Set::Array',
+	required => 0,
+);
+
+has logger =>
+(
+	default  => sub{return undef},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
+
+has maxlevel =>
+(
+	default  => sub{return 'info'},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
+
+has minlevel =>
+(
+	default  => sub{return 'error'},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
+
+has output_file =>
+(
+	default  => sub{return ''},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
+
+has rankdir =>
+(
+	default  => sub{return 'TB'},
+	is       => 'rw',
+#	isa      => 'Str',
+	required => 0,
+);
+
+our $VERSION = '2.00';
+
+# --------------------------------------------------
+
+sub BUILD
+{
+	my($self) = @_;
+
+	if (! defined $self -> logger)
+	{
+		$self -> logger(Log::Handler -> new);
+		$self -> logger -> add
+		(
+			screen =>
+			{
+				maxlevel       => $self -> maxlevel,
+				message_layout => '%m',
+				minlevel       => $self -> minlevel,
+			}
+		);
+	}
+
+} # End of BUILD.
 
 # --------------------------------------------------
 
@@ -256,38 +352,6 @@ sub _get_subgraph_attributes
 
 # --------------------------------------------------
 
-sub _init
-{
-	my($self, $arg)       = @_;
-	$$arg{dot_input_file} ||= '';    # Caller can set.
-	$$arg{format}         ||= 'svg'; # Caller can set.
-	my($user_logger)      = defined($$arg{logger}); # Caller can set (e.g. to '').
-	$$arg{logger}         = $user_logger ? $$arg{logger} : Log::Handler -> new;
-	$$arg{maxlevel}       ||= 'debug'; # Caller can set.
-	$$arg{minlevel}       ||= 'error'; # Caller can set.
-	$$arg{output_file}    ||= '';      # Caller can set.
-	$$arg{rankdir}        ||= 'TB';    # Caller can set.
-	$self                 = from_hash($self, $arg);
-
-	if (! $user_logger)
-	{
-		$self -> logger -> add
-			(
-			 screen =>
-			 {
-				 maxlevel       => $self -> maxlevel,
-				 message_layout => '%m',
-				 minlevel       => $self -> minlevel,
-			 }
-			);
-	}
-
-	return $self;
-
-} # End of _init.
-
-# --------------------------------------------------
-
 sub log
 {
 	my($self, $level, $s) = @_;
@@ -310,18 +374,6 @@ sub log_hashref
 	}
 
 } # End of log_hashref.
-
-# --------------------------------------------------
-
-sub new
-{
-	my($class, %arg) = @_;
-	my($self)        = bless {}, $class;
-	$self            = $self -> _init(\%arg);
-
-	return $self;
-
-}	# End of new.
 
 # --------------------------------------------------
 
@@ -370,7 +422,7 @@ sub run
 	my($name);
 	my($value);
 
-	while ($item[0]{type} eq 'class_name')
+	while ($item[0]{type} eq 'class')
 	{
 		$item         = shift @item;
 		$name         = $$item{name};
@@ -394,17 +446,17 @@ sub run
 	# Now that we know the classes, we can init the graph.
 
 	$self -> graph
+	(
+		GraphViz2 -> new
 		(
-		 GraphViz2 -> new
-		 (
-		  edge    => $class{edge}   || {color => 'grey'},
-		  global  => $class{global} || {directed => 1},
-		  graph   => $class{graph}  || {rankdir => $self -> rankdir},
-		  logger  => $self -> logger,
-		  node    => $class{node} || {shape => 'oval'},
-		  verbose => 0,
-		 )
-		);
+			edge    => $class{edge}   || {color => 'grey'},
+			global  => $class{global} || {directed => 1},
+			graph   => $class{graph}  || {rankdir => $self -> rankdir},
+			logger  => $self -> logger,
+			node    => $class{node} || {shape => 'oval'},
+			verbose => 0,
+		)
+	);
 
 	# If the first edge/node is a edge, add a node before it,
 	# so the edge processor has a node on either side of each edge.
@@ -431,10 +483,10 @@ sub run
 		if ($$item{type} eq 'push_subgraph')
 		{
 			$self -> graph -> push_subgraph
-				(
-				 graph => $self -> _get_subgraph_attributes($i, \@item),
-				 name  => $name,
-				);
+			(
+				graph => $self -> _get_subgraph_attributes($i, \@item),
+				name  => $name,
+			);
 		}
 		elsif ($$item{type} eq 'pop_subgraph')
 		{
@@ -493,14 +545,20 @@ sub run
 
 	$self -> log(debug => '-' x 50);
 
-	$self -> graph -> run(format => $format, output_file => $output_file);
+	# Save the dot input in case dot exits abnormally.
+	# Note: We can't use $self -> graph -> dot_input()
+	# until after $self -> graph -> run() is called.
+	# So we use $self -> graph -> command -> print() instead.
 
 	if ($dot_input_file)
 	{
 		open(OUT, '>', $dot_input_file);
-		print OUT $self -> graph -> dot_input;
+#		binmode OUT;
+		print OUT (map{$_} @{$self -> graph -> command -> print}), "}\n";
 		close OUT;
 	}
+
+	$self -> graph -> run(format => $format, output_file => $output_file);
 
 	# Return 0 for success and 1 for failure.
 
@@ -524,9 +582,11 @@ See L<Graph::Easy::Marpa/Synopsis>.
 
 =head1 Description
 
-L<Graph::Easy::Marpa::Renderer> provides a L<GraphViz2>-based renderer for L<Graph::Easy>-style graph definitions.
-
 This module is the default rendering engine for L<Graph::Easy::Marpa>.
+
+It provides a L<GraphViz2>-based renderer for L<Graph::Easy::Marpa>-style graph definitions.
+
+For more details, see L<Graph::Easy::Marpa/Description>.
 
 =head1 Installation
 
@@ -594,15 +654,17 @@ The default value is an object of type L<Log::Handler>.
 
 =item o maxlevel => $level
 
-This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
-create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
+This option is only used if L<Graph::Easy::Marpa::Parser> creates an object of type L<Log::Handler>.
+
+See L<Log::Handler::Levels>.
 
 The default 'maxlevel' is 'info'. A typical choice is 'debug'.
 
 =item o minlevel => $level
 
-This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
-create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
+This option is only used if L<Graph::Easy::Marpa::Parser> creates an object of type L<Log::Handler>.
+
+See L<Log::Handler::Levels>.
 
 The default 'minlevel' is 'error'.
 
@@ -624,7 +686,9 @@ $direction must be one of: LR or RL or TB or BT.
 
 Specify the rankdir of the graph as a whole.
 
-The default value is: 'TB' (top to bottom).
+The value for I<rankdir> is passed to L<Graph::Easy::Marpa::Renderer::GraphViz2>.
+
+Default: 'TB'.
 
 =back
 
@@ -668,8 +732,9 @@ Here, the [] indicate an optional parameter.
 
 Get or set the value used by the logger object.
 
-This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
-create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
+This option is only used if L<Graph::Easy::Marpa::Parser> creates an object of type L<Log::Handler>.
+
+See L<Log::Handler::Levels>.
 
 =head2 minlevel([$string])
 
@@ -677,8 +742,9 @@ Here, the [] indicate an optional parameter.
 
 Get or set the value used by the logger object.
 
-This option is only used if L<Graph::Easy::Marpa:::Lexer> or L<Graph::Easy::Marpa::Parser>
-create an object of type L<Log::Handler>. See L<Log::Handler::Levels>.
+This option is only used if L<Graph::Easy::Marpa::Parser> creates an object of type L<Log::Handler>.
+
+See L<Log::Handler::Levels>.
 
 =head2 output_file([$file_name])
 
@@ -716,8 +782,8 @@ The value passed in to run() takes precedence over the value passed in to new().
 
 =item o items => $arrayref
 
-This arrayref, passed from L<Graph::Easy::Marpa::Parser> is the result of lexing and parsing the
-L<Graph::Easy>-style graph definition (raw) file.
+This arrayref, passed from L<Graph::Easy::Marpa::Parser> is the result of parsing the L<Graph::Easy>-style
+graph definition (data/*.ge) file.
 
 Each element of this arrayref is a hashref with these key-value pairs:
 
@@ -747,19 +813,19 @@ This is where the output of 'dot' will be written.
 
 	 GraphViz2 -> new
 	 (
-	  edge    => $class{edge}   || {color => 'grey'},
-	  global  => $class{global} || {directed => 1},
-	  graph   => $class{graph}  || {rankdir => $self -> rankdir},
-	  logger  => $self -> logger,
-	  node    => $class{node} || {shape => 'oval'},
-	  verbose => 0,
+	 	edge    => $class{edge}   || {color => 'grey'},
+	 	global  => $class{global} || {directed => 1},
+	 	graph   => $class{graph}  || {rankdir => $self -> rankdir},
+	 	logger  => $self -> logger,
+	 	node    => $class{node} || {shape => 'oval'},
+	 	verbose => 0,
 	 )
 
-where $class($name) is taken from the class declarations at the start of the input stream.
+where $class($name) etc are taken from the class declarations, if any, at the start of the input stream.
 
 =head1 Machine-Readable Change Log
 
-The file CHANGES was converted into Changelog.ini by L<Module::Metadata::Changes>.
+The file Changes was converted into Changelog.ini by L<Module::Metadata::Changes>.
 
 =head1 Version Numbers
 

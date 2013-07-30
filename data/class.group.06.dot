@@ -1,0 +1,17 @@
+digraph Perl
+{
+graph [ rankdir="TB" ]
+node [ shape="oval" ]
+edge [ color="white" ]
+
+subgraph "cluster.1"
+{
+graph [ bgcolor="red" rankdir="TB" ]
+node [ shape="oval" ]
+edge [ color="white" ]
+
+"node.1" [ color="green" shape="rect" ]
+"node.2"
+}
+"node.1" -> "node.2" [ color="white" label="" ]
+}

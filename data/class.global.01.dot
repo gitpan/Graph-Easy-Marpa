@@ -1,0 +1,9 @@
+graph Perl
+{
+graph [ rankdir="TB" ]
+node [ shape="oval" ]
+edge [ color="grey" ]
+"node.1"
+"node.2"
+"node.1" -- "node.2" [ label="" ]
+}

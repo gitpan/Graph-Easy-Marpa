@@ -10,228 +10,316 @@
 	<link rel="stylesheet" type="text/css" href="/assets/css/graphviz2/marpa/fancy.table.css">
 </head>
 <body>
-  <h1>Index of sample files created by <a href="http://metacpan.org/release/Graph-Easy-Marpa">Graph::Easy::Marpa</a> V 1.12.</h1>
+  <h1>Index of sample files created by <a href="http://metacpan.org/release/Graph-Easy-Marpa">Graph::Easy::Marpa</a> V 2.00.</h1>
 
 	<p>All scripts, input files and output files required to generate these examples are shipped in the Graph::Easy::Marpa distro.</p>
 
 	<p>Some sample data is deliberately faulty, and so does not show up here. Some sample data contains fake attributes, just
 	  to test the code. These will make 'dot' die, but are included here.</p>
 
-	<p>The output for input file data/graph.15.raw corresponds to the output for scripts/jointed.edges.pl in
+	<p>The output for input file data/graph.04.ge corresponds to the output for scripts/jointed.edges.pl in
 	  <a href="http://savage.net.au/Perl-modules/html/graphviz2/index.html">the GraphViz2 demo.</a></p>
 
 <table border = "1">
 <tr>
-  <td>Input file # 1 - data/class.edge.03.raw:<br /># Class with attributes. OK.<br />edge {color: green} [node.1] -&gt; [node.2]</td>
-  <td><object data = "./class.edge.03.svg"># Class with attributes. OK.</object><br /><br />Output file # 1 - html/class.edge.03.svg<br /># Class with attributes. OK.</td>
+  <td>Input file # 1 - data/class.edge.01.ge:<br /># Class with no attributes (and no graph). Error.<br />edge</td>
+  <td># Class with no attributes (and no graph). Error.<br /><object data = "./class.edge.01.svg"></object><br />Output file # 1 - None</td>
 </tr>
 <tr>
-  <td>Input file # 2 - data/class.edge.05.raw:<br /># Classes with attributes. OK.<br />edge {color: green} node {color: lightblue} [node.1] {color: pink} -&gt; [node.2]</td>
-  <td><object data = "./class.edge.05.svg"># Classes with attributes. OK.</object><br /><br />Output file # 2 - html/class.edge.05.svg<br /># Classes with attributes. OK.</td>
+  <td>Input file # 2 - data/class.edge.02.ge:<br /># Class with attributes but no graph. Error.<br />edge {color: green;}</td>
+  <td># Class with attributes but no graph. Error.<br /><object data = "./class.edge.02.svg"></object><br />Output file # 2 - None</td>
 </tr>
 <tr>
-  <td>Input file # 3 - data/class.edge.06.raw:<br /># Class with attributes. OK.<br />edge.blue {arrowtail: odot; color: blue; dir: both} [node.1] -&gt; {class: blue} [node.2]</td>
-  <td><object data = "./class.edge.06.svg"># Class with attributes. OK.</object><br /><br />Output file # 3 - html/class.edge.06.svg<br /># Class with attributes. OK.</td>
+  <td>Input file # 3 - data/class.edge.03.ge:<br /># Class with attributes. OK.<br />edge {color: green} [node.1] -&gt; [node.2]</td>
+  <td># Class with attributes. OK.<br /><object data = "./class.edge.03.svg"></object><br />Output file # 3 - html/class.edge.03.svg</td>
 </tr>
 <tr>
-  <td>Input file # 4 - data/class.global.01.raw:<br /># Global class. OK.<br />global {directed: 0} [node.1] -- [node.2]</td>
-  <td><object data = "./class.global.01.svg"># Global class. OK.</object><br /><br />Output file # 4 - html/class.global.01.svg<br /># Global class. OK.</td>
+  <td>Input file # 4 - data/class.edge.04.ge:<br /># Classes with and without attributes. Error.<br />edge {color: green} graph [node.1] -&gt; [node.2]</td>
+  <td># Classes with and without attributes. Error.<br /><object data = "./class.edge.04.svg"></object><br />Output file # 4 - None</td>
 </tr>
 <tr>
-  <td>Input file # 5 - data/class.graph.05.raw:<br /># Graph class. OK.<br />graph {rankdir: LR} [node.1] -- [node.2]</td>
-  <td><object data = "./class.graph.05.svg"># Graph class. OK.</object><br /><br />Output file # 5 - html/class.graph.05.svg<br /># Graph class. OK.</td>
+  <td>Input file # 5 - data/class.edge.05.ge:<br /># Classes with attributes. OK.<br />edge {color: green} node {color: lightblue} [node.1] {color: pink} -&gt; [node.2]</td>
+  <td># Classes with attributes. OK.<br /><object data = "./class.edge.05.svg"></object><br />Output file # 5 - html/class.edge.05.svg</td>
 </tr>
 <tr>
-  <td>Input file # 6 - data/class.group.03.raw:<br /># Group with attributes. OK.<br />group {bgcolor: red} (cluster.1: [node.1] -&gt; [node.2]) {class: group}</td>
-  <td><object data = "./class.group.03.svg"># Group with attributes. OK.</object><br /><br />Output file # 6 - html/class.group.03.svg<br /># Group with attributes. OK.</td>
+  <td>Input file # 6 - data/class.edge.06.ge:<br /># Class with attributes. OK.<br />edge.blue {arrowtail: odot; color: blue; dir: both} [node.1] -&gt; {class: blue} [node.2]</td>
+  <td># Class with attributes. OK.<br /><object data = "./class.edge.06.svg"></object><br />Output file # 6 - html/class.edge.06.svg</td>
 </tr>
 <tr>
-  <td>Input file # 7 - data/class.group.04.raw:<br /># Edge, group and node classes. OK.<br />edge {color: white} group {bgcolor: red} node.green {color: green; shape: rect} (cluster.1: [node.1] {class: green} -&gt; [node.2]) {class: group}</td>
-  <td><object data = "./class.group.04.svg"># Edge, group and node classes. OK.</object><br /><br />Output file # 7 - html/class.group.04.svg<br /># Edge, group and node classes. OK.</td>
+  <td>Input file # 7 - data/class.global.01.ge:<br /># Global class. OK.<br />global {directed: 0} [node.1] -- [node.2]</td>
+  <td># Global class. OK.<br /><object data = "./class.global.01.svg"></object><br />Output file # 7 - html/class.global.01.svg</td>
 </tr>
 <tr>
-  <td>Input file # 8 - data/class.node.05.raw:<br /># Unused class with attributes. OK.<br />node.green {color: green} [node.1] -&gt; [node.2]</td>
-  <td><object data = "./class.node.05.svg"># Unused class with attributes. OK.</object><br /><br />Output file # 8 - html/class.node.05.svg<br /># Unused class with attributes. OK.</td>
+  <td>Input file # 8 - data/class.graph.01.ge:<br /># Class with no attributes and no graph. Error.<br />graph</td>
+  <td># Class with no attributes and no graph. Error.<br /><object data = "./class.graph.01.svg"></object><br />Output file # 8 - None</td>
 </tr>
 <tr>
-  <td>Input file # 9 - data/class.node.07.raw:<br /># Class with attributes. OK.<br />node.green {color: green} [node.1] {color: pink} -&gt; [node.2]</td>
-  <td><object data = "./class.node.07.svg"># Class with attributes. OK.</object><br /><br />Output file # 9 - html/class.node.07.svg<br /># Class with attributes. OK.</td>
+  <td>Input file # 9 - data/class.graph.02.ge:<br /># Class with attributes but no graph. Error.<br />graph {color: blue}</td>
+  <td># Class with attributes but no graph. Error.<br /><object data = "./class.graph.02.svg"></object><br />Output file # 9 - None</td>
 </tr>
 <tr>
-  <td>Input file # 10 - data/class.node.08.raw:<br /># Class with attributes. OK.<br />node.green {color: green} [node.1] {color: pink} -&gt; [node.2] {class: green}</td>
-  <td><object data = "./class.node.08.svg"># Class with attributes. OK.</object><br /><br />Output file # 10 - html/class.node.08.svg<br /># Class with attributes. OK.</td>
+  <td>Input file # 10 - data/class.graph.03.ge:<br /># Illegal class name. Error.<br />x {color: blue} [node.1]</td>
+  <td># Illegal class name. Error.<br /><object data = "./class.graph.03.svg"></object><br />Output file # 10 - None</td>
 </tr>
 <tr>
-  <td>Input file # 11 - data/class.node.09.raw:<br /># Classes with attributes. OK.<br />edge {color: blue; arrowhead: odot} node.green {color: green; shape: rect} [node.1] {color: pink} -&gt; [node.2] {class: green}</td>
-  <td><object data = "./class.node.09.svg"># Classes with attributes. OK.</object><br /><br />Output file # 11 - html/class.node.09.svg<br /># Classes with attributes. OK.</td>
+  <td>Input file # 11 - data/class.graph.04.ge:<br /># Illegal class name. Error.<br />graph. {color: blue} [node.1]</td>
+  <td># Illegal class name. Error.<br /><object data = "./class.graph.04.svg"></object><br />Output file # 11 - None</td>
 </tr>
 <tr>
-  <td>Input file # 12 - data/edge.01.raw:<br /># Edge. OK.<br />--</td>
-  <td><object data = "./edge.01.svg"># Edge. OK.</object><br /><br />Output file # 12 - html/edge.01.svg<br /># Edge. OK.</td>
+  <td>Input file # 12 - data/class.graph.05.ge:<br /># Graph class. OK.<br />graph {rankdir: LR} [node.1] -- [node.2]</td>
+  <td># Graph class. OK.<br /><object data = "./class.graph.05.svg"></object><br />Output file # 12 - html/class.graph.05.svg</td>
 </tr>
 <tr>
-  <td>Input file # 13 - data/edge.02.raw:<br /># Edge with attributes. OK.<br />--{color:cornflowerblue}</td>
-  <td><object data = "./edge.02.svg"># Edge with attributes. OK.</object><br /><br />Output file # 13 - html/edge.02.svg<br /># Edge with attributes. OK.</td>
+  <td>Input file # 13 - data/class.group.01.ge:<br /># Class with no attributes and no graph. Error.<br />group</td>
+  <td># Class with no attributes and no graph. Error.<br /><object data = "./class.group.01.svg"></object><br />Output file # 13 - None</td>
 </tr>
 <tr>
-  <td>Input file # 14 - data/edge.04.raw:<br /># Juxtaposed edges (with comma) without attributes. OK.<br />--, --</td>
-  <td><object data = "./edge.04.svg"># Juxtaposed edges (with comma) without attributes. OK.</object><br /><br />Output file # 14 - html/edge.04.svg<br /># Juxtaposed edges (with comma) without attributes. OK.</td>
+  <td>Input file # 14 - data/class.group.02.ge:<br /># Class with attributes but no graph. Error.<br />group {color: red}</td>
+  <td># Class with attributes but no graph. Error.<br /><object data = "./class.group.02.svg"></object><br />Output file # 14 - None</td>
 </tr>
 <tr>
-  <td>Input file # 15 - data/edge.05.raw:<br /># Juxtaposed edges (without comma) with attributes. OK.<br />--{color:cornflowerblue} --{color:red}</td>
-  <td><object data = "./edge.05.svg"># Juxtaposed edges (without comma) with attributes. OK.</object><br /><br />Output file # 15 - html/edge.05.svg<br /># Juxtaposed edges (without comma) with attributes. OK.</td>
+  <td>Input file # 15 - data/class.group.03.ge:<br /># Group without attributes. OK.<br />(cluster.1: [node.1] -&gt; [node.2])</td>
+  <td># Group without attributes. OK.<br /><object data = "./class.group.03.svg"></object><br />Output file # 15 - html/class.group.03.svg</td>
 </tr>
 <tr>
-  <td>Input file # 16 - data/edge.06.raw:<br /># Juxtaposed edges (with comma) with attributes. OK.<br />--{color:cornflowerblue},--{color:red}</td>
-  <td><object data = "./edge.06.svg"># Juxtaposed edges (with comma) with attributes. OK.</object><br /><br />Output file # 16 - html/edge.06.svg<br /># Juxtaposed edges (with comma) with attributes. OK.</td>
+  <td>Input file # 16 - data/class.group.04.ge:<br /># Group with attributes. OK.<br />(cluster.1: [node.1] -&gt; [node.2]) {class: group}</td>
+  <td># Group with attributes. OK.<br /><object data = "./class.group.04.svg"></object><br />Output file # 16 - html/class.group.04.svg</td>
 </tr>
 <tr>
-  <td>Input file # 17 - data/edge.07.raw:<br /># Edge followed by node. OK.<br />--{color:cornflowerblue}[node.1]{color:red}</td>
-  <td><object data = "./edge.07.svg"># Edge followed by node. OK.</object><br /><br />Output file # 17 - html/edge.07.svg<br /># Edge followed by node. OK.</td>
+  <td>Input file # 17 - data/class.group.05.ge:<br /># Group with attributes. OK.<br />group {bgcolor: red} (cluster.1: [node.1] -&gt; [node.2]) {class: group}</td>
+  <td># Group with attributes. OK.<br /><object data = "./class.group.05.svg"></object><br />Output file # 17 - html/class.group.05.svg</td>
 </tr>
 <tr>
-  <td>Input file # 18 - data/edge.08.raw:<br /># Edges with fancy arrows. OK.<br /> [node.1]{color:green}--{color:maroon; arrowhead: box;     dir: forward; label: box}     [node.2]{color:blue}<br /> [node.3]{color:green}--{color:maroon; arrowhead: crow;    dir: forward; label: crow}    [node.4]{color:blue}<br /> [node.5]{color:green}--{color:maroon; arrowhead: diamond; dir: forward; label: diamond} [node.6]{color:blue}<br /> [node.7]{color:green}--{color:maroon; arrowhead: veevee;  dir: forward; label: veevee}  [node.8]{color:blue}<br /> [node.9]{color:green}--{color:maroon; arrowhead: teetee;  dir: forward; label: teetee}  [node.10]{color:blue}<br />[node.11]{color:green}--{color:maroon; arrowhead: odot;    dir: forward; label: odot}    [node.12]{color:blue}</td>
-  <td><object data = "./edge.08.svg"># Edges with fancy arrows. OK.</object><br /><br />Output file # 18 - html/edge.08.svg<br /># Edges with fancy arrows. OK.</td>
+  <td>Input file # 18 - data/class.group.06.ge:<br /># Edge, group and node classes. OK.<br />edge {color: white} group {bgcolor: red} node.green {color: green; shape: rect} (cluster.1: [node.1] {class: green} -&gt; [node.2]) {class: group}</td>
+  <td># Edge, group and node classes. OK.<br /><object data = "./class.group.06.svg"></object><br />Output file # 18 - html/class.group.06.svg</td>
 </tr>
 <tr>
-  <td>Input file # 19 - data/graph.11.raw:<br /># Ends with edge without attributes. OK.<br />[node.1]{color: red}-&gt;{color: green;}-&gt;{color: red}[node.2]</td>
-  <td><object data = "./graph.11.svg"># Ends with edge without attributes. OK.</object><br /><br />Output file # 19 - html/graph.11.svg<br /># Ends with edge without attributes. OK.</td>
+  <td>Input file # 19 - data/class.node.01.ge:<br /># Class with no attributes and no graph. Error.<br />node</td>
+  <td># Class with no attributes and no graph. Error.<br /><object data = "./class.node.01.svg"></object><br />Output file # 19 - None</td>
 </tr>
 <tr>
-  <td>Input file # 20 - data/graph.13.raw:<br /># Juxtapositioned edges (without comma). OK.<br />[Murrumbeena] {color: blue} -&gt; {color: green} -&gt; {color: red} [Carnegie] {color: crimson} -&gt; {color: brown} [Chadstone] {color: blueviolet}</td>
-  <td><object data = "./graph.13.svg"># Juxtapositioned edges (without comma). OK.</object><br /><br />Output file # 20 - html/graph.13.svg<br /># Juxtapositioned edges (without comma). OK.</td>
+  <td>Input file # 20 - data/class.node.02.ge:<br /># Class with attributes but no graph. Error.<br />node {color: yellow}</td>
+  <td># Class with attributes but no graph. Error.<br /><object data = "./class.node.02.svg"></object><br />Output file # 20 - None</td>
 </tr>
 <tr>
-  <td>Input file # 21 - data/graph.14.raw:<br /># Juxtapositioned edges (with comma). OK.<br />[Murrumbeena] {color: blue} -&gt; {color: green}, -&gt; {color: red} [Carnegie] {color: crimson} -- {color: brown} [Chadstone] {color: blueviolet}</td>
-  <td><object data = "./graph.14.svg"># Juxtapositioned edges (with comma). OK.</object><br /><br />Output file # 21 - html/graph.14.svg<br /># Juxtapositioned edges (with comma). OK.</td>
+  <td>Input file # 21 - data/class.node.03.ge:<br /># Subclass with no attributes (and no graph). Error.<br />node.green</td>
+  <td># Subclass with no attributes (and no graph). Error.<br /><object data = "./class.node.03.svg"></object><br />Output file # 21 - None</td>
 </tr>
 <tr>
-  <td>Input file # 22 - data/graph.15.raw:<br /># Reverse-engineered from GraphViz2/scripts/joint.edges.pl. OK.<br /><br />[Carnegie] {color: aquamarine; style: filled}<br />-&gt; {arrowhead: none; samehead: 1}<br />[one] {label:; style: filled; fillcolor: white; fixedsize: 1; width: 0; height: 0}<br /><br />[Murrumbeena] {color: bisque; style: filled}<br />-&gt; {arrowhead: none; samehead: 1}<br />[one]<br /><br />[one]<br />-&gt; {sametail: 1}<br />[Oakleigh] {color: blueviolet; style: filled}<br /><br />[Ashburton] {color: chartreuse; style: filled}<br />-&gt; {arrowhead: none; samehead: 1}<br />[two] {label:; style: filled; fillcolor: white; fixedsize: 1; width: 0; height: 0}<br /><br />[Chadstone] {color: coral; style: filled}<br />-&gt; {arrowhead: none; samehead: 1}<br />[two]<br /><br />[two]<br />-&gt; {sametail: 1}<br />[Waverley] {color: crimson; style: filled}</td>
-  <td><object data = "./graph.15.svg"># Reverse-engineered from GraphViz2/scripts/joint.edges.pl. OK.</object><br /><br />Output file # 22 - html/graph.15.svg<br /># Reverse-engineered from GraphViz2/scripts/joint.edges.pl. OK.</td>
+  <td>Input file # 22 - data/class.node.04.ge:<br /># Subclass with attributes but no graph. Error.<br />node.green {color: green}</td>
+  <td># Subclass with attributes but no graph. Error.<br /><object data = "./class.node.04.svg"></object><br />Output file # 22 - None</td>
 </tr>
 <tr>
-  <td>Input file # 23 - data/group.01.raw:<br /># Group with attributes. OK.<br />group {bgcolor: red} (cluster.1: [node.1] -&gt; [node.2]) {class: group}</td>
-  <td><object data = "./group.01.svg"># Group with attributes. OK.</object><br /><br />Output file # 23 - html/group.01.svg<br /># Group with attributes. OK.</td>
+  <td>Input file # 23 - data/class.node.05.ge:<br /># Unused class with attributes. OK.<br />node.green {color: green} [node.1] -&gt; [node.2]</td>
+  <td># Unused class with attributes. OK.<br /><object data = "./class.node.05.svg"></object><br />Output file # 23 - html/class.node.05.svg</td>
 </tr>
 <tr>
-  <td>Input file # 24 - data/node.02.raw:<br /># Anonymous node without attributes made to vanish. OK.<br />[]</td>
-  <td><object data = "./node.02.svg"># Anonymous node without attributes made to vanish. OK.</object><br /><br />Output file # 24 - html/node.02.svg<br /># Anonymous node without attributes made to vanish. OK.</td>
+  <td>Input file # 24 - data/class.node.06.ge:<br /># Classes with and without attributes. Error.<br />node.green {color: green} graph [node.1] -&gt; [node.2]</td>
+  <td># Classes with and without attributes. Error.<br /><object data = "./class.node.06.svg"></object><br />Output file # 24 - None</td>
 </tr>
 <tr>
-  <td>Input file # 25 - data/node.03.raw:<br /># Named node with space. OK.<br />[Perl 6]</td>
-  <td><object data = "./node.03.svg"># Named node with space. OK.</object><br /><br />Output file # 25 - html/node.03.svg<br /># Named node with space. OK.</td>
+  <td>Input file # 25 - data/class.node.07.ge:<br /># Class with attributes. OK.<br />node.green {color: green} [node.1] {color: pink} -&gt; [node.2]</td>
+  <td># Class with attributes. OK.<br /><object data = "./class.node.07.svg"></object><br />Output file # 25 - html/class.node.07.svg</td>
 </tr>
 <tr>
-  <td>Input file # 26 - data/node.04.raw:<br /># Anonymous node with attributes made to vanish. OK.<br />[]{color:red}</td>
-  <td><object data = "./node.04.svg"># Anonymous node with attributes made to vanish. OK.</object><br /><br />Output file # 26 - html/node.04.svg<br /># Anonymous node with attributes made to vanish. OK.</td>
+  <td>Input file # 26 - data/class.node.08.ge:<br /># Class with attributes. OK.<br />node.green {color: green} [node.1] {color: pink} -&gt; [node.2] {class: green}</td>
+  <td># Class with attributes. OK.<br /><object data = "./class.node.08.svg"></object><br />Output file # 26 - html/class.node.08.svg</td>
 </tr>
 <tr>
-  <td>Input file # 27 - data/node.05.raw:<br /># Named node with attributes. OK.<br />[node.1]{color:red}</td>
-  <td><object data = "./node.05.svg"># Named node with attributes. OK.</object><br /><br />Output file # 27 - html/node.05.svg<br /># Named node with attributes. OK.</td>
+  <td>Input file # 27 - data/class.node.09.ge:<br /># Classes with attributes. OK.<br />edge {color: blue; arrowhead: odot} node.green {color: green; shape: rect} [node.1] {color: pink} -&gt; [node.2] {class: green}</td>
+  <td># Classes with attributes. OK.<br /><object data = "./class.node.09.svg"></object><br />Output file # 27 - html/class.node.09.svg</td>
 </tr>
 <tr>
-  <td>Input file # 28 - data/node.06.raw:<br /># Juxtaposed nodes (without comma) with attributes. OK.<br />[node.1]{color:red}[node.2]{color:blue}</td>
-  <td><object data = "./node.06.svg"># Juxtaposed nodes (without comma) with attributes. OK.</object><br /><br />Output file # 28 - html/node.06.svg<br /># Juxtaposed nodes (without comma) with attributes. OK.</td>
+  <td>Input file # 28 - data/edge.01.ge:<br /># Edge. OK.<br />--</td>
+  <td># Edge. OK.<br /><object data = "./edge.01.svg"></object><br />Output file # 28 - html/edge.01.svg</td>
 </tr>
 <tr>
-  <td>Input file # 29 - data/node.07.raw:<br /># Juxtaposed nodes (with comma) with attributes. OK.<br />[node.1]{color:red},[node.2]{color:blue}</td>
-  <td><object data = "./node.07.svg"># Juxtaposed nodes (with comma) with attributes. OK.</object><br /><br />Output file # 29 - html/node.07.svg<br /># Juxtaposed nodes (with comma) with attributes. OK.</td>
+  <td>Input file # 29 - data/edge.02.ge:<br /># Edge with attributes. OK.<br />--{color:cornflowerblue}</td>
+  <td># Edge with attributes. OK.<br /><object data = "./edge.02.svg"></object><br />Output file # 29 - html/edge.02.svg</td>
 </tr>
 <tr>
-  <td>Input file # 30 - data/node.08.raw:<br /># Named node, with spaces. OK.<br />[    node.1    ]</td>
-  <td><object data = "./node.08.svg"># Named node, with spaces. OK.</object><br /><br />Output file # 30 - html/node.08.svg<br /># Named node, with spaces. OK.</td>
+  <td>Input file # 30 - data/edge.03.ge:<br /># Juxtaposed edges (without comma) without attributes. OK.<br />-- --</td>
+  <td># Juxtaposed edges (without comma) without attributes. OK.<br /><object data = "./edge.03.svg"></object><br />Output file # 30 - html/edge.03.svg</td>
 </tr>
 <tr>
-  <td>Input file # 31 - data/node.09.raw:<br /># Named node with attributes, with spaces. OK.<br />[  node.1 ]       { color : red }</td>
-  <td><object data = "./node.09.svg"># Named node with attributes, with spaces. OK.</object><br /><br />Output file # 31 - html/node.09.svg<br /># Named node with attributes, with spaces. OK.</td>
+  <td>Input file # 31 - data/edge.04.ge:<br /># Juxtaposed edges (with comma) without attributes. OK.<br />--, --</td>
+  <td># Juxtaposed edges (with comma) without attributes. OK.<br /><object data = "./edge.04.svg"></object><br />Output file # 31 - html/edge.04.svg</td>
 </tr>
 <tr>
-  <td>Input file # 32 - data/node.10.raw:<br /># Named node with attributes, with spaces. OK.<br />   [ node.1 ] {  label  :  Flight Path from Melbourne to London  }</td>
-  <td><object data = "./node.10.svg"># Named node with attributes, with spaces. OK.</object><br /><br />Output file # 32 - html/node.10.svg<br /># Named node with attributes, with spaces. OK.</td>
+  <td>Input file # 32 - data/edge.05.ge:<br /># Juxtaposed edges (without comma) with attributes. OK.<br />--{color:cornflowerblue} --{color:red}</td>
+  <td># Juxtaposed edges (without comma) with attributes. OK.<br /><object data = "./edge.05.svg"></object><br />Output file # 32 - html/edge.05.svg</td>
 </tr>
 <tr>
-  <td>Input file # 33 - data/node.12.raw:<br /># Juxtaposed nodes (without comma) without attributes. OK.<br />[node.1][node.2]</td>
-  <td><object data = "./node.12.svg"># Juxtaposed nodes (without comma) without attributes. OK.</object><br /><br />Output file # 33 - html/node.12.svg<br /># Juxtaposed nodes (without comma) without attributes. OK.</td>
+  <td>Input file # 33 - data/edge.06.ge:<br /># Juxtaposed edges (with comma) with attributes. OK.<br />--{color:cornflowerblue},--{color:red}</td>
+  <td># Juxtaposed edges (with comma) with attributes. OK.<br /><object data = "./edge.06.svg"></object><br />Output file # 33 - html/edge.06.svg</td>
 </tr>
 <tr>
-  <td>Input file # 34 - data/node.13.raw:<br /># Juxtaposed nodes (with comma) without attributes. OK.<br />[node.1],[node.2]</td>
-  <td><object data = "./node.13.svg"># Juxtaposed nodes (with comma) without attributes. OK.</object><br /><br />Output file # 34 - html/node.13.svg<br /># Juxtaposed nodes (with comma) without attributes. OK.</td>
+  <td>Input file # 34 - data/edge.07.ge:<br /># Edge followed by node. OK.<br />--{color:cornflowerblue}[node.1]{color:red}</td>
+  <td># Edge followed by node. OK.<br /><object data = "./edge.07.svg"></object><br />Output file # 34 - html/edge.07.svg</td>
 </tr>
 <tr>
-  <td>Input file # 35 - data/node.14.raw:<br /># Anonymous node without attributes made to vanish. OK.<br />[node.1] -&gt; [] -&gt; [node.2]</td>
-  <td><object data = "./node.14.svg"># Anonymous node without attributes made to vanish. OK.</object><br /><br />Output file # 35 - html/node.14.svg<br /># Anonymous node without attributes made to vanish. OK.</td>
+  <td>Input file # 35 - data/edge.08.ge:<br /># Edges with fancy arrows. OK.<br /> [node.1]{color:green}--{color:maroon; arrowhead: box;     dir: forward; label: box}     [node.2]{color:blue}<br /> [node.3]{color:green}--{color:maroon; arrowhead: crow;    dir: forward; label: crow}    [node.4]{color:blue}<br /> [node.5]{color:green}--{color:maroon; arrowhead: diamond; dir: forward; label: diamond} [node.6]{color:blue}<br /> [node.7]{color:green}--{color:maroon; arrowhead: veevee;  dir: forward; label: veevee}  [node.8]{color:blue}<br /> [node.9]{color:green}--{color:maroon; arrowhead: teetee;  dir: forward; label: teetee}  [node.10]{color:blue}<br />[node.11]{color:green}--{color:maroon; arrowhead: odot;    dir: forward; label: odot}    [node.12]{color:blue}</td>
+  <td># Edges with fancy arrows. OK.<br /><object data = "./edge.08.svg"></object><br />Output file # 35 - html/edge.08.svg</td>
 </tr>
 <tr>
-  <td>Input file # 36 - data/node.15.raw:<br /># Anonymous node with attributes made to vanish. OK.<br />[node.1] -&gt; [] {color: red; label: &#39;Anonymous!&#39;} -&gt; [node.2]</td>
-  <td><object data = "./node.15.svg"># Anonymous node with attributes made to vanish. OK.</object><br /><br />Output file # 36 - html/node.15.svg<br /># Anonymous node with attributes made to vanish. OK.</td>
+  <td>Input file # 36 - data/edge.09.ge:<br /># Juxtaposed edges (without any spacing) without attributes. OK.<br />------</td>
+  <td># Juxtaposed edges (without any spacing) without attributes. OK.<br /><object data = "./edge.09.svg"></object><br />Output file # 36 - html/edge.09.svg</td>
 </tr>
 <tr>
-  <td>Input file # 37 - data/node.16.raw:<br /># Class node, and anonymous node made to vanish. OK.<br />node {color: red} [node.1] -&gt; [] {label: &#39;Hide me!&#39;} -&gt; [node.2]</td>
-  <td><object data = "./node.16.svg"># Class node, and anonymous node made to vanish. OK.</object><br /><br />Output file # 37 - html/node.16.svg<br /># Class node, and anonymous node made to vanish. OK.</td>
+  <td>Input file # 37 - data/graph.01.ge:<br /># Ends with edge without attributes. OK.<br />[node.1]{color: red}-&gt;{color: green;}-&gt;{color: red}[node.2]</td>
+  <td># Ends with edge without attributes. OK.<br /><object data = "./graph.01.svg"></object><br />Output file # 37 - html/graph.01.svg</td>
 </tr>
 <tr>
-  <td>Input file # 38 - data/node.17.raw:<br /># Node with HTML-style label. OK.<br />[node.1] {label: &lt;&lt;table border=&#39;1&#39;&gt;&lt;tr&gt;&lt;td&gt;HTML-style label&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&gt;}</td>
-  <td><object data = "./node.17.svg"># Node with HTML-style label. OK.</object><br /><br />Output file # 38 - html/node.17.svg<br /># Node with HTML-style label. OK.</td>
+  <td>Input file # 38 - data/graph.02.ge:<br /># Juxtapositioned edges (without comma). OK.<br />[Murrumbeena] {color: blue} -&gt; {color: green} -&gt; {color: red} [Carnegie] {color: crimson} -&gt; {color: brown} [Chadstone] {color: blueviolet}</td>
+  <td># Juxtapositioned edges (without comma). OK.<br /><object data = "./graph.02.svg"></object><br />Output file # 38 - html/graph.02.svg</td>
 </tr>
 <tr>
-  <td>Input file # 39 - data/node.18.raw:<br /># Node with HTML-style label. OK.<br />[node.1] {label: &lt;&lt;table border=&#39;0&#39;&gt;&lt;tr&gt;&lt;td&gt;HTML-style label but without border&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&gt;}</td>
-  <td><object data = "./node.18.svg"># Node with HTML-style label. OK.</object><br /><br />Output file # 39 - html/node.18.svg<br /># Node with HTML-style label. OK.</td>
+  <td>Input file # 39 - data/graph.03.ge:<br /># Juxtapositioned edges (with comma). OK.<br />[Murrumbeena] {color: blue} -&gt; {color: green}, -&gt; {color: red} [Carnegie] {color: crimson} -- {color: brown} [Chadstone] {color: blueviolet}</td>
+  <td># Juxtapositioned edges (with comma). OK.<br /><object data = "./graph.03.svg"></object><br />Output file # 39 - html/graph.03.svg</td>
 </tr>
 <tr>
-  <td>Input file # 40 - data/node.19.raw:<br /># Node with HTML-style label. OK.<br />[node.1] {label: &lt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;HTML-style label with an embedded &amp;amp;&lt;br /&gt;and several &amp;lt;br /&amp;gt;s for line wrapping &lt;br /&gt; thereby demonstrating encoded entities work&lt;br /&gt;&amp;amp; (i.e. but) &lt;br /&gt; note however the complete absence of commas&lt;br /&gt;because output can go to a CSV file&lt;br /&gt;which means commas are prohibited&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&gt;; color: red}</td>
-  <td><object data = "./node.19.svg"># Node with HTML-style label. OK.</object><br /><br />Output file # 40 - html/node.19.svg<br /># Node with HTML-style label. OK.</td>
+  <td>Input file # 40 - data/graph.04.ge:<br /># Reverse-engineered from GraphViz2/scripts/joint.edges.pl. OK.<br /><br />[Carnegie] {color: aquamarine; style: filled}<br />-&gt; {arrowhead: none; samehead: 1}<br />[one] {label:&#39;&#39;; style: filled; fillcolor: white; fixedsize: 1; width: 0; height: 0}<br /><br />[Murrumbeena] {color: bisque; style: filled}<br />-&gt; {arrowhead: none; samehead: 1}<br />[one]<br /><br />[one]<br />-&gt; {sametail: 1}<br />[Oakleigh] {color: blueviolet; style: filled}<br /><br />[Ashburton] {color: chartreuse; style: filled}<br />-&gt; {arrowhead: none; samehead: 1}<br />[two] {label:&#39;&#39;; style: filled; fillcolor: white; fixedsize: 1; width: 0; height: 0}<br /><br />[Chadstone] {color: coral; style: filled}<br />-&gt; {arrowhead: none; samehead: 1}<br />[two]<br /><br />[two]<br />-&gt; {sametail: 1}<br />[Waverley] {color: crimson; style: filled}</td>
+  <td># Reverse-engineered from GraphViz2/scripts/joint.edges.pl. OK.<br /><object data = "./graph.04.svg"></object><br />Output file # 40 - html/graph.04.svg</td>
 </tr>
 <tr>
-  <td>Input file # 41 - data/subgraph.04.raw:<br /># Group (i.e. subgraph). OK.<br />(cluster_1:[Great]-&gt;{arrowhead: odot}[Small]){bgcolor: lightblue; label: Creatures}</td>
-  <td><object data = "./subgraph.04.svg"># Group (i.e. subgraph). OK.</object><br /><br />Output file # 41 - html/subgraph.04.svg<br /># Group (i.e. subgraph). OK.</td>
+  <td>Input file # 41 - data/group.01.ge:<br /># Group with attributes. OK.<br />group {bgcolor: red} (cluster.1: [node.1] -&gt; [node.2]) {class: group}</td>
+  <td># Group with attributes. OK.<br /><object data = "./group.01.svg"></object><br />Output file # 41 - html/group.01.svg</td>
 </tr>
 <tr>
-  <td>Input file # 42 - data/subgraph.05.raw:<br /># Group (i.e. subgraph) + Group. OK.<br />(cluster_1: [Solar system] -&gt; {arrowhead: diamond} [Earth]) {bgcolor: cornflowerblue; label: Locale}<br />(cluster_2: [Great] -&gt; {arrowhead: odot} [Small]) {bgcolor: lightblue; label: Creatures}</td>
-  <td><object data = "./subgraph.05.svg"># Group (i.e. subgraph) + Group. OK.</object><br /><br />Output file # 42 - html/subgraph.05.svg<br /># Group (i.e. subgraph) + Group. OK.</td>
+  <td>Input file # 42 - data/node.01.ge:<br /># Empty file. Error.</td>
+  <td># Empty file. Error.<br /><object data = "./node.01.svg"></object><br />Output file # 42 - None</td>
 </tr>
 <tr>
-  <td>Input file # 43 - data/subgraph.06.raw:<br /># Node + Group (i.e. subgraph). OK.<br />[Sol] (cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}</td>
-  <td><object data = "./subgraph.06.svg"># Node + Group (i.e. subgraph). OK.</object><br /><br />Output file # 43 - html/subgraph.06.svg<br /># Node + Group (i.e. subgraph). OK.</td>
+  <td>Input file # 43 - data/node.02.ge:<br /># Anonymous node without attributes. OK.<br />[]</td>
+  <td># Anonymous node without attributes. OK.<br /><object data = "./node.02.svg"></object><br />Output file # 43 - html/node.02.svg</td>
 </tr>
 <tr>
-  <td>Input file # 44 - data/subgraph.07.raw:<br /># Group (i.e. subgraph) + Node. OK.<br />(cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale} [Sol] </td>
-  <td><object data = "./subgraph.07.svg"># Group (i.e. subgraph) + Node. OK.</object><br /><br />Output file # 44 - html/subgraph.07.svg<br /># Group (i.e. subgraph) + Node. OK.</td>
+  <td>Input file # 44 - data/node.03.ge:<br /># Named node with space. OK.<br />[Perl 6]</td>
+  <td># Named node with space. OK.<br /><object data = "./node.03.svg"></object><br />Output file # 44 - html/node.03.svg</td>
 </tr>
 <tr>
-  <td>Input file # 45 - data/subgraph.08.raw:<br /># Edge + Group (i.e. subgraph). OK.<br />-&gt; (cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}</td>
-  <td><object data = "./subgraph.08.svg"># Edge + Group (i.e. subgraph). OK.</object><br /><br />Output file # 45 - html/subgraph.08.svg<br /># Edge + Group (i.e. subgraph). OK.</td>
+  <td>Input file # 45 - data/node.04.ge:<br /># Anonymous node with attributes. OK.<br />[]{color:red}</td>
+  <td># Anonymous node with attributes. OK.<br /><object data = "./node.04.svg"></object><br />Output file # 45 - html/node.04.svg</td>
 </tr>
 <tr>
-  <td>Input file # 46 - data/subgraph.09.raw:<br /># Group (i.e. subgraph) + Edge. OK.<br />(cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale} -&gt;</td>
-  <td><object data = "./subgraph.09.svg"># Group (i.e. subgraph) + Edge. OK.</object><br /><br />Output file # 46 - html/subgraph.09.svg<br /># Group (i.e. subgraph) + Edge. OK.</td>
+  <td>Input file # 46 - data/node.05.ge:<br /># Named node with attributes. OK.<br />[node.1]{color:red}</td>
+  <td># Named node with attributes. OK.<br /><object data = "./node.05.svg"></object><br />Output file # 46 - html/node.05.svg</td>
 </tr>
 <tr>
-  <td>Input file # 47 - data/subgraph.10.raw:<br /># Node + Edge + Group (i.e. subgraph). OK.<br />[Andromeda] -&gt;<br />(cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}</td>
-  <td><object data = "./subgraph.10.svg"># Node + Edge + Group (i.e. subgraph). OK.</object><br /><br />Output file # 47 - html/subgraph.10.svg<br /># Node + Edge + Group (i.e. subgraph). OK.</td>
+  <td>Input file # 47 - data/node.06.ge:<br /># Juxtaposed nodes (without comma) with attributes. OK.<br />[node.1]{color:red}[node.2]{color:blue}</td>
+  <td># Juxtaposed nodes (without comma) with attributes. OK.<br /><object data = "./node.06.svg"></object><br />Output file # 47 - html/node.06.svg</td>
 </tr>
 <tr>
-  <td>Input file # 48 - data/subgraph.11.raw:<br /># Node + Edge + Node + Edge + Group (i.e. subgraph). OK.<br />[Andromeda] -&gt; [Milky Way] -&gt;<br />(cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}</td>
-  <td><object data = "./subgraph.11.svg"># Node + Edge + Node + Edge + Group (i.e. subgraph). OK.</object><br /><br />Output file # 48 - html/subgraph.11.svg<br /># Node + Edge + Node + Edge + Group (i.e. subgraph). OK.</td>
+  <td>Input file # 48 - data/node.07.ge:<br /># Juxtaposed nodes (with comma) with attributes. OK.<br />[node.1]{color:red},[node.2]{color:blue}</td>
+  <td># Juxtaposed nodes (with comma) with attributes. OK.<br /><object data = "./node.07.svg"></object><br />Output file # 48 - html/node.07.svg</td>
 </tr>
 <tr>
-  <td>Input file # 49 - data/subgraph.12.raw:<br /># Group (i.e. subgraph) + Edge + Node. OK.<br />(cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}<br />-&gt; [Australia]</td>
-  <td><object data = "./subgraph.12.svg"># Group (i.e. subgraph) + Edge + Node. OK.</object><br /><br />Output file # 49 - html/subgraph.12.svg<br /># Group (i.e. subgraph) + Edge + Node. OK.</td>
+  <td>Input file # 49 - data/node.08.ge:<br /># Named node, with spaces. OK.<br />[    node.1    ]</td>
+  <td># Named node, with spaces. OK.<br /><object data = "./node.08.svg"></object><br />Output file # 49 - html/node.08.svg</td>
 </tr>
 <tr>
-  <td>Input file # 50 - data/subgraph.13.raw:<br /># Group (i.e. subgraph) + Edge + Node + Edge + Node + Edge + Node. OK.<br />(cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}<br />-&gt; [Australia] -&gt; [Victoria] -&gt; [Melbourne] -&gt; [Murrumbeena]</td>
-  <td><object data = "./subgraph.13.svg"># Group (i.e. subgraph) + Edge + Node + Edge + Node + Edge + Node. OK.</object><br /><br />Output file # 50 - html/subgraph.13.svg<br /># Group (i.e. subgraph) + Edge + Node + Edge + Node + Edge + Node. OK.</td>
+  <td>Input file # 50 - data/node.09.ge:<br /># Named node with attributes, with spaces. OK.<br />[  node.1 ]       { color : red }</td>
+  <td># Named node with attributes, with spaces. OK.<br /><object data = "./node.09.svg"></object><br />Output file # 50 - html/node.09.svg</td>
 </tr>
 <tr>
-  <td>Input file # 51 - data/subgraph.14.raw:<br /># Group (i.e. subgraph) + Edge + Group. OK.<br />(cluster_1: [Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}<br />-&gt;<br />(cluster_2: [Australia] -&gt; [Victoria] -&gt; [Melbourne] -&gt; [Murrumbeena]){bgcolor: lightblue; label: Home}</td>
-  <td><object data = "./subgraph.14.svg"># Group (i.e. subgraph) + Edge + Group. OK.</object><br /><br />Output file # 51 - html/subgraph.14.svg<br /># Group (i.e. subgraph) + Edge + Group. OK.</td>
+  <td>Input file # 51 - data/node.10.ge:<br /># Named node with attributes, with spaces. OK.<br />   [ node.1 ] {  label  :  Flight Path from Melbourne to London  }</td>
+  <td># Named node with attributes, with spaces. OK.<br /><object data = "./node.10.svg"></object><br />Output file # 51 - html/node.10.svg</td>
 </tr>
 <tr>
-  <td>Input file # 52 - data/subgraph.15.raw:<br /># Group (i.e. subgraph) without a node before the edge. OK.<br />(cluster_1: -&gt; [Small] )</td>
-  <td><object data = "./subgraph.15.svg"># Group (i.e. subgraph) without a node before the edge. OK.</object><br /><br />Output file # 52 - html/subgraph.15.svg<br /># Group (i.e. subgraph) without a node before the edge. OK.</td>
+  <td>Input file # 52 - data/node.11.ge:<br /># Juxtaposed nodes (without comma) without attributes. OK.<br />[node.1][node.2]</td>
+  <td># Juxtaposed nodes (without comma) without attributes. OK.<br /><object data = "./node.11.svg"></object><br />Output file # 52 - html/node.11.svg</td>
 </tr>
 <tr>
-  <td>Input file # 53 - data/subgraph.16.raw:<br /># Group (i.e. subgraph) without a node after the edge. OK.<br />(cluster_1: [Small] -&gt; )</td>
-  <td><object data = "./subgraph.16.svg"># Group (i.e. subgraph) without a node after the edge. OK.</object><br /><br />Output file # 53 - html/subgraph.16.svg<br /># Group (i.e. subgraph) without a node after the edge. OK.</td>
+  <td>Input file # 53 - data/node.12.ge:<br /># Juxtaposed nodes (with comma) without attributes. OK.<br />[node.1],[node.2]</td>
+  <td># Juxtaposed nodes (with comma) without attributes. OK.<br /><object data = "./node.12.svg"></object><br />Output file # 53 - html/node.12.svg</td>
+</tr>
+<tr>
+  <td>Input file # 54 - data/node.13.ge:<br /># Anonymous node without attributes. OK.<br />[node.1] -&gt; [] -&gt; [node.2]</td>
+  <td># Anonymous node without attributes. OK.<br /><object data = "./node.13.svg"></object><br />Output file # 54 - html/node.13.svg</td>
+</tr>
+<tr>
+  <td>Input file # 55 - data/node.14.ge:<br /># Anonymous node with attributes. OK.<br />[node.1] -&gt; [] {color: red; label: &#39;Anonymous!&#39;} -&gt; [node.2]</td>
+  <td># Anonymous node with attributes. OK.<br /><object data = "./node.14.svg"></object><br />Output file # 55 - html/node.14.svg</td>
+</tr>
+<tr>
+  <td>Input file # 56 - data/node.15.ge:<br /># Class node, and anonymous node. OK.<br />node {color: red}<br />[node.1] -&gt; {arrowhead: odot; arrowtail: ediamond; color: green; dir: both; label: A; penwidth: 1}<br />-&gt; {color: blue; label: B; penwidth: 3}<br />-&gt; {arrowhead: box; arrowtail: invdot; color: maroon; dir: both; label: C; penwidth: 5}<br />[] {label: &#39;Some node&#39;} -&gt; [node.2]</td>
+  <td># Class node, and anonymous node. OK.<br /><object data = "./node.15.svg"></object><br />Output file # 56 - html/node.15.svg</td>
+</tr>
+<tr>
+  <td>Input file # 57 - data/node.16.ge:<br /># Node with HTML-style label. OK.<br />[node.1] {color: pink; label: &lt;&lt;table border=&#39;1&#39;&gt;&lt;tr&gt;&lt;td&gt;HTML-style label&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&gt;; shape: doublecircle}</td>
+  <td># Node with HTML-style label. OK.<br /><object data = "./node.16.svg"></object><br />Output file # 57 - html/node.16.svg</td>
+</tr>
+<tr>
+  <td>Input file # 58 - data/node.17.ge:<br /># Node with HTML-style label. OK.<br />[node.1] {color: red; label: &lt;&lt;table border=&#39;0&#39;&gt;&lt;tr&gt;&lt;td&gt;HTML-style label but without borders&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&gt;; shape: tripleoctagon}</td>
+  <td># Node with HTML-style label. OK.<br /><object data = "./node.17.svg"></object><br />Output file # 58 - html/node.17.svg</td>
+</tr>
+<tr>
+  <td>Input file # 59 - data/subgraph.01.ge:<br /># Group opened but not closed. Error.<br />(</td>
+  <td># Group opened but not closed. Error.<br /><object data = "./subgraph.01.svg"></object><br />Output file # 59 - None</td>
+</tr>
+<tr>
+  <td>Input file # 60 - data/subgraph.02.ge:<br /># Group not opened but closed. Error.<br />)</td>
+  <td># Group not opened but closed. Error.<br /><object data = "./subgraph.02.svg"></object><br />Output file # 60 - None</td>
+</tr>
+<tr>
+  <td>Input file # 61 - data/subgraph.03.ge:<br /># Group without a name or content. Error.<br />()</td>
+  <td># Group without a name or content. Error.<br /><object data = "./subgraph.03.svg"></object><br />Output file # 61 - None</td>
+</tr>
+<tr>
+  <td>Input file # 62 - data/subgraph.04.ge:<br /># Group (i.e. subgraph). OK.<br />(cluster_1:[Great]-&gt;{arrowhead: odot}[Small]){bgcolor: lightblue; label: Creatures}</td>
+  <td># Group (i.e. subgraph). OK.<br /><object data = "./subgraph.04.svg"></object><br />Output file # 62 - html/subgraph.04.svg</td>
+</tr>
+<tr>
+  <td>Input file # 63 - data/subgraph.05.ge:<br /># Group (i.e. subgraph) + Group. OK.<br />(cluster_1: [Solar system] -&gt; {arrowhead: diamond} [Earth]) {bgcolor: cornflowerblue; label: Locale}<br />(cluster_2: [Great] -&gt; {arrowhead: odot} [Small]) {bgcolor: lightblue; label: Creatures}</td>
+  <td># Group (i.e. subgraph) + Group. OK.<br /><object data = "./subgraph.05.svg"></object><br />Output file # 63 - html/subgraph.05.svg</td>
+</tr>
+<tr>
+  <td>Input file # 64 - data/subgraph.06.ge:<br /># Node + Group (i.e. subgraph). OK.<br />[Sol] (cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}</td>
+  <td># Node + Group (i.e. subgraph). OK.<br /><object data = "./subgraph.06.svg"></object><br />Output file # 64 - html/subgraph.06.svg</td>
+</tr>
+<tr>
+  <td>Input file # 65 - data/subgraph.07.ge:<br /># Group (i.e. subgraph) + Node. OK.<br />(cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale} [Sol]</td>
+  <td># Group (i.e. subgraph) + Node. OK.<br /><object data = "./subgraph.07.svg"></object><br />Output file # 65 - html/subgraph.07.svg</td>
+</tr>
+<tr>
+  <td>Input file # 66 - data/subgraph.08.ge:<br /># Edge + Group (i.e. subgraph). OK.<br />-&gt; (cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}</td>
+  <td># Edge + Group (i.e. subgraph). OK.<br /><object data = "./subgraph.08.svg"></object><br />Output file # 66 - html/subgraph.08.svg</td>
+</tr>
+<tr>
+  <td>Input file # 67 - data/subgraph.09.ge:<br /># Group (i.e. subgraph) + Edge. OK.<br />(cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale} -&gt;</td>
+  <td># Group (i.e. subgraph) + Edge. OK.<br /><object data = "./subgraph.09.svg"></object><br />Output file # 67 - html/subgraph.09.svg</td>
+</tr>
+<tr>
+  <td>Input file # 68 - data/subgraph.10.ge:<br /># Node + Edge + Group (i.e. subgraph). OK.<br />[Andromeda] -&gt;<br />(cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}</td>
+  <td># Node + Edge + Group (i.e. subgraph). OK.<br /><object data = "./subgraph.10.svg"></object><br />Output file # 68 - html/subgraph.10.svg</td>
+</tr>
+<tr>
+  <td>Input file # 69 - data/subgraph.11.ge:<br /># Node + Edge + Node + Edge + Group (i.e. subgraph). OK.<br />[Andromeda] -&gt; [Milky\sWay] -&gt;<br />(cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}</td>
+  <td># Node + Edge + Node + Edge + Group (i.e. subgraph). OK.<br /><object data = "./subgraph.11.svg"></object><br />Output file # 69 - html/subgraph.11.svg</td>
+</tr>
+<tr>
+  <td>Input file # 70 - data/subgraph.12.ge:<br /># Group (i.e. subgraph) + Edge + Node. OK.<br />(cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}<br />-&gt; [Australia]</td>
+  <td># Group (i.e. subgraph) + Edge + Node. OK.<br /><object data = "./subgraph.12.svg"></object><br />Output file # 70 - html/subgraph.12.svg</td>
+</tr>
+<tr>
+  <td>Input file # 71 - data/subgraph.13.ge:<br /># Group (i.e. subgraph) + Edge + Node + Edge + Node + Edge + Node. OK.<br />(cluster_1:[Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}<br />-&gt; [Australia] -&gt; [Victoria] -&gt; [Melbourne] -&gt; [Murrumbeena]</td>
+  <td># Group (i.e. subgraph) + Edge + Node + Edge + Node + Edge + Node. OK.<br /><object data = "./subgraph.13.svg"></object><br />Output file # 71 - html/subgraph.13.svg</td>
+</tr>
+<tr>
+  <td>Input file # 72 - data/subgraph.14.ge:<br /># Group (i.e. subgraph) + Edge + Group. OK.<br />(cluster_1: [Solar system]-&gt;{arrowhead: diamond}[Earth]){bgcolor: cornflowerblue; label: Locale}<br />-&gt;<br />(cluster_2: [Australia] -&gt; [Victoria] -&gt; [Melbourne] -&gt; [Murrumbeena]){bgcolor: lightblue; label: Home}</td>
+  <td># Group (i.e. subgraph) + Edge + Group. OK.<br /><object data = "./subgraph.14.svg"></object><br />Output file # 72 - html/subgraph.14.svg</td>
+</tr>
+<tr>
+  <td>Input file # 73 - data/subgraph.15.ge:<br /># Group (i.e. subgraph) without a node before the edge. OK.<br />(cluster_1: -&gt; [Small] )</td>
+  <td># Group (i.e. subgraph) without a node before the edge. OK.<br /><object data = "./subgraph.15.svg"></object><br />Output file # 73 - html/subgraph.15.svg</td>
+</tr>
+<tr>
+  <td>Input file # 74 - data/subgraph.16.ge:<br /># Group (i.e. subgraph) without a node after the edge. OK.<br />(cluster_1: [Small] -&gt; )</td>
+  <td># Group (i.e. subgraph) without a node after the edge. OK.<br /><object data = "./subgraph.16.svg"></object><br />Output file # 74 - html/subgraph.16.svg</td>
+</tr>
+<tr>
+  <td>Input file # 75 - data/utf8.01.ge:<br /># Graph with utf8 attributes. OK.<br />[From]{color: green; label: Reichwaldstra&szlig;e}<br />-&gt; {color:maroon; label: &Pi;&eta;&lambda;&eta;&#x3CA;&#x3AC;&delta;&epsilon;&omega; &#x1F08;&chi;&iota;&lambda;&#x1FC6;&omicron;&sigmaf;}<br />[To]{color: blue; label: &Delta; Lady}</td>
+  <td># Graph with utf8 attributes. OK.<br /><object data = "./utf8.01.svg"></object><br />Output file # 75 - html/utf8.01.svg</td>
 </tr>
 </table>
 
@@ -240,8 +328,6 @@
 <h3 class="global_toc_text">Links</h3>
 
 <h2 align="center">Index page for <a href="http://savage.net.au/Graph-module-demos.html">all graph module demos</a></h2>
-
-<h2 align="center">Demo page for <a href="http://savage.net.au/Perl-modules/html/graph.easy.marpa/stt.html">State Transition Table</a></h2>
 
 <hr />
 
@@ -272,7 +358,7 @@ Date
 <!-- Right -->
 <td>
 <div class="odd_right">
-2012-12-21
+2013-07-29
 </div>
 </td>
 </tr>

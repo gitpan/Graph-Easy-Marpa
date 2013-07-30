@@ -6,7 +6,7 @@ use warnings;
 use File::Copy;
 use File::HomeDir;
 
-use Path::Class;
+use Path::Tiny; # For path().
 
 # ----------------------------------------
 
@@ -15,13 +15,13 @@ my($module_dir)       = $module;
 $module_dir           =~ s/::/-/g;
 my($dir_name)         = File::HomeDir -> my_dist_config($module_dir, {create => 1});
 my($config_name)      = '.htgraph.easy.marpa.conf';
-my($source_file_name) = Path::Class::file('config', $config_name);
+my($source_file_name) = path('config', $config_name);
 
 if ($dir_name)
 {
 	File::Copy::copy($source_file_name, $dir_name);
 
-	my($dest_file_name) = Path::Class::file($dir_name, $config_name);
+	my($dest_file_name) = path($dir_name, $config_name);
 
 	if (-e $dest_file_name)
 	{
