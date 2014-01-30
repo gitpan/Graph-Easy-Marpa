@@ -13,7 +13,7 @@ use Set::Array;
 # This class needs a sub new() due to the way
 # Marpa::R2 calls the constructor.
 
-our $VERSION = '2.00';
+our $VERSION = '2.01';
 
 # --------------------------------------------------
 
@@ -56,7 +56,7 @@ L<Graph::Easy::Marpa::Parser>.
 
 C<Graph::Easy::Marpa::Actions> provides a namespace for L<Graph::Easy::Marpa::Parser>'s Marpa-style actions.
 
-See L<L<Graph::Easy::Marpa::Parser> for details.
+See L<Graph::Easy::Marpa::Parser> for details.
 
 =head1 Installation
 

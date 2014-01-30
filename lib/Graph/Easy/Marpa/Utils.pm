@@ -22,7 +22,6 @@ use Moo;
 
 use Perl6::Slurp; # For slurp().
 
-use Text::CSV::Slurp;
 use Text::Xslate 'mark_raw';
 
 has config =>
@@ -34,7 +33,7 @@ has config =>
 );
 
 
-our $VERSION = '2.00';
+our $VERSION = '2.01';
 
 # ------------------------------------------------
 

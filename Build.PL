@@ -1,3 +1,6 @@
+use strict;
+use warnings;
+
 use Module::Build;
 
 my $class = Module::Build->subclass(code => <<'EOF');
@@ -27,43 +30,41 @@ $class -> new
 	dist_author    => 'Ron Savage <ron@savage.net.au>',
 	build_requires =>
 	{
-		Test::More=> 0.94,
-#		Test::Pod  => 1.45, # Make it optional. See t/pod.t
+		'Test::More' => 0.94,
+#		'Test::Pod'  => 1.45, # Make it optional. See t/pod.t
 	},
 	configure_requires =>
 	{
-		Module::Build => 0.3800,
+		'Module::Build' => 0.3800,
 	},
 	requires =>
 	{
-		Capture::Tiny    => 0.11,
-		charnames        => 0,
-		Config           => undef,
-		Config::Tiny     => 2.14,
-		Date::Simple     => 3.03,
-		File::Basename   => 2.78,
-		File::Copy       => 2.21,
-		File::HomeDir    => 0.99,
-		File::Slurp      => 9999.19,
-		File::Spec       => 3.33,
-		Getopt::Long     => 2.38,
-		GraphViz2        => 1.09,
-		HTML::Entities::Interpolate => 1.04,
-		Log::Handler     => 0.71,
-		Marpa::R2        => 2.064000,
-		Moo              => 1.002000,
-		open             => 0,
-		Path::Tiny       => 0.025,
-		Perl6::Slurp     => 0.03,
-		Pod::Usage       => 1.36,
-		Set::Array       => 0.23,
-		Sort::Naturally  => 1.02,
-		strict           => 0,
-		Text::CSV        => 1.32,
-		Text::CSV::Slurp => 1.01,
-		Text::Xslate     => 1.4001,
-		Try::Tiny        => 0.09,
-		utf8             => 0,
-		warnings         => 0,
+		'Capture::Tiny'    => 0.11,
+		'charnames'        => 0,
+		'Config'           => undef,
+		'Config::Tiny'     => 2.14,
+		'Date::Simple'     => 3.03,
+		'File::Basename'   => 2.78,
+		'File::Copy'       => 2.21,
+		'File::HomeDir'    => 0.99,
+		'File::Spec'       => 3.33,
+		'Getopt::Long'     => 2.38,
+		'GraphViz2'        => 1.09,
+		'HTML::Entities::Interpolate' => 1.04,
+		'Log::Handler'     => 0.71,
+		'Marpa::R2'        => 2.064000,
+		'Moo'              => 1.002000,
+		'open'             => 0,
+		'Path::Tiny'       => 0.025,
+		'Perl6::Slurp'     => 0.03,
+		'Pod::Usage'       => 1.36,
+		'Set::Array'       => 0.23,
+		'Sort::Naturally'  => 1.02,
+		'strict'           => 0,
+		'Text::CSV'        => 1.32,
+		'Text::Xslate'     => 1.4001,
+		'Try::Tiny'        => 0.09,
+		'utf8'             => 0,
+		'warnings'         => 0,
 	},
 ) -> create_build_script();

@@ -7,8 +7,8 @@ build_requires:
 configure_requires:
   Module::Build: 0.38
 dynamic_config: 1
-generated_by: 'Module::Build version 0.4005, CPAN::Meta::Converter version 2.131560'
-license: artistic_2
+generated_by: 'Module::Build version 0.4204, CPAN::Meta::Converter version 2.120921'
+license: unknown
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
@@ -16,25 +16,25 @@ name: Graph-Easy-Marpa
 provides:
   Graph::Easy::Marpa:
     file: lib/Graph/Easy/Marpa.pm
-    version: 2.00
+    version: 2.01
   Graph::Easy::Marpa::Actions:
     file: lib/Graph/Easy/Marpa/Actions.pm
-    version: 2.00
+    version: 2.01
   Graph::Easy::Marpa::Config:
     file: lib/Graph/Easy/Marpa/Config.pm
-    version: 2.00
+    version: 2.01
   Graph::Easy::Marpa::Filer:
     file: lib/Graph/Easy/Marpa/Filer.pm
-    version: 2.00
+    version: 2.01
   Graph::Easy::Marpa::Parser:
     file: lib/Graph/Easy/Marpa/Parser.pm
-    version: 2.00
+    version: 2.01
   Graph::Easy::Marpa::Renderer::GraphViz2:
     file: lib/Graph/Easy/Marpa/Renderer/GraphViz2.pm
-    version: 2.00
+    version: 2.01
   Graph::Easy::Marpa::Utils:
     file: lib/Graph/Easy/Marpa/Utils.pm
-    version: 2.00
+    version: 2.01
 requires:
   Capture::Tiny: 0.11
   Config: 0
@@ -43,7 +43,6 @@ requires:
   File::Basename: 2.78
   File::Copy: 2.21
   File::HomeDir: 0.99
-  File::Slurp: 9999.19
   File::Spec: 3.33
   Getopt::Long: 2.38
   GraphViz2: 1.09
@@ -57,7 +56,6 @@ requires:
   Set::Array: 0.23
   Sort::Naturally: 1.02
   Text::CSV: 1.32
-  Text::CSV::Slurp: 1.01
   Text::Xslate: 1.4001
   Try::Tiny: 0.09
   charnames: 0
@@ -66,5 +64,5 @@ requires:
   utf8: 0
   warnings: 0
 resources:
-  license: http://www.perlfoundation.org/artistic_license_2_0
-version: 2.00
+  license: http://opensource.org/licenses/artistic-license-2.0.php
+version: 2.01

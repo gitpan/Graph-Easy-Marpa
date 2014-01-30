@@ -1,12 +1,18 @@
 Revision history for Perl extension Graph::Easy::Marpa.
 
+2.01  Thu Jan 12:31:00 2014
+	- Patch CPAN::Meta::Validator to not delete META.* (Module::Build does the dirty work).
+	- Add use strict/warnings to Build.PL, Makefile.PL.
+	- Fix typo in Makefile.PL prereq for Path::Tiny.
+	- Clean up pre-reqs, removing File::Slurp and Text::CSV::Slurp.
+	- Fix various typos which only affect the author.
+
 2.00  Mon Jul 29 14:42:00 2013
 	- Massive update. Switch from Marpa's NAIF (Original interface) to its SLIF (Scanless interface).
 		This means I'm using Marpa for lexing and parsing. So, all references to the old lexer are gone.
 	- Put author tests in xt/author.
 	- Switch from Hash::FieldHash to Moo.
 	- Switch from Path::Class to Path::Tiny.
-	- Replace IO::File and Text::CSV_XS with Text::CSV::Slurp.
 	- Remove from pre-reqs: Data::Section::Simple, List::Compare, Module::Load, Set::FA::Element, Text::CSV_XS.
 	- Delete Graph::Easy::Marpa::Lexer and Graph::Easy::Marpa::Lexer::DFA.
 	- Split the method get_files() out of Graph::Easy::Marpa::Utils into Graph::Easy::Marpa::Filer.

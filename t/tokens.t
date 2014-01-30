@@ -1,5 +1,3 @@
-use File::Slurp;
-
 use Graph::Easy::Marpa::Filer;
 
 use Sort::Naturally;

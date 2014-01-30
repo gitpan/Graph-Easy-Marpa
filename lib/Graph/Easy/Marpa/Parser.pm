@@ -120,7 +120,7 @@ has token_file =>
 	required => 0,
 );
 
-our $VERSION = '2.00';
+our $VERSION = '2.01';
 
 # ------------------------------------------------
 
@@ -1114,7 +1114,9 @@ This is the only method the caller needs to call. All parameters are supplied to
 
 Returns 0 for success and 1 for failure.
 
-=item o token_file => $csv_file_name
+=head2 token_file([$csv_file_name])
+
+The [] indicate an optional parameter.
 
 Get or set the name of the file to write containing the tokens (items) output from the parser.
 
@@ -1334,8 +1336,6 @@ A sample:
 	-> {label: Start} -> {color: red} [node.1] {color: green] -> [node.2]
 	[node.1] [node.2] [node.3]
 
-=back
-
 For more samples, see the data/*.ge files shipped with the distro.
 
 =item o Line-breaks
@@ -1391,6 +1391,8 @@ Samples:
 	Here, the subgraph name is 'cluster.1':
 	(cluster.1: [node.1] -> [node.2])
 	group {bgcolor: red} (cluster.1: [node.1] -> [node.2]) {class: group}
+
+=back
 
 =head2 Does this module handle utf8?
 
