@@ -118,7 +118,7 @@ has token_file =>
 	required => 0,
 );
 
-our $VERSION = '2.01';
+our $VERSION = '2.04';
 
 # --------------------------------------------------
 
@@ -818,6 +818,10 @@ Version numbers < 1.00 represent development versions. From 1.00 up, they are pr
 Many thanks are due to the people who worked on L<Graph::Easy>.
 
 Jeffrey Kegler wrote L<Marpa>, and has been helping me via private emails.
+
+=head1 Repository
+
+L<https://github.com/ronsavage/Graph-Easy-Marpa>
 
 =head1 Support
 

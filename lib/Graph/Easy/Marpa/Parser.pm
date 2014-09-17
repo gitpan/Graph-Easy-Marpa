@@ -120,7 +120,7 @@ has token_file =>
 	required => 0,
 );
 
-our $VERSION = '2.01';
+our $VERSION = '2.04';
 
 # ------------------------------------------------
 
@@ -303,10 +303,11 @@ sub BUILD
 	(
 		Marpa::R2::Scanless::G -> new
 		({
-action_object			=> 'Graph::Easy::Marpa::Actions',
 source					=> \(<<'END_OF_SOURCE'),
 
 :default				::= action => [values]
+
+lexeme default			= latm => 1
 
 # Overall stuff.
 
@@ -413,7 +414,8 @@ END_OF_SOURCE
 	(
 		Marpa::R2::Scanless::R -> new
 		({
-			grammar => $self -> grammar
+			grammar           => $self -> grammar,
+			semantics_package => 'Graph::Easy::Marpa::Actions',
 		})
 	);
 

@@ -37,6 +37,13 @@ $class -> new
 	{
 		'Module::Build' => 0.3800,
 	},
+	meta_merge =>
+	{
+		resources =>
+		{
+			repository => 'https://github.com/dwimperl/GraphViz2-Marpa',
+		},
+	},
 	requires =>
 	{
 		'Capture::Tiny'    => 0.11,
@@ -52,7 +59,7 @@ $class -> new
 		'GraphViz2'        => 1.09,
 		'HTML::Entities::Interpolate' => 1.04,
 		'Log::Handler'     => 0.71,
-		'Marpa::R2'        => 2.064000,
+		'Marpa::R2'        => 2.082000,
 		'Moo'              => 1.002000,
 		'open'             => 0,
 		'Path::Tiny'       => 0.025,
@@ -66,5 +73,10 @@ $class -> new
 		'Try::Tiny'        => 0.09,
 		'utf8'             => 0,
 		'warnings'         => 0,
+	},
+	resources =>
+	{
+		bugtracker => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Graph-Easy-Marpa',
+		license    => 'http://opensource.org/licenses/Artistic-2.0',
 	},
 ) -> create_build_script();

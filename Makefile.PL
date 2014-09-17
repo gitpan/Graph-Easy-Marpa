@@ -6,7 +6,7 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
-WriteMakefile
+my(%params) =
 (
 	($] ge '5.005') ?
 	(
@@ -41,7 +41,7 @@ WriteMakefile
 		'GraphViz2'        => 1.09,
 		'HTML::Entities::Interpolate' => 1.04,
 		'Log::Handler'     => 0.71,
-		'Marpa::R2'        => 2.064000,
+		'Marpa::R2'        => 2.082000,
 		'Moo'              => 1.002000,
 		'open'             => 0,
 		'Path::Tiny'       => 0.052,
@@ -60,3 +60,32 @@ WriteMakefile
 	},
 	VERSION_FROM => 'lib/Graph/Easy/Marpa.pm',
 );
+
+if ( ($ExtUtils::MakeMaker::VERSION =~ /^\d\.\d\d$/) && ($ExtUtils::MakeMaker::VERSION > 6.30) )
+{
+	$params{LICENSE} = 'artistic_2';
+}
+
+if ($ExtUtils::MakeMaker::VERSION ge '6.46')
+{
+	$params{META_MERGE} =
+	{
+		'meta-spec' =>
+		{
+			version => 2,
+		},
+		resources   =>
+		{
+			bugtracker => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Graph-Easy-Marpa',
+			license    => 'http://opensource.org/licenses/Artistic-2.0',
+			repository =>
+			{
+				type => 'git',
+				url  => 'https://github.com/ronsavage/Graph-Easy-Marpa.git',
+				web  => 'https://github.com/ronsavage/Graph-Easy-Marpa',
+			},
+		},
+	};
+}
+
+WriteMakefile(%params);

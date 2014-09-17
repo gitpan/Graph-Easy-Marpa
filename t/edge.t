@@ -26,7 +26,7 @@ for my $edge (@edge)
 	$count++;
 
 	@token =
-	(	
+	(
 	 ['left_bracket',  '['],
 	 ['node_name_id',  "N.$count"],
 	 ['right_bracket', ']'],
@@ -50,5 +50,7 @@ for my $edge (@edge)
 
 	ok(defined($result) && defined($expect) && ($result == $expect), "[N.$count]$edge");
 }
+
+print "# Internal test count: $count. \n";
 
 done_testing($count);

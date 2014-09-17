@@ -13,7 +13,7 @@ use Set::Array;
 # This class needs a sub new() due to the way
 # Marpa::R2 calls the constructor.
 
-our $VERSION = '2.01';
+our $VERSION = '2.04';
 
 # --------------------------------------------------
 

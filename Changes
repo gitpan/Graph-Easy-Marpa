@@ -1,5 +1,17 @@
 Revision history for Perl extension Graph::Easy::Marpa.
 
+2.04  Wed Sep 17 17:17:00 2014
+	- Update Build.PL and Makefile.PL re putting this package on github.
+	- Replace the deprecated 'action_object' parameter to Marpa::R2::Scanless::G with the 'semantics_package'
+		parameter to Marpa::R2::Scanless::R.
+
+2.03  Tue Jul  8 08:59:00 2014
+	- Patch test files to report test counts.
+
+2.02  Sat Feb 22 17:44:00 2014
+	- Add 'lexeme default = latm => 1' to the grammar.
+	- Make V 2.082 the minimum version for Marpa::R2.
+
 2.01  Thu Jan 12:31:00 2014
 	- Patch CPAN::Meta::Validator to not delete META.* (Module::Build does the dirty work).
 	- Add use strict/warnings to Build.PL, Makefile.PL.

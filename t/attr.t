@@ -55,7 +55,7 @@ for my $attr (@attr)
 
 	@name  = ();
 	@token =
-	(	
+	(
 	 ['left_bracket',  '['],
 	 ['node_name_id',  "N.$count"],
 	 ['right_bracket', ']'],
@@ -94,5 +94,7 @@ for my $attr (@attr)
 
 	ok(defined($result) && defined($expect) && ($result == $expect), "[N.$count]{" . join('', @name) . '}');
 }
+
+print "# Internal test count: $count. \n";
 
 done_testing($count);

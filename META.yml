@@ -3,66 +3,67 @@ abstract: 'A Marpa-based parser for Graph::Easy-style Graphviz files'
 author:
   - 'Ron Savage <ron@savage.net.au>'
 build_requires:
-  Test::More: 0.94
+  Test::More: '0.94'
 configure_requires:
-  Module::Build: 0.38
+  Module::Build: '0.38'
 dynamic_config: 1
-generated_by: 'Module::Build version 0.4204, CPAN::Meta::Converter version 2.120921'
-license: unknown
+generated_by: 'Module::Build version 0.421, CPAN::Meta::Converter version 2.142060'
+license: artistic_2
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
-  version: 1.4
+  version: '1.4'
 name: Graph-Easy-Marpa
 provides:
   Graph::Easy::Marpa:
     file: lib/Graph/Easy/Marpa.pm
-    version: 2.01
+    version: '2.04'
   Graph::Easy::Marpa::Actions:
     file: lib/Graph/Easy/Marpa/Actions.pm
-    version: 2.01
+    version: '2.04'
   Graph::Easy::Marpa::Config:
     file: lib/Graph/Easy/Marpa/Config.pm
-    version: 2.01
+    version: '2.04'
   Graph::Easy::Marpa::Filer:
     file: lib/Graph/Easy/Marpa/Filer.pm
-    version: 2.01
+    version: '2.04'
   Graph::Easy::Marpa::Parser:
     file: lib/Graph/Easy/Marpa/Parser.pm
-    version: 2.01
+    version: '2.04'
   Graph::Easy::Marpa::Renderer::GraphViz2:
     file: lib/Graph/Easy/Marpa/Renderer/GraphViz2.pm
-    version: 2.01
+    version: '2.04'
   Graph::Easy::Marpa::Utils:
     file: lib/Graph/Easy/Marpa/Utils.pm
-    version: 2.01
+    version: '2.04'
 requires:
-  Capture::Tiny: 0.11
-  Config: 0
-  Config::Tiny: 2.14
-  Date::Simple: 3.03
-  File::Basename: 2.78
-  File::Copy: 2.21
-  File::HomeDir: 0.99
-  File::Spec: 3.33
-  Getopt::Long: 2.38
-  GraphViz2: 1.09
-  HTML::Entities::Interpolate: 1.04
-  Log::Handler: 0.71
-  Marpa::R2: 2.064
-  Moo: 1.002
-  Path::Tiny: 0.025
-  Perl6::Slurp: 0.03
-  Pod::Usage: 1.36
-  Set::Array: 0.23
-  Sort::Naturally: 1.02
-  Text::CSV: 1.32
-  Text::Xslate: 1.4001
-  Try::Tiny: 0.09
-  charnames: 0
-  open: 0
-  strict: 0
-  utf8: 0
-  warnings: 0
+  Capture::Tiny: '0.11'
+  Config: '0'
+  Config::Tiny: '2.14'
+  Date::Simple: '3.03'
+  File::Basename: '2.78'
+  File::Copy: '2.21'
+  File::HomeDir: '0.99'
+  File::Spec: '3.33'
+  Getopt::Long: '2.38'
+  GraphViz2: '1.09'
+  HTML::Entities::Interpolate: '1.04'
+  Log::Handler: '0.71'
+  Marpa::R2: '2.082'
+  Moo: '1.002'
+  Path::Tiny: '0.025'
+  Perl6::Slurp: '0.03'
+  Pod::Usage: '1.36'
+  Set::Array: '0.23'
+  Sort::Naturally: '1.02'
+  Text::CSV: '1.32'
+  Text::Xslate: '1.4001'
+  Try::Tiny: '0.09'
+  charnames: '0'
+  open: '0'
+  strict: '0'
+  utf8: '0'
+  warnings: '0'
 resources:
   license: http://opensource.org/licenses/artistic-license-2.0.php
-version: 2.01
+  repository: https://github.com/dwimperl/GraphViz2-Marpa
+version: '2.04'

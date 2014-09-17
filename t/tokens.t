@@ -43,4 +43,6 @@ for my $file (sort keys %file)
 	ok(defined($result) && defined($expect) && ($result == $expect), "Processed $file");
 }
 
+print "# Internal test count: $count. \n";
+
 done_testing($count);

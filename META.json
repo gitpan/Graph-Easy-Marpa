@@ -4,9 +4,9 @@
       "Ron Savage <ron@savage.net.au>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4204",
+   "generated_by" : "Module::Build version 0.421",
    "license" : [
-      "artistic_2_0"
+      "artistic_2"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -38,7 +38,7 @@
             "GraphViz2" : "1.09",
             "HTML::Entities::Interpolate" : "1.04",
             "Log::Handler" : "0.71",
-            "Marpa::R2" : "2.064",
+            "Marpa::R2" : "2.082",
             "Moo" : "1.002",
             "Path::Tiny" : "0.025",
             "Perl6::Slurp" : "0.03",
@@ -59,38 +59,41 @@
    "provides" : {
       "Graph::Easy::Marpa" : {
          "file" : "lib/Graph/Easy/Marpa.pm",
-         "version" : "2.01"
+         "version" : "2.04"
       },
       "Graph::Easy::Marpa::Actions" : {
          "file" : "lib/Graph/Easy/Marpa/Actions.pm",
-         "version" : "2.01"
+         "version" : "2.04"
       },
       "Graph::Easy::Marpa::Config" : {
          "file" : "lib/Graph/Easy/Marpa/Config.pm",
-         "version" : "2.01"
+         "version" : "2.04"
       },
       "Graph::Easy::Marpa::Filer" : {
          "file" : "lib/Graph/Easy/Marpa/Filer.pm",
-         "version" : "2.01"
+         "version" : "2.04"
       },
       "Graph::Easy::Marpa::Parser" : {
          "file" : "lib/Graph/Easy/Marpa/Parser.pm",
-         "version" : "2.01"
+         "version" : "2.04"
       },
       "Graph::Easy::Marpa::Renderer::GraphViz2" : {
          "file" : "lib/Graph/Easy/Marpa/Renderer/GraphViz2.pm",
-         "version" : "2.01"
+         "version" : "2.04"
       },
       "Graph::Easy::Marpa::Utils" : {
          "file" : "lib/Graph/Easy/Marpa/Utils.pm",
-         "version" : "2.01"
+         "version" : "2.04"
       }
    },
    "release_status" : "stable",
    "resources" : {
       "license" : [
          "http://opensource.org/licenses/artistic-license-2.0.php"
-      ]
+      ],
+      "repository" : {
+         "url" : "https://github.com/dwimperl/GraphViz2-Marpa"
+      }
    },
-   "version" : "2.01"
+   "version" : "2.04"
 }
