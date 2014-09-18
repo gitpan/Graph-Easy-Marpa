@@ -41,7 +41,7 @@ $class -> new
 	{
 		resources =>
 		{
-			repository => 'https://github.com/dwimperl/GraphViz2-Marpa',
+			repository => 'https://github.com/ronsavage/GraphViz2-Marpa',
 		},
 	},
 	requires =>

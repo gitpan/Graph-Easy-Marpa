@@ -1,5 +1,8 @@
 Revision history for Perl extension Graph::Easy::Marpa.
 
+2.05  Fri Sep 19 09:15:00 2014
+	- Fix typo in repo in Build.PL.
+
 2.04  Wed Sep 17 17:17:00 2014
 	- Update Build.PL and Makefile.PL re putting this package on github.
 	- Replace the deprecated 'action_object' parameter to Marpa::R2::Scanless::G with the 'semantics_package'
